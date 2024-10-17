@@ -1,5 +1,13 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
+from .definition import (
+    DefinitionResource,
+    AsyncDefinitionResource,
+    DefinitionResourceWithRawResponse,
+    AsyncDefinitionResourceWithRawResponse,
+    DefinitionResourceWithStreamingResponse,
+    AsyncDefinitionResourceWithStreamingResponse,
+)
 from .references import (
     ReferencesResource,
     AsyncReferencesResource,
@@ -7,14 +15,6 @@ from .references import (
     AsyncReferencesResourceWithRawResponse,
     ReferencesResourceWithStreamingResponse,
     AsyncReferencesResourceWithStreamingResponse,
-)
-from .definitions import (
-    DefinitionsResource,
-    AsyncDefinitionsResource,
-    DefinitionsResourceWithRawResponse,
-    AsyncDefinitionsResourceWithRawResponse,
-    DefinitionsResourceWithStreamingResponse,
-    AsyncDefinitionsResourceWithStreamingResponse,
 )
 from .file_symbols import (
     FileSymbolsResource,
@@ -42,12 +42,12 @@ from .workspace_symbols import (
 )
 
 __all__ = [
-    "DefinitionsResource",
-    "AsyncDefinitionsResource",
-    "DefinitionsResourceWithRawResponse",
-    "AsyncDefinitionsResourceWithRawResponse",
-    "DefinitionsResourceWithStreamingResponse",
-    "AsyncDefinitionsResourceWithStreamingResponse",
+    "DefinitionResource",
+    "AsyncDefinitionResource",
+    "DefinitionResourceWithRawResponse",
+    "AsyncDefinitionResourceWithRawResponse",
+    "DefinitionResourceWithStreamingResponse",
+    "AsyncDefinitionResourceWithStreamingResponse",
     "FileSymbolsResource",
     "AsyncFileSymbolsResource",
     "FileSymbolsResourceWithRawResponse",

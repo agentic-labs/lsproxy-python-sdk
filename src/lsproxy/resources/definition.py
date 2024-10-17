@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import httpx
 
-from ..types import reference_list_params
+from ..types import definition_get_params
 from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from .._utils import (
     maybe_transform,
@@ -19,37 +19,36 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.reference_response import ReferenceResponse
+from ..types.definition_response import DefinitionResponse
 from ..types.shared_params.file_position import FilePosition
 
-__all__ = ["ReferencesResource", "AsyncReferencesResource"]
+__all__ = ["DefinitionResource", "AsyncDefinitionResource"]
 
 
-class ReferencesResource(SyncAPIResource):
+class DefinitionResource(SyncAPIResource):
     @cached_property
-    def with_raw_response(self) -> ReferencesResourceWithRawResponse:
+    def with_raw_response(self) -> DefinitionResourceWithRawResponse:
         """
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
         For more information, see https://www.github.com/stainless-sdks/lsproxy-python#accessing-raw-response-data-eg-headers
         """
-        return ReferencesResourceWithRawResponse(self)
+        return DefinitionResourceWithRawResponse(self)
 
     @cached_property
-    def with_streaming_response(self) -> ReferencesResourceWithStreamingResponse:
+    def with_streaming_response(self) -> DefinitionResourceWithStreamingResponse:
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
         For more information, see https://www.github.com/stainless-sdks/lsproxy-python#with_streaming_response
         """
-        return ReferencesResourceWithStreamingResponse(self)
+        return DefinitionResourceWithStreamingResponse(self)
 
-    def list(
+    def get(
         self,
         *,
-        symbol_identifier_position: FilePosition,
-        include_declaration: bool | NotGiven = NOT_GIVEN,
+        position: FilePosition,
         include_raw_response: bool | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -57,32 +56,30 @@ class ReferencesResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ReferenceResponse:
+    ) -> DefinitionResponse:
         """
-        Find all references to a symbol
+        Get the definition of a symbol at a specific position in a file
 
-        Returns a list of locations where the symbol at the given position is
-        referenced.
+        Returns the location of the definition for the symbol at the given position.
 
         Args:
-          symbol_identifier_position: The position within the file to get the references for. This should point to the
-              identifier of the definition.
+          position: The position within the file to get the definition for. This should point to the
+              identifier of the symbol you want to get the definition for.
 
-              e.g. for getting the references of `User` on line 0 of `src/main.py` with the
+              e.g. for getting the definition of `User` on line 10 of `src/main.py` with the
               code:
 
               ```
               0: class User:
-              _________^^^^
               1:     def __init__(self, name, age):
               2:         self.name = name
               3:         self.age = age
               4:
               5: user = User("John", 30)
+              __________^^^
               ```
 
-          include_declaration: Whether to include the declaration (definition) of the symbol in the response.
-              Defaults to false.
+              The (line, char) should be anywhere in (5, 7)-(5, 11).
 
           include_raw_response: Whether to include the raw response from the langserver in the response.
               Defaults to false.
@@ -96,7 +93,7 @@ class ReferencesResource(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._get(
-            "/references",
+            "/definition",
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -104,42 +101,40 @@ class ReferencesResource(SyncAPIResource):
                 timeout=timeout,
                 query=maybe_transform(
                     {
-                        "symbol_identifier_position": symbol_identifier_position,
-                        "include_declaration": include_declaration,
+                        "position": position,
                         "include_raw_response": include_raw_response,
                     },
-                    reference_list_params.ReferenceListParams,
+                    definition_get_params.DefinitionGetParams,
                 ),
             ),
-            cast_to=ReferenceResponse,
+            cast_to=DefinitionResponse,
         )
 
 
-class AsyncReferencesResource(AsyncAPIResource):
+class AsyncDefinitionResource(AsyncAPIResource):
     @cached_property
-    def with_raw_response(self) -> AsyncReferencesResourceWithRawResponse:
+    def with_raw_response(self) -> AsyncDefinitionResourceWithRawResponse:
         """
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
         For more information, see https://www.github.com/stainless-sdks/lsproxy-python#accessing-raw-response-data-eg-headers
         """
-        return AsyncReferencesResourceWithRawResponse(self)
+        return AsyncDefinitionResourceWithRawResponse(self)
 
     @cached_property
-    def with_streaming_response(self) -> AsyncReferencesResourceWithStreamingResponse:
+    def with_streaming_response(self) -> AsyncDefinitionResourceWithStreamingResponse:
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
         For more information, see https://www.github.com/stainless-sdks/lsproxy-python#with_streaming_response
         """
-        return AsyncReferencesResourceWithStreamingResponse(self)
+        return AsyncDefinitionResourceWithStreamingResponse(self)
 
-    async def list(
+    async def get(
         self,
         *,
-        symbol_identifier_position: FilePosition,
-        include_declaration: bool | NotGiven = NOT_GIVEN,
+        position: FilePosition,
         include_raw_response: bool | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -147,32 +142,30 @@ class AsyncReferencesResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ReferenceResponse:
+    ) -> DefinitionResponse:
         """
-        Find all references to a symbol
+        Get the definition of a symbol at a specific position in a file
 
-        Returns a list of locations where the symbol at the given position is
-        referenced.
+        Returns the location of the definition for the symbol at the given position.
 
         Args:
-          symbol_identifier_position: The position within the file to get the references for. This should point to the
-              identifier of the definition.
+          position: The position within the file to get the definition for. This should point to the
+              identifier of the symbol you want to get the definition for.
 
-              e.g. for getting the references of `User` on line 0 of `src/main.py` with the
+              e.g. for getting the definition of `User` on line 10 of `src/main.py` with the
               code:
 
               ```
               0: class User:
-              _________^^^^
               1:     def __init__(self, name, age):
               2:         self.name = name
               3:         self.age = age
               4:
               5: user = User("John", 30)
+              __________^^^
               ```
 
-          include_declaration: Whether to include the declaration (definition) of the symbol in the response.
-              Defaults to false.
+              The (line, char) should be anywhere in (5, 7)-(5, 11).
 
           include_raw_response: Whether to include the raw response from the langserver in the response.
               Defaults to false.
@@ -186,7 +179,7 @@ class AsyncReferencesResource(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return await self._get(
-            "/references",
+            "/definition",
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -194,48 +187,47 @@ class AsyncReferencesResource(AsyncAPIResource):
                 timeout=timeout,
                 query=await async_maybe_transform(
                     {
-                        "symbol_identifier_position": symbol_identifier_position,
-                        "include_declaration": include_declaration,
+                        "position": position,
                         "include_raw_response": include_raw_response,
                     },
-                    reference_list_params.ReferenceListParams,
+                    definition_get_params.DefinitionGetParams,
                 ),
             ),
-            cast_to=ReferenceResponse,
+            cast_to=DefinitionResponse,
         )
 
 
-class ReferencesResourceWithRawResponse:
-    def __init__(self, references: ReferencesResource) -> None:
-        self._references = references
+class DefinitionResourceWithRawResponse:
+    def __init__(self, definition: DefinitionResource) -> None:
+        self._definition = definition
 
-        self.list = to_raw_response_wrapper(
-            references.list,
+        self.get = to_raw_response_wrapper(
+            definition.get,
         )
 
 
-class AsyncReferencesResourceWithRawResponse:
-    def __init__(self, references: AsyncReferencesResource) -> None:
-        self._references = references
+class AsyncDefinitionResourceWithRawResponse:
+    def __init__(self, definition: AsyncDefinitionResource) -> None:
+        self._definition = definition
 
-        self.list = async_to_raw_response_wrapper(
-            references.list,
+        self.get = async_to_raw_response_wrapper(
+            definition.get,
         )
 
 
-class ReferencesResourceWithStreamingResponse:
-    def __init__(self, references: ReferencesResource) -> None:
-        self._references = references
+class DefinitionResourceWithStreamingResponse:
+    def __init__(self, definition: DefinitionResource) -> None:
+        self._definition = definition
 
-        self.list = to_streamed_response_wrapper(
-            references.list,
+        self.get = to_streamed_response_wrapper(
+            definition.get,
         )
 
 
-class AsyncReferencesResourceWithStreamingResponse:
-    def __init__(self, references: AsyncReferencesResource) -> None:
-        self._references = references
+class AsyncDefinitionResourceWithStreamingResponse:
+    def __init__(self, definition: AsyncDefinitionResource) -> None:
+        self._definition = definition
 
-        self.list = async_to_streamed_response_wrapper(
-            references.list,
+        self.get = async_to_streamed_response_wrapper(
+            definition.get,
         )

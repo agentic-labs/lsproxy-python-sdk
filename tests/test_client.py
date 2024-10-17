@@ -701,7 +701,7 @@ class TestLsproxy:
 
         respx_mock.get("/definition").mock(side_effect=retry_handler)
 
-        response = client.definitions.with_raw_response.retrieve(
+        response = client.definition.with_raw_response.get(
             position={
                 "character": 5,
                 "line": 10,
@@ -731,7 +731,7 @@ class TestLsproxy:
 
         respx_mock.get("/definition").mock(side_effect=retry_handler)
 
-        response = client.definitions.with_raw_response.retrieve(
+        response = client.definition.with_raw_response.get(
             position={
                 "character": 5,
                 "line": 10,
@@ -761,7 +761,7 @@ class TestLsproxy:
 
         respx_mock.get("/definition").mock(side_effect=retry_handler)
 
-        response = client.definitions.with_raw_response.retrieve(
+        response = client.definition.with_raw_response.get(
             position={
                 "character": 5,
                 "line": 10,
@@ -1436,7 +1436,7 @@ class TestAsyncLsproxy:
 
         respx_mock.get("/definition").mock(side_effect=retry_handler)
 
-        response = await client.definitions.with_raw_response.retrieve(
+        response = await client.definition.with_raw_response.get(
             position={
                 "character": 5,
                 "line": 10,
@@ -1467,7 +1467,7 @@ class TestAsyncLsproxy:
 
         respx_mock.get("/definition").mock(side_effect=retry_handler)
 
-        response = await client.definitions.with_raw_response.retrieve(
+        response = await client.definition.with_raw_response.get(
             position={
                 "character": 5,
                 "line": 10,
@@ -1498,7 +1498,7 @@ class TestAsyncLsproxy:
 
         respx_mock.get("/definition").mock(side_effect=retry_handler)
 
-        response = await client.definitions.with_raw_response.retrieve(
+        response = await client.definition.with_raw_response.get(
             position={
                 "character": 5,
                 "line": 10,
