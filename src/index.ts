@@ -99,7 +99,7 @@ export class Lsproxy extends Core.APIClient {
     this._options = options;
   }
 
-  definitions: API.Definitions = new API.Definitions(this);
+  definition: API.Definition = new API.Definition(this);
   fileSymbols: API.FileSymbols = new API.FileSymbols(this);
   references: API.References = new API.References(this);
   workspaceFiles: API.WorkspaceFiles = new API.WorkspaceFiles(this);
@@ -163,24 +163,26 @@ export import fileFromPath = Uploads.fileFromPath;
 export namespace Lsproxy {
   export import RequestOptions = Core.RequestOptions;
 
-  export import Definitions = API.Definitions;
   export import Definition = API.Definition;
-  export import DefinitionRetrieveParams = API.DefinitionRetrieveParams;
+  export import DefinitionResponse = API.DefinitionResponse;
+  export import DefinitionGetParams = API.DefinitionGetParams;
 
   export import FileSymbols = API.FileSymbols;
   export import FileSymbolListParams = API.FileSymbolListParams;
 
   export import References = API.References;
-  export import Reference = API.Reference;
+  export import ReferenceResponse = API.ReferenceResponse;
   export import ReferenceListParams = API.ReferenceListParams;
 
   export import WorkspaceFiles = API.WorkspaceFiles;
   export import WorkspaceFileListResponse = API.WorkspaceFileListResponse;
 
   export import WorkspaceSymbols = API.WorkspaceSymbols;
+  export import SymbolResponse = API.SymbolResponse;
   export import WorkspaceSymbolListParams = API.WorkspaceSymbolListParams;
 
-  export import Symbol = API.Symbol;
+  export import FilePosition = API.FilePosition;
+  export import SymbolResponse = API.SymbolResponse;
 }
 
 export default Lsproxy;

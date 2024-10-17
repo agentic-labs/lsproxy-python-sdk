@@ -12,8 +12,42 @@ export class WorkspaceSymbols extends APIResource {
    * Returns a list of symbols matching the given query string from all files in the
    * workspace.
    */
-  list(query: WorkspaceSymbolListParams, options?: Core.RequestOptions): Core.APIPromise<Shared.Symbol> {
+  list(query: WorkspaceSymbolListParams, options?: Core.RequestOptions): Core.APIPromise<SymbolResponse> {
     return this._client.get('/workspace-symbols', { query, ...options });
+  }
+}
+
+export interface SymbolResponse {
+  symbols: Array<SymbolResponse.Symbol>;
+
+  /**
+   * The raw response from the langserver.
+   *
+   * https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_symbol
+   * https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#document_symbol
+   */
+  raw_response?: unknown | null;
+}
+
+export namespace SymbolResponse {
+  /**
+   * Represents a symbol within the codebase.
+   */
+  export interface Symbol {
+    /**
+     * Specific position within a file.
+     */
+    identifier_start_position: Shared.FilePosition;
+
+    /**
+     * The kind of the symbol (e.g., function, class).
+     */
+    kind: string;
+
+    /**
+     * The name of the symbol.
+     */
+    name: string;
   }
 }
 
@@ -31,5 +65,6 @@ export interface WorkspaceSymbolListParams {
 }
 
 export namespace WorkspaceSymbols {
+  export import SymbolResponse = WorkspaceSymbolsAPI.SymbolResponse;
   export import WorkspaceSymbolListParams = WorkspaceSymbolsAPI.WorkspaceSymbolListParams;
 }

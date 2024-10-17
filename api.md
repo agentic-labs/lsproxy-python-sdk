@@ -2,33 +2,34 @@
 
 Types:
 
-- <code><a href="./src/resources/shared.ts">Symbol</a></code>
+- <code><a href="./src/resources/shared.ts">FilePosition</a></code>
+- <code><a href="./src/resources/shared.ts">SymbolResponse</a></code>
 
-# Definitions
+# Definition
 
 Types:
 
-- <code><a href="./src/resources/definitions.ts">Definition</a></code>
+- <code><a href="./src/resources/definition.ts">DefinitionResponse</a></code>
 
 Methods:
 
-- <code title="get /definition">client.definitions.<a href="./src/resources/definitions.ts">retrieve</a>({ ...params }) -> Definition</code>
+- <code title="get /definition">client.definition.<a href="./src/resources/definition.ts">get</a>({ ...params }) -> DefinitionResponse</code>
 
 # FileSymbols
 
 Methods:
 
-- <code title="get /file-symbols">client.fileSymbols.<a href="./src/resources/file-symbols.ts">list</a>({ ...params }) -> Symbol</code>
+- <code title="get /file-symbols">client.fileSymbols.<a href="./src/resources/file-symbols.ts">list</a>({ ...params }) -> SymbolResponse</code>
 
 # References
 
 Types:
 
-- <code><a href="./src/resources/references.ts">Reference</a></code>
+- <code><a href="./src/resources/references.ts">ReferenceResponse</a></code>
 
 Methods:
 
-- <code title="get /references">client.references.<a href="./src/resources/references.ts">list</a>({ ...params }) -> Reference</code>
+- <code title="get /references">client.references.<a href="./src/resources/references.ts">list</a>({ ...params }) -> ReferenceResponse</code>
 
 # WorkspaceFiles
 
@@ -42,6 +43,10 @@ Methods:
 
 # WorkspaceSymbols
 
+Types:
+
+- <code><a href="./src/resources/workspace-symbols.ts">SymbolResponse</a></code>
+
 Methods:
 
-- <code title="get /workspace-symbols">client.workspaceSymbols.<a href="./src/resources/workspace-symbols.ts">list</a>({ ...params }) -> Symbol</code>
+- <code title="get /workspace-symbols">client.workspaceSymbols.<a href="./src/resources/workspace-symbols.ts">list</a>({ ...params }) -> SymbolResponse</code>
