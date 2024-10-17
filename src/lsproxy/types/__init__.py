@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from .shared import FilePosition as FilePosition, SymbolResponse as SymbolResponse
-from .symbol_response import SymbolResponse as SymbolResponse
 from .reference_response import ReferenceResponse as ReferenceResponse
 from .definition_response import DefinitionResponse as DefinitionResponse
 from .definition_get_params import DefinitionGetParams as DefinitionGetParams

@@ -9,7 +9,7 @@ import pytest
 
 from lsproxy import Lsproxy, AsyncLsproxy
 from tests.utils import assert_matches_type
-from lsproxy.types import SymbolResponse
+from lsproxy.types.shared import SymbolResponse
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 

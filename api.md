@@ -20,7 +20,7 @@ Methods:
 
 Methods:
 
-- <code title="get /file-symbols">client.file_symbols.<a href="./src/lsproxy/resources/file_symbols.py">list</a>(\*\*<a href="src/lsproxy/types/file_symbol_list_params.py">params</a>) -> <a href="./src/lsproxy/types/symbol_response.py">SymbolResponse</a></code>
+- <code title="get /file-symbols">client.file_symbols.<a href="./src/lsproxy/resources/file_symbols.py">list</a>(\*\*<a href="src/lsproxy/types/file_symbol_list_params.py">params</a>) -> <a href="./src/lsproxy/types/shared/symbol_response.py">SymbolResponse</a></code>
 
 # References
 
@@ -48,12 +48,6 @@ Methods:
 
 # WorkspaceSymbols
 
-Types:
-
-```python
-from lsproxy.types import SymbolResponse
-```
-
 Methods:
 
-- <code title="get /workspace-symbols">client.workspace_symbols.<a href="./src/lsproxy/resources/workspace_symbols.py">list</a>(\*\*<a href="src/lsproxy/types/workspace_symbol_list_params.py">params</a>) -> <a href="./src/lsproxy/types/symbol_response.py">SymbolResponse</a></code>
+- <code title="get /workspace-symbols">client.workspace_symbols.<a href="./src/lsproxy/resources/workspace_symbols.py">list</a>(\*\*<a href="src/lsproxy/types/workspace_symbol_list_params.py">params</a>) -> <a href="./src/lsproxy/types/shared/symbol_response.py">SymbolResponse</a></code>
