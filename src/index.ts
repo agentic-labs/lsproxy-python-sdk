@@ -3,7 +3,6 @@
 import * as Errors from './error';
 import * as Uploads from './uploads';
 import { type Agent } from './_shims/index';
-import * as qs from './internal/qs';
 import * as Core from './core';
 import * as API from './resources/index';
 
@@ -99,11 +98,8 @@ export class Lsproxy extends Core.APIClient {
     this._options = options;
   }
 
-  definition: API.Definition = new API.Definition(this);
-  fileSymbols: API.FileSymbols = new API.FileSymbols(this);
-  references: API.References = new API.References(this);
-  workspaceFiles: API.WorkspaceFiles = new API.WorkspaceFiles(this);
-  workspaceSymbols: API.WorkspaceSymbols = new API.WorkspaceSymbols(this);
+  symbols: API.Symbols = new API.Symbols(this);
+  workspace: API.Workspace = new API.Workspace(this);
 
   protected override defaultQuery(): Core.DefaultQuery | undefined {
     return this._options.defaultQuery;
@@ -114,10 +110,6 @@ export class Lsproxy extends Core.APIClient {
       ...super.defaultHeaders(opts),
       ...this._options.defaultHeaders,
     };
-  }
-
-  protected override stringifyQuery(query: Record<string, unknown>): string {
-    return qs.stringify(query, { arrayFormat: 'comma' });
   }
 
   static Lsproxy = this;
@@ -163,24 +155,20 @@ export import fileFromPath = Uploads.fileFromPath;
 export namespace Lsproxy {
   export import RequestOptions = Core.RequestOptions;
 
-  export import Definition = API.Definition;
+  export import Symbols = API.Symbols;
   export import DefinitionResponse = API.DefinitionResponse;
-  export import DefinitionGetParams = API.DefinitionGetParams;
+  export import ReferencesResponse = API.ReferencesResponse;
+  export import SymbolFindReferencesResponse = API.SymbolFindReferencesResponse;
+  export import SymbolDefinitionsInFileParams = API.SymbolDefinitionsInFileParams;
+  export import SymbolFindDefinitionParams = API.SymbolFindDefinitionParams;
+  export import SymbolFindReferencesParams = API.SymbolFindReferencesParams;
 
-  export import FileSymbols = API.FileSymbols;
-  export import FileSymbolListParams = API.FileSymbolListParams;
+  export import Workspace = API.Workspace;
+  export import WorkspaceListFilesResponse = API.WorkspaceListFilesResponse;
+  export import WorkspaceSearchSymbolsParams = API.WorkspaceSearchSymbolsParams;
 
-  export import References = API.References;
-  export import ReferenceResponse = API.ReferenceResponse;
-  export import ReferenceListParams = API.ReferenceListParams;
-
-  export import WorkspaceFiles = API.WorkspaceFiles;
-  export import WorkspaceFileListResponse = API.WorkspaceFileListResponse;
-
-  export import WorkspaceSymbols = API.WorkspaceSymbols;
-  export import WorkspaceSymbolListParams = API.WorkspaceSymbolListParams;
-
-  export import FilePosition = API.FilePosition;
+  export import Position = API.Position;
+  export import Symbol = API.Symbol;
   export import SymbolResponse = API.SymbolResponse;
 }
 

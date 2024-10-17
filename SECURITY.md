@@ -20,7 +20,7 @@ or products provided by Lsproxy please follow the respective company's security 
 
 ### Lsproxy Terms and Policies
 
-Please contact founders@agenticlabs.com for any questions or concerns regarding security of our services.
+Please contact dev-feedback@lsproxy.com for any questions or concerns regarding security of our services.
 
 ---
 
