@@ -43,10 +43,6 @@ Methods:
 
 # WorkspaceSymbols
 
-Types:
-
-- <code><a href="./src/resources/workspace-symbols.ts">SymbolResponse</a></code>
-
 Methods:
 
 - <code title="get /workspace-symbols">client.workspaceSymbols.<a href="./src/resources/workspace-symbols.ts">list</a>({ ...params }) -> SymbolResponse</code>
