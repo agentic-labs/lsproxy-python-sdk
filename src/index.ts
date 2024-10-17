@@ -9,11 +9,6 @@ import * as API from './resources/index';
 
 export interface ClientOptions {
   /**
-   * URL of the lsproxy server
-   */
-  baseURL?: string | undefined;
-
-  /**
    * Override the default base URL for the API, e.g., "https://api.example.com/v2/"
    *
    * Defaults to process.env['LSPROXY_BASE_URL'].
@@ -74,14 +69,11 @@ export interface ClientOptions {
  * API Client for interfacing with the Lsproxy API.
  */
 export class Lsproxy extends Core.APIClient {
-  baseURL: string;
-
   private _options: ClientOptions;
 
   /**
    * API Client for interfacing with the Lsproxy API.
    *
-   * @param {string | undefined} [opts.baseURL=process.env['LSPROXY_BASE_URL'] ?? undefined]
    * @param {string} [opts.baseURL=process.env['LSPROXY_BASE_URL'] ?? /v1] - Override the default base URL for the API.
    * @param {number} [opts.timeout=1 minute] - The maximum amount of time (in milliseconds) the client will wait for a response before timing out.
    * @param {number} [opts.httpAgent] - An HTTP agent used to manage HTTP(s) connections.
@@ -90,19 +82,8 @@ export class Lsproxy extends Core.APIClient {
    * @param {Core.Headers} opts.defaultHeaders - Default headers to include with every request to the API.
    * @param {Core.DefaultQuery} opts.defaultQuery - Default query parameters to include with every request to the API.
    */
-  constructor({
-    baseURL = Core.readEnv('LSPROXY_BASE_URL'),
-    baseURL = Core.readEnv('LSPROXY_BASE_URL'),
-    ...opts
-  }: ClientOptions = {}) {
-    if (baseURL === undefined) {
-      throw new Errors.LsproxyError(
-        "The LSPROXY_BASE_URL environment variable is missing or empty; either provide it, or instantiate the Lsproxy client with an baseURL option, like new Lsproxy({ baseURL: 'http://localhost:4444' }).",
-      );
-    }
-
+  constructor({ baseURL = Core.readEnv('LSPROXY_BASE_URL'), ...opts }: ClientOptions = {}) {
     const options: ClientOptions = {
-      baseURL,
       ...opts,
       baseURL: baseURL || `/v1`,
     };
@@ -116,8 +97,6 @@ export class Lsproxy extends Core.APIClient {
     });
 
     this._options = options;
-
-    this.baseURL = baseURL;
   }
 
   definition: API.Definition = new API.Definition(this);
