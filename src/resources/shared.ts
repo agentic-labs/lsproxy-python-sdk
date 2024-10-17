@@ -1,7 +1,20 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-export interface Symbol {
-  symbols: Array<Symbol.Symbol>;
+import * as Shared from './shared';
+
+/**
+ * Specific position within a file.
+ */
+export interface FilePosition {
+  character: number;
+
+  line: number;
+
+  path: string;
+}
+
+export interface SymbolResponse {
+  symbols: Array<SymbolResponse.Symbol>;
 
   /**
    * The raw response from the langserver.
@@ -12,7 +25,7 @@ export interface Symbol {
   raw_response?: unknown | null;
 }
 
-export namespace Symbol {
+export namespace SymbolResponse {
   /**
    * Represents a symbol within the codebase.
    */
@@ -20,7 +33,7 @@ export namespace Symbol {
     /**
      * Specific position within a file.
      */
-    identifier_start_position: Symbol.IdentifierStartPosition;
+    identifier_start_position: Shared.FilePosition;
 
     /**
      * The kind of the symbol (e.g., function, class).
@@ -31,18 +44,5 @@ export namespace Symbol {
      * The name of the symbol.
      */
     name: string;
-  }
-
-  export namespace Symbol {
-    /**
-     * Specific position within a file.
-     */
-    export interface IdentifierStartPosition {
-      character: number;
-
-      line: number;
-
-      path: string;
-    }
   }
 }

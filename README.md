@@ -28,22 +28,11 @@ import Lsproxy from 'lsproxy';
 const client = new Lsproxy();
 
 async function main() {
-  const definition = await client.definitions.retrieve({
-    position: {
-      '0': 'R',
-      '1': 'E',
-      '2': 'P',
-      '3': 'L',
-      '4': 'A',
-      '5': 'C',
-      '6': 'E',
-      '7': '_',
-      '8': 'M',
-      '9': 'E',
-    },
+  const definitionResponse = await client.definition.get({
+    position: { character: 5, line: 10, path: 'src/main.py' },
   });
 
-  console.log(definition.definitions);
+  console.log(definitionResponse.definitions);
 }
 
 main();
@@ -60,21 +49,8 @@ import Lsproxy from 'lsproxy';
 const client = new Lsproxy();
 
 async function main() {
-  const params: Lsproxy.DefinitionRetrieveParams = {
-    position: {
-      '0': 'R',
-      '1': 'E',
-      '2': 'P',
-      '3': 'L',
-      '4': 'A',
-      '5': 'C',
-      '6': 'E',
-      '7': '_',
-      '8': 'M',
-      '9': 'E',
-    },
-  };
-  const definition: Lsproxy.Definition = await client.definitions.retrieve(params);
+  const params: Lsproxy.DefinitionGetParams = { position: { character: 5, line: 10, path: 'src/main.py' } };
+  const definitionResponse: Lsproxy.DefinitionResponse = await client.definition.get(params);
 }
 
 main();
@@ -91,21 +67,8 @@ a subclass of `APIError` will be thrown:
 <!-- prettier-ignore -->
 ```ts
 async function main() {
-  const definition = await client.definitions
-    .retrieve({
-      position: {
-        '0': 'R',
-        '1': 'E',
-        '2': 'P',
-        '3': 'L',
-        '4': 'A',
-        '5': 'C',
-        '6': 'E',
-        '7': '_',
-        '8': 'M',
-        '9': 'E',
-      },
-    })
+  const definitionResponse = await client.definition
+    .get({ position: { character: 5, line: 10, path: 'src/main.py' } })
     .catch(async (err) => {
       if (err instanceof Lsproxy.APIError) {
         console.log(err.status); // 400
@@ -149,7 +112,7 @@ const client = new Lsproxy({
 });
 
 // Or, configure per-request:
-await client.definitions.retrieve({ position: { '0': 'R', '1': 'E', '2': 'P', '3': 'L', '4': 'A', '5': 'C', '6': 'E', '7': '_', '8': 'M', '9': 'E' } }, {
+await client.definition.get({ position: { character: 5, line: 10, path: 'src/main.py' } }, {
   maxRetries: 5,
 });
 ```
@@ -166,7 +129,7 @@ const client = new Lsproxy({
 });
 
 // Override per-request:
-await client.definitions.retrieve({ position: { '0': 'R', '1': 'E', '2': 'P', '3': 'L', '4': 'A', '5': 'C', '6': 'E', '7': '_', '8': 'M', '9': 'E' } }, {
+await client.definition.get({ position: { character: 5, line: 10, path: 'src/main.py' } }, {
   timeout: 5 * 1000,
 });
 ```
@@ -187,43 +150,17 @@ You can also use the `.withResponse()` method to get the raw `Response` along wi
 ```ts
 const client = new Lsproxy();
 
-const response = await client.definitions
-  .retrieve({
-    position: {
-      '0': 'R',
-      '1': 'E',
-      '2': 'P',
-      '3': 'L',
-      '4': 'A',
-      '5': 'C',
-      '6': 'E',
-      '7': '_',
-      '8': 'M',
-      '9': 'E',
-    },
-  })
+const response = await client.definition
+  .get({ position: { character: 5, line: 10, path: 'src/main.py' } })
   .asResponse();
 console.log(response.headers.get('X-My-Header'));
 console.log(response.statusText); // access the underlying Response object
 
-const { data: definition, response: raw } = await client.definitions
-  .retrieve({
-    position: {
-      '0': 'R',
-      '1': 'E',
-      '2': 'P',
-      '3': 'L',
-      '4': 'A',
-      '5': 'C',
-      '6': 'E',
-      '7': '_',
-      '8': 'M',
-      '9': 'E',
-    },
-  })
+const { data: definitionResponse, response: raw } = await client.definition
+  .get({ position: { character: 5, line: 10, path: 'src/main.py' } })
   .withResponse();
 console.log(raw.headers.get('X-My-Header'));
-console.log(definition.definitions);
+console.log(definitionResponse.definitions);
 ```
 
 ### Making custom/undocumented requests
@@ -327,21 +264,8 @@ const client = new Lsproxy({
 });
 
 // Override per-request:
-await client.definitions.retrieve(
-  {
-    position: {
-      '0': 'R',
-      '1': 'E',
-      '2': 'P',
-      '3': 'L',
-      '4': 'A',
-      '5': 'C',
-      '6': 'E',
-      '7': '_',
-      '8': 'M',
-      '9': 'E',
-    },
-  },
+await client.definition.get(
+  { position: { character: 5, line: 10, path: 'src/main.py' } },
   {
     httpAgent: new http.Agent({ keepAlive: false }),
   },

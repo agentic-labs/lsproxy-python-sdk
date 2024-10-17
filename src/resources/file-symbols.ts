@@ -3,7 +3,7 @@
 import { APIResource } from '../resource';
 import * as Core from '../core';
 import * as FileSymbolsAPI from './file-symbols';
-import * as Shared from './shared';
+import * as WorkspaceSymbolsAPI from './workspace-symbols';
 
 export class FileSymbols extends APIResource {
   /**
@@ -12,7 +12,10 @@ export class FileSymbols extends APIResource {
    * Returns a list of symbols (functions, classes, variables, etc.) defined in the
    * specified file.
    */
-  list(query: FileSymbolListParams, options?: Core.RequestOptions): Core.APIPromise<Shared.Symbol> {
+  list(
+    query: FileSymbolListParams,
+    options?: Core.RequestOptions,
+  ): Core.APIPromise<WorkspaceSymbolsAPI.SymbolResponse> {
     return this._client.get('/file-symbols', { query, ...options });
   }
 }
