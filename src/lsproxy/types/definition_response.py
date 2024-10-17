@@ -3,33 +3,13 @@
 from typing import List, Optional
 
 from .._models import BaseModel
-from .shared.file_position import FilePosition
+from .shared.position import Position
 
 __all__ = ["DefinitionResponse"]
 
 
 class DefinitionResponse(BaseModel):
-    definitions: List[FilePosition]
-    """
-    The definition(s) of the symbol. Points to the start position of the symbol's
-    identifier.
-
-    e.g. for the definition of `User` on line 5 of `src/main.py` with the code:
-
-    ```
-    0: class User:
-    _________^
-    1:     def __init__(self, name, age):
-    2:         self.name = name
-    3:         self.age = age
-    4:
-    5: user = User("John", 30)
-    __________^
-    ```
-
-    The definition(s) will be
-    `[{"path": "src/main.py", "line": 0, "character": 6}]`.
-    """
+    definitions: List[Position]
 
     raw_response: Optional[object] = None
     """The raw response from the langserver.

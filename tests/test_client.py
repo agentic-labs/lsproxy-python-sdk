@@ -667,20 +667,48 @@ class TestLsproxy:
     @mock.patch("lsproxy._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.get("/definition").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/definition").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            self.client.get("/definition", cast_to=httpx.Response, options={"headers": {RAW_RESPONSE_HEADER: "stream"}})
+            self.client.post(
+                "/definition",
+                body=cast(
+                    object,
+                    dict(
+                        position={
+                            "character": 5,
+                            "line": 10,
+                            "path": "src/main.py",
+                        }
+                    ),
+                ),
+                cast_to=httpx.Response,
+                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
+            )
 
         assert _get_open_connections(self.client) == 0
 
     @mock.patch("lsproxy._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.get("/definition").mock(return_value=httpx.Response(500))
+        respx_mock.post("/definition").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            self.client.get("/definition", cast_to=httpx.Response, options={"headers": {RAW_RESPONSE_HEADER: "stream"}})
+            self.client.post(
+                "/definition",
+                body=cast(
+                    object,
+                    dict(
+                        position={
+                            "character": 5,
+                            "line": 10,
+                            "path": "src/main.py",
+                        }
+                    ),
+                ),
+                cast_to=httpx.Response,
+                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
+            )
 
         assert _get_open_connections(self.client) == 0
 
@@ -699,9 +727,9 @@ class TestLsproxy:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/definition").mock(side_effect=retry_handler)
+        respx_mock.post("/definition").mock(side_effect=retry_handler)
 
-        response = client.definition.with_raw_response.get(
+        response = client.symbols.with_raw_response.find_definition(
             position={
                 "character": 5,
                 "line": 10,
@@ -729,9 +757,9 @@ class TestLsproxy:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/definition").mock(side_effect=retry_handler)
+        respx_mock.post("/definition").mock(side_effect=retry_handler)
 
-        response = client.definition.with_raw_response.get(
+        response = client.symbols.with_raw_response.find_definition(
             position={
                 "character": 5,
                 "line": 10,
@@ -759,9 +787,9 @@ class TestLsproxy:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/definition").mock(side_effect=retry_handler)
+        respx_mock.post("/definition").mock(side_effect=retry_handler)
 
-        response = client.definition.with_raw_response.get(
+        response = client.symbols.with_raw_response.find_definition(
             position={
                 "character": 5,
                 "line": 10,
@@ -1395,11 +1423,23 @@ class TestAsyncLsproxy:
     @mock.patch("lsproxy._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.get("/definition").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/definition").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            await self.client.get(
-                "/definition", cast_to=httpx.Response, options={"headers": {RAW_RESPONSE_HEADER: "stream"}}
+            await self.client.post(
+                "/definition",
+                body=cast(
+                    object,
+                    dict(
+                        position={
+                            "character": 5,
+                            "line": 10,
+                            "path": "src/main.py",
+                        }
+                    ),
+                ),
+                cast_to=httpx.Response,
+                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
 
         assert _get_open_connections(self.client) == 0
@@ -1407,11 +1447,23 @@ class TestAsyncLsproxy:
     @mock.patch("lsproxy._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.get("/definition").mock(return_value=httpx.Response(500))
+        respx_mock.post("/definition").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            await self.client.get(
-                "/definition", cast_to=httpx.Response, options={"headers": {RAW_RESPONSE_HEADER: "stream"}}
+            await self.client.post(
+                "/definition",
+                body=cast(
+                    object,
+                    dict(
+                        position={
+                            "character": 5,
+                            "line": 10,
+                            "path": "src/main.py",
+                        }
+                    ),
+                ),
+                cast_to=httpx.Response,
+                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
 
         assert _get_open_connections(self.client) == 0
@@ -1434,9 +1486,9 @@ class TestAsyncLsproxy:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/definition").mock(side_effect=retry_handler)
+        respx_mock.post("/definition").mock(side_effect=retry_handler)
 
-        response = await client.definition.with_raw_response.get(
+        response = await client.symbols.with_raw_response.find_definition(
             position={
                 "character": 5,
                 "line": 10,
@@ -1465,9 +1517,9 @@ class TestAsyncLsproxy:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/definition").mock(side_effect=retry_handler)
+        respx_mock.post("/definition").mock(side_effect=retry_handler)
 
-        response = await client.definition.with_raw_response.get(
+        response = await client.symbols.with_raw_response.find_definition(
             position={
                 "character": 5,
                 "line": 10,
@@ -1496,9 +1548,9 @@ class TestAsyncLsproxy:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/definition").mock(side_effect=retry_handler)
+        respx_mock.post("/definition").mock(side_effect=retry_handler)
 
-        response = await client.definition.with_raw_response.get(
+        response = await client.symbols.with_raw_response.find_definition(
             position={
                 "character": 5,
                 "line": 10,
