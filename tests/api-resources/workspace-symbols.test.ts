@@ -3,10 +3,7 @@
 import Lsproxy from 'lsproxy';
 import { Response } from 'node-fetch';
 
-const client = new Lsproxy({
-  baseURL: 'http://localhost:4444',
-  baseURL: process.env['TEST_API_BASE_URL'] ?? 'http://127.0.0.1:4010',
-});
+const client = new Lsproxy({ baseURL: process.env['TEST_API_BASE_URL'] ?? 'http://127.0.0.1:4010' });
 
 describe('resource workspaceSymbols', () => {
   test('list: only required params', async () => {
