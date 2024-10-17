@@ -2,21 +2,10 @@
 
 from typing import List, Optional
 
+from .symbol import Symbol
 from ..._models import BaseModel
-from .file_position import FilePosition
 
-__all__ = ["SymbolResponse", "Symbol"]
-
-
-class Symbol(BaseModel):
-    identifier_start_position: FilePosition
-    """Specific position within a file."""
-
-    kind: str
-    """The kind of the symbol (e.g., function, class)."""
-
-    name: str
-    """The name of the symbol."""
+__all__ = ["SymbolResponse"]
 
 
 class SymbolResponse(BaseModel):

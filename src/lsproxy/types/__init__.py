@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from .shared import FilePosition as FilePosition, SymbolResponse as SymbolResponse
-from .reference_response import ReferenceResponse as ReferenceResponse
+from .shared import Symbol as Symbol, Position as Position, SymbolResponse as SymbolResponse
 from .definition_response import DefinitionResponse as DefinitionResponse
-from .definition_get_params import DefinitionGetParams as DefinitionGetParams
-from .reference_list_params import ReferenceListParams as ReferenceListParams
-from .file_symbol_list_params import FileSymbolListParams as FileSymbolListParams
-from .workspace_file_list_response import WorkspaceFileListResponse as WorkspaceFileListResponse
-from .workspace_symbol_list_params import WorkspaceSymbolListParams as WorkspaceSymbolListParams
+from .symbol_find_definition_params import SymbolFindDefinitionParams as SymbolFindDefinitionParams
+from .symbol_find_references_params import SymbolFindReferencesParams as SymbolFindReferencesParams
+from .workspace_list_files_response import WorkspaceListFilesResponse as WorkspaceListFilesResponse
+from .workspace_search_symbols_params import WorkspaceSearchSymbolsParams as WorkspaceSearchSymbolsParams
+from .symbol_definitions_in_file_params import SymbolDefinitionsInFileParams as SymbolDefinitionsInFileParams

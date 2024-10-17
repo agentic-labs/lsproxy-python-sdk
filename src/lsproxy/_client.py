@@ -46,11 +46,8 @@ __all__ = [
 
 
 class Lsproxy(SyncAPIClient):
-    definition: resources.DefinitionResource
-    file_symbols: resources.FileSymbolsResource
-    references: resources.ReferencesResource
-    workspace_files: resources.WorkspaceFilesResource
-    workspace_symbols: resources.WorkspaceSymbolsResource
+    symbols: resources.SymbolsResource
+    workspace: resources.WorkspaceResource
     with_raw_response: LsproxyWithRawResponse
     with_streaming_response: LsproxyWithStreamedResponse
 
@@ -95,11 +92,8 @@ class Lsproxy(SyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.definition = resources.DefinitionResource(self)
-        self.file_symbols = resources.FileSymbolsResource(self)
-        self.references = resources.ReferencesResource(self)
-        self.workspace_files = resources.WorkspaceFilesResource(self)
-        self.workspace_symbols = resources.WorkspaceSymbolsResource(self)
+        self.symbols = resources.SymbolsResource(self)
+        self.workspace = resources.WorkspaceResource(self)
         self.with_raw_response = LsproxyWithRawResponse(self)
         self.with_streaming_response = LsproxyWithStreamedResponse(self)
 
@@ -201,11 +195,8 @@ class Lsproxy(SyncAPIClient):
 
 
 class AsyncLsproxy(AsyncAPIClient):
-    definition: resources.AsyncDefinitionResource
-    file_symbols: resources.AsyncFileSymbolsResource
-    references: resources.AsyncReferencesResource
-    workspace_files: resources.AsyncWorkspaceFilesResource
-    workspace_symbols: resources.AsyncWorkspaceSymbolsResource
+    symbols: resources.AsyncSymbolsResource
+    workspace: resources.AsyncWorkspaceResource
     with_raw_response: AsyncLsproxyWithRawResponse
     with_streaming_response: AsyncLsproxyWithStreamedResponse
 
@@ -250,11 +241,8 @@ class AsyncLsproxy(AsyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.definition = resources.AsyncDefinitionResource(self)
-        self.file_symbols = resources.AsyncFileSymbolsResource(self)
-        self.references = resources.AsyncReferencesResource(self)
-        self.workspace_files = resources.AsyncWorkspaceFilesResource(self)
-        self.workspace_symbols = resources.AsyncWorkspaceSymbolsResource(self)
+        self.symbols = resources.AsyncSymbolsResource(self)
+        self.workspace = resources.AsyncWorkspaceResource(self)
         self.with_raw_response = AsyncLsproxyWithRawResponse(self)
         self.with_streaming_response = AsyncLsproxyWithStreamedResponse(self)
 
@@ -357,38 +345,26 @@ class AsyncLsproxy(AsyncAPIClient):
 
 class LsproxyWithRawResponse:
     def __init__(self, client: Lsproxy) -> None:
-        self.definition = resources.DefinitionResourceWithRawResponse(client.definition)
-        self.file_symbols = resources.FileSymbolsResourceWithRawResponse(client.file_symbols)
-        self.references = resources.ReferencesResourceWithRawResponse(client.references)
-        self.workspace_files = resources.WorkspaceFilesResourceWithRawResponse(client.workspace_files)
-        self.workspace_symbols = resources.WorkspaceSymbolsResourceWithRawResponse(client.workspace_symbols)
+        self.symbols = resources.SymbolsResourceWithRawResponse(client.symbols)
+        self.workspace = resources.WorkspaceResourceWithRawResponse(client.workspace)
 
 
 class AsyncLsproxyWithRawResponse:
     def __init__(self, client: AsyncLsproxy) -> None:
-        self.definition = resources.AsyncDefinitionResourceWithRawResponse(client.definition)
-        self.file_symbols = resources.AsyncFileSymbolsResourceWithRawResponse(client.file_symbols)
-        self.references = resources.AsyncReferencesResourceWithRawResponse(client.references)
-        self.workspace_files = resources.AsyncWorkspaceFilesResourceWithRawResponse(client.workspace_files)
-        self.workspace_symbols = resources.AsyncWorkspaceSymbolsResourceWithRawResponse(client.workspace_symbols)
+        self.symbols = resources.AsyncSymbolsResourceWithRawResponse(client.symbols)
+        self.workspace = resources.AsyncWorkspaceResourceWithRawResponse(client.workspace)
 
 
 class LsproxyWithStreamedResponse:
     def __init__(self, client: Lsproxy) -> None:
-        self.definition = resources.DefinitionResourceWithStreamingResponse(client.definition)
-        self.file_symbols = resources.FileSymbolsResourceWithStreamingResponse(client.file_symbols)
-        self.references = resources.ReferencesResourceWithStreamingResponse(client.references)
-        self.workspace_files = resources.WorkspaceFilesResourceWithStreamingResponse(client.workspace_files)
-        self.workspace_symbols = resources.WorkspaceSymbolsResourceWithStreamingResponse(client.workspace_symbols)
+        self.symbols = resources.SymbolsResourceWithStreamingResponse(client.symbols)
+        self.workspace = resources.WorkspaceResourceWithStreamingResponse(client.workspace)
 
 
 class AsyncLsproxyWithStreamedResponse:
     def __init__(self, client: AsyncLsproxy) -> None:
-        self.definition = resources.AsyncDefinitionResourceWithStreamingResponse(client.definition)
-        self.file_symbols = resources.AsyncFileSymbolsResourceWithStreamingResponse(client.file_symbols)
-        self.references = resources.AsyncReferencesResourceWithStreamingResponse(client.references)
-        self.workspace_files = resources.AsyncWorkspaceFilesResourceWithStreamingResponse(client.workspace_files)
-        self.workspace_symbols = resources.AsyncWorkspaceSymbolsResourceWithStreamingResponse(client.workspace_symbols)
+        self.symbols = resources.AsyncSymbolsResourceWithStreamingResponse(client.symbols)
+        self.workspace = resources.AsyncWorkspaceResourceWithStreamingResponse(client.workspace)
 
 
 Client = Lsproxy
