@@ -82,7 +82,7 @@ class Lsproxy(SyncAPIClient):
         if base_url is None:
             base_url = os.environ.get("LSPROXY_BASE_URL")
         if base_url is None:
-            base_url = f"/v1"
+            base_url = f"http://localhost:4444/v1"
 
         super().__init__(
             version=__version__,
@@ -237,7 +237,7 @@ class AsyncLsproxy(AsyncAPIClient):
         if base_url is None:
             base_url = os.environ.get("LSPROXY_BASE_URL")
         if base_url is None:
-            base_url = f"/v1"
+            base_url = f"http://localhost:4444/v1"
 
         super().__init__(
             version=__version__,
