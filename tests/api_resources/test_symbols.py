@@ -11,6 +11,7 @@ from lsproxy import Lsproxy, AsyncLsproxy
 from tests.utils import assert_matches_type
 from lsproxy.types import (
     DefinitionResponse,
+    ReferencesResponse,
 )
 from lsproxy.types.shared import SymbolResponse
 
@@ -123,7 +124,7 @@ class TestSymbols:
                 "path": "src/main.py",
             },
         )
-        assert_matches_type(object, symbol, path=["response"])
+        assert_matches_type(ReferencesResponse, symbol, path=["response"])
 
     @parametrize
     def test_method_find_references_with_all_params(self, client: Lsproxy) -> None:
@@ -136,7 +137,7 @@ class TestSymbols:
             include_declaration=True,
             include_raw_response=False,
         )
-        assert_matches_type(object, symbol, path=["response"])
+        assert_matches_type(ReferencesResponse, symbol, path=["response"])
 
     @parametrize
     def test_raw_response_find_references(self, client: Lsproxy) -> None:
@@ -151,7 +152,7 @@ class TestSymbols:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         symbol = response.parse()
-        assert_matches_type(object, symbol, path=["response"])
+        assert_matches_type(ReferencesResponse, symbol, path=["response"])
 
     @parametrize
     def test_streaming_response_find_references(self, client: Lsproxy) -> None:
@@ -166,7 +167,7 @@ class TestSymbols:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             symbol = response.parse()
-            assert_matches_type(object, symbol, path=["response"])
+            assert_matches_type(ReferencesResponse, symbol, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -277,7 +278,7 @@ class TestAsyncSymbols:
                 "path": "src/main.py",
             },
         )
-        assert_matches_type(object, symbol, path=["response"])
+        assert_matches_type(ReferencesResponse, symbol, path=["response"])
 
     @parametrize
     async def test_method_find_references_with_all_params(self, async_client: AsyncLsproxy) -> None:
@@ -290,7 +291,7 @@ class TestAsyncSymbols:
             include_declaration=True,
             include_raw_response=False,
         )
-        assert_matches_type(object, symbol, path=["response"])
+        assert_matches_type(ReferencesResponse, symbol, path=["response"])
 
     @parametrize
     async def test_raw_response_find_references(self, async_client: AsyncLsproxy) -> None:
@@ -305,7 +306,7 @@ class TestAsyncSymbols:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         symbol = await response.parse()
-        assert_matches_type(object, symbol, path=["response"])
+        assert_matches_type(ReferencesResponse, symbol, path=["response"])
 
     @parametrize
     async def test_streaming_response_find_references(self, async_client: AsyncLsproxy) -> None:
@@ -320,6 +321,6 @@ class TestAsyncSymbols:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             symbol = await response.parse()
-            assert_matches_type(object, symbol, path=["response"])
+            assert_matches_type(ReferencesResponse, symbol, path=["response"])
 
         assert cast(Any, response.is_closed) is True

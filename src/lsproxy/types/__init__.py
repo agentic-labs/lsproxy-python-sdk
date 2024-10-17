@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from .shared import Symbol as Symbol, Position as Position, SymbolResponse as SymbolResponse
 from .definition_response import DefinitionResponse as DefinitionResponse
+from .references_response import ReferencesResponse as ReferencesResponse
 from .symbol_find_definition_params import SymbolFindDefinitionParams as SymbolFindDefinitionParams
 from .symbol_find_references_params import SymbolFindReferencesParams as SymbolFindReferencesParams
 from .workspace_list_files_response import WorkspaceListFilesResponse as WorkspaceListFilesResponse

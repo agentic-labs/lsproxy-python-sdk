@@ -24,6 +24,7 @@ from .._response import (
 )
 from .._base_client import make_request_options
 from ..types.definition_response import DefinitionResponse
+from ..types.references_response import ReferencesResponse
 from ..types.shared.symbol_response import SymbolResponse
 from ..types.shared_params.position import Position
 
@@ -189,7 +190,7 @@ class SymbolsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> object:
+    ) -> ReferencesResponse:
         """
         Find all references to a symbol
 
@@ -244,7 +245,7 @@ class SymbolsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=ReferencesResponse,
         )
 
 
@@ -407,7 +408,7 @@ class AsyncSymbolsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> object:
+    ) -> ReferencesResponse:
         """
         Find all references to a symbol
 
@@ -462,7 +463,7 @@ class AsyncSymbolsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=ReferencesResponse,
         )
 
 
