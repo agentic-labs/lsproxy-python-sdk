@@ -19,7 +19,7 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.shared.symbol import Symbol
+from ..types.symbol_response import SymbolResponse
 
 __all__ = ["WorkspaceSymbolsResource", "AsyncWorkspaceSymbolsResource"]
 
@@ -55,7 +55,7 @@ class WorkspaceSymbolsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> Symbol:
+    ) -> SymbolResponse:
         """
         Search for symbols across the entire workspace
 
@@ -91,7 +91,7 @@ class WorkspaceSymbolsResource(SyncAPIResource):
                     workspace_symbol_list_params.WorkspaceSymbolListParams,
                 ),
             ),
-            cast_to=Symbol,
+            cast_to=SymbolResponse,
         )
 
 
@@ -126,7 +126,7 @@ class AsyncWorkspaceSymbolsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> Symbol:
+    ) -> SymbolResponse:
         """
         Search for symbols across the entire workspace
 
@@ -162,7 +162,7 @@ class AsyncWorkspaceSymbolsResource(AsyncAPIResource):
                     workspace_symbol_list_params.WorkspaceSymbolListParams,
                 ),
             ),
-            cast_to=Symbol,
+            cast_to=SymbolResponse,
         )
 
 

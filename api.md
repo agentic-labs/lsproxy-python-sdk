@@ -1,38 +1,38 @@
 # Shared Types
 
 ```python
-from lsproxy.types import Symbol
+from lsproxy.types import FilePosition, SymbolResponse
 ```
 
-# Definitions
+# Definition
 
 Types:
 
 ```python
-from lsproxy.types import Definition
+from lsproxy.types import DefinitionResponse
 ```
 
 Methods:
 
-- <code title="get /definition">client.definitions.<a href="./src/lsproxy/resources/definitions.py">retrieve</a>(\*\*<a href="src/lsproxy/types/definition_retrieve_params.py">params</a>) -> <a href="./src/lsproxy/types/definition.py">Definition</a></code>
+- <code title="get /definition">client.definition.<a href="./src/lsproxy/resources/definition.py">get</a>(\*\*<a href="src/lsproxy/types/definition_get_params.py">params</a>) -> <a href="./src/lsproxy/types/definition_response.py">DefinitionResponse</a></code>
 
 # FileSymbols
 
 Methods:
 
-- <code title="get /file-symbols">client.file_symbols.<a href="./src/lsproxy/resources/file_symbols.py">list</a>(\*\*<a href="src/lsproxy/types/file_symbol_list_params.py">params</a>) -> <a href="./src/lsproxy/types/shared/symbol.py">Symbol</a></code>
+- <code title="get /file-symbols">client.file_symbols.<a href="./src/lsproxy/resources/file_symbols.py">list</a>(\*\*<a href="src/lsproxy/types/file_symbol_list_params.py">params</a>) -> <a href="./src/lsproxy/types/symbol_response.py">SymbolResponse</a></code>
 
 # References
 
 Types:
 
 ```python
-from lsproxy.types import Reference
+from lsproxy.types import ReferenceResponse
 ```
 
 Methods:
 
-- <code title="get /references">client.references.<a href="./src/lsproxy/resources/references.py">list</a>(\*\*<a href="src/lsproxy/types/reference_list_params.py">params</a>) -> <a href="./src/lsproxy/types/reference.py">Reference</a></code>
+- <code title="get /references">client.references.<a href="./src/lsproxy/resources/references.py">list</a>(\*\*<a href="src/lsproxy/types/reference_list_params.py">params</a>) -> <a href="./src/lsproxy/types/reference_response.py">ReferenceResponse</a></code>
 
 # WorkspaceFiles
 
@@ -48,6 +48,12 @@ Methods:
 
 # WorkspaceSymbols
 
+Types:
+
+```python
+from lsproxy.types import SymbolResponse
+```
+
 Methods:
 
-- <code title="get /workspace-symbols">client.workspace_symbols.<a href="./src/lsproxy/resources/workspace_symbols.py">list</a>(\*\*<a href="src/lsproxy/types/workspace_symbol_list_params.py">params</a>) -> <a href="./src/lsproxy/types/shared/symbol.py">Symbol</a></code>
+- <code title="get /workspace-symbols">client.workspace_symbols.<a href="./src/lsproxy/resources/workspace_symbols.py">list</a>(\*\*<a href="src/lsproxy/types/workspace_symbol_list_params.py">params</a>) -> <a href="./src/lsproxy/types/symbol_response.py">SymbolResponse</a></code>

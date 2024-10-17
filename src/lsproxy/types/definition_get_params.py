@@ -6,33 +6,30 @@ from typing_extensions import Required, TypedDict
 
 from .shared_params.file_position import FilePosition
 
-__all__ = ["ReferenceListParams"]
+__all__ = ["DefinitionGetParams"]
 
 
-class ReferenceListParams(TypedDict, total=False):
-    symbol_identifier_position: Required[FilePosition]
-    """The position within the file to get the references for.
+class DefinitionGetParams(TypedDict, total=False):
+    position: Required[FilePosition]
+    """The position within the file to get the definition for.
 
-    This should point to the identifier of the definition.
+    This should point to the identifier of the symbol you want to get the definition
+    for.
 
-    e.g. for getting the references of `User` on line 0 of `src/main.py` with the
+    e.g. for getting the definition of `User` on line 10 of `src/main.py` with the
     code:
 
     ```
     0: class User:
-    _________^^^^
     1:     def __init__(self, name, age):
     2:         self.name = name
     3:         self.age = age
     4:
     5: user = User("John", 30)
+    __________^^^
     ```
-    """
 
-    include_declaration: bool
-    """
-    Whether to include the declaration (definition) of the symbol in the response.
-    Defaults to false.
+    The (line, char) should be anywhere in (5, 7)-(5, 11).
     """
 
     include_raw_response: bool

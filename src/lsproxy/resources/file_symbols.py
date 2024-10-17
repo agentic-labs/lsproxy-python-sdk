@@ -19,7 +19,7 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.shared.symbol import Symbol
+from ..types.symbol_response import SymbolResponse
 
 __all__ = ["FileSymbolsResource", "AsyncFileSymbolsResource"]
 
@@ -55,7 +55,7 @@ class FileSymbolsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> Symbol:
+    ) -> SymbolResponse:
         """
         Get symbols in a specific file
 
@@ -92,7 +92,7 @@ class FileSymbolsResource(SyncAPIResource):
                     file_symbol_list_params.FileSymbolListParams,
                 ),
             ),
-            cast_to=Symbol,
+            cast_to=SymbolResponse,
         )
 
 
@@ -127,7 +127,7 @@ class AsyncFileSymbolsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> Symbol:
+    ) -> SymbolResponse:
         """
         Get symbols in a specific file
 
@@ -164,7 +164,7 @@ class AsyncFileSymbolsResource(AsyncAPIResource):
                     file_symbol_list_params.FileSymbolListParams,
                 ),
             ),
-            cast_to=Symbol,
+            cast_to=SymbolResponse,
         )
 
 

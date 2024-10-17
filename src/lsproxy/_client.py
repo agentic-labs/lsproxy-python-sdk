@@ -46,7 +46,7 @@ __all__ = [
 
 
 class Lsproxy(SyncAPIClient):
-    definitions: resources.DefinitionsResource
+    definition: resources.DefinitionResource
     file_symbols: resources.FileSymbolsResource
     references: resources.ReferencesResource
     workspace_files: resources.WorkspaceFilesResource
@@ -95,7 +95,7 @@ class Lsproxy(SyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.definitions = resources.DefinitionsResource(self)
+        self.definition = resources.DefinitionResource(self)
         self.file_symbols = resources.FileSymbolsResource(self)
         self.references = resources.ReferencesResource(self)
         self.workspace_files = resources.WorkspaceFilesResource(self)
@@ -201,7 +201,7 @@ class Lsproxy(SyncAPIClient):
 
 
 class AsyncLsproxy(AsyncAPIClient):
-    definitions: resources.AsyncDefinitionsResource
+    definition: resources.AsyncDefinitionResource
     file_symbols: resources.AsyncFileSymbolsResource
     references: resources.AsyncReferencesResource
     workspace_files: resources.AsyncWorkspaceFilesResource
@@ -250,7 +250,7 @@ class AsyncLsproxy(AsyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.definitions = resources.AsyncDefinitionsResource(self)
+        self.definition = resources.AsyncDefinitionResource(self)
         self.file_symbols = resources.AsyncFileSymbolsResource(self)
         self.references = resources.AsyncReferencesResource(self)
         self.workspace_files = resources.AsyncWorkspaceFilesResource(self)
@@ -357,7 +357,7 @@ class AsyncLsproxy(AsyncAPIClient):
 
 class LsproxyWithRawResponse:
     def __init__(self, client: Lsproxy) -> None:
-        self.definitions = resources.DefinitionsResourceWithRawResponse(client.definitions)
+        self.definition = resources.DefinitionResourceWithRawResponse(client.definition)
         self.file_symbols = resources.FileSymbolsResourceWithRawResponse(client.file_symbols)
         self.references = resources.ReferencesResourceWithRawResponse(client.references)
         self.workspace_files = resources.WorkspaceFilesResourceWithRawResponse(client.workspace_files)
@@ -366,7 +366,7 @@ class LsproxyWithRawResponse:
 
 class AsyncLsproxyWithRawResponse:
     def __init__(self, client: AsyncLsproxy) -> None:
-        self.definitions = resources.AsyncDefinitionsResourceWithRawResponse(client.definitions)
+        self.definition = resources.AsyncDefinitionResourceWithRawResponse(client.definition)
         self.file_symbols = resources.AsyncFileSymbolsResourceWithRawResponse(client.file_symbols)
         self.references = resources.AsyncReferencesResourceWithRawResponse(client.references)
         self.workspace_files = resources.AsyncWorkspaceFilesResourceWithRawResponse(client.workspace_files)
@@ -375,7 +375,7 @@ class AsyncLsproxyWithRawResponse:
 
 class LsproxyWithStreamedResponse:
     def __init__(self, client: Lsproxy) -> None:
-        self.definitions = resources.DefinitionsResourceWithStreamingResponse(client.definitions)
+        self.definition = resources.DefinitionResourceWithStreamingResponse(client.definition)
         self.file_symbols = resources.FileSymbolsResourceWithStreamingResponse(client.file_symbols)
         self.references = resources.ReferencesResourceWithStreamingResponse(client.references)
         self.workspace_files = resources.WorkspaceFilesResourceWithStreamingResponse(client.workspace_files)
@@ -384,7 +384,7 @@ class LsproxyWithStreamedResponse:
 
 class AsyncLsproxyWithStreamedResponse:
     def __init__(self, client: AsyncLsproxy) -> None:
-        self.definitions = resources.AsyncDefinitionsResourceWithStreamingResponse(client.definitions)
+        self.definition = resources.AsyncDefinitionResourceWithStreamingResponse(client.definition)
         self.file_symbols = resources.AsyncFileSymbolsResourceWithStreamingResponse(client.file_symbols)
         self.references = resources.AsyncReferencesResourceWithStreamingResponse(client.references)
         self.workspace_files = resources.AsyncWorkspaceFilesResourceWithStreamingResponse(client.workspace_files)
