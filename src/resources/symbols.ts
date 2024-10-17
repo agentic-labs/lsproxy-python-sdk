@@ -85,7 +85,10 @@ export class Symbols extends APIResource {
    * output____^
    * ```
    */
-  findReferences(body: SymbolFindReferencesParams, options?: Core.RequestOptions): Core.APIPromise<unknown> {
+  findReferences(
+    body: SymbolFindReferencesParams,
+    options?: Core.RequestOptions,
+  ): Core.APIPromise<ReferencesResponse> {
     return this._client.post('/references', { body, ...options });
   }
 }
@@ -156,8 +159,6 @@ export interface ReferencesResponse {
   raw_response?: unknown | null;
 }
 
-export type SymbolFindReferencesResponse = unknown;
-
 export interface SymbolDefinitionsInFileParams {
   /**
    * The path to the file to get the symbols for, relative to the root of the
@@ -207,7 +208,6 @@ export interface SymbolFindReferencesParams {
 export namespace Symbols {
   export import DefinitionResponse = SymbolsAPI.DefinitionResponse;
   export import ReferencesResponse = SymbolsAPI.ReferencesResponse;
-  export import SymbolFindReferencesResponse = SymbolsAPI.SymbolFindReferencesResponse;
   export import SymbolDefinitionsInFileParams = SymbolsAPI.SymbolDefinitionsInFileParams;
   export import SymbolFindDefinitionParams = SymbolsAPI.SymbolFindDefinitionParams;
   export import SymbolFindReferencesParams = SymbolsAPI.SymbolFindReferencesParams;

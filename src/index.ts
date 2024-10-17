@@ -158,7 +158,6 @@ export namespace Lsproxy {
   export import Symbols = API.Symbols;
   export import DefinitionResponse = API.DefinitionResponse;
   export import ReferencesResponse = API.ReferencesResponse;
-  export import SymbolFindReferencesResponse = API.SymbolFindReferencesResponse;
   export import SymbolDefinitionsInFileParams = API.SymbolDefinitionsInFileParams;
   export import SymbolFindDefinitionParams = API.SymbolFindDefinitionParams;
   export import SymbolFindReferencesParams = API.SymbolFindReferencesParams;

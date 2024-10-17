@@ -4,7 +4,6 @@ export * from './shared';
 export {
   DefinitionResponse,
   ReferencesResponse,
-  SymbolFindReferencesResponse,
   SymbolDefinitionsInFileParams,
   SymbolFindDefinitionParams,
   SymbolFindReferencesParams,
