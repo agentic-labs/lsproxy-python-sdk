@@ -19,7 +19,7 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.symbol_response import SymbolResponse
+from ..types.shared.symbol_response import SymbolResponse
 
 __all__ = ["FileSymbolsResource", "AsyncFileSymbolsResource"]
 
@@ -31,7 +31,7 @@ class FileSymbolsResource(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/stainless-sdks/lsproxy-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/agentic-labs/lsproxy-python-sdk#accessing-raw-response-data-eg-headers
         """
         return FileSymbolsResourceWithRawResponse(self)
 
@@ -40,7 +40,7 @@ class FileSymbolsResource(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/stainless-sdks/lsproxy-python#with_streaming_response
+        For more information, see https://www.github.com/agentic-labs/lsproxy-python-sdk#with_streaming_response
         """
         return FileSymbolsResourceWithStreamingResponse(self)
 
@@ -103,7 +103,7 @@ class AsyncFileSymbolsResource(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/stainless-sdks/lsproxy-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/agentic-labs/lsproxy-python-sdk#accessing-raw-response-data-eg-headers
         """
         return AsyncFileSymbolsResourceWithRawResponse(self)
 
@@ -112,7 +112,7 @@ class AsyncFileSymbolsResource(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/stainless-sdks/lsproxy-python#with_streaming_response
+        For more information, see https://www.github.com/agentic-labs/lsproxy-python-sdk#with_streaming_response
         """
         return AsyncFileSymbolsResourceWithStreamingResponse(self)
 
