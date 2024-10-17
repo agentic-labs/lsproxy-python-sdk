@@ -26,7 +26,7 @@ class WorkspaceFilesResource(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/stainless-sdks/lsproxy-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/agentic-labs/lsproxy-python-sdk#accessing-raw-response-data-eg-headers
         """
         return WorkspaceFilesResourceWithRawResponse(self)
 
@@ -35,7 +35,7 @@ class WorkspaceFilesResource(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/stainless-sdks/lsproxy-python#with_streaming_response
+        For more information, see https://www.github.com/agentic-labs/lsproxy-python-sdk#with_streaming_response
         """
         return WorkspaceFilesResourceWithStreamingResponse(self)
 
@@ -73,7 +73,7 @@ class AsyncWorkspaceFilesResource(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return the
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/stainless-sdks/lsproxy-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/agentic-labs/lsproxy-python-sdk#accessing-raw-response-data-eg-headers
         """
         return AsyncWorkspaceFilesResourceWithRawResponse(self)
 
@@ -82,7 +82,7 @@ class AsyncWorkspaceFilesResource(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/stainless-sdks/lsproxy-python#with_streaming_response
+        For more information, see https://www.github.com/agentic-labs/lsproxy-python-sdk#with_streaming_response
         """
         return AsyncWorkspaceFilesResourceWithStreamingResponse(self)
 

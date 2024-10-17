@@ -1,11 +1,11 @@
 [project]
 name = "lsproxy"
-version = "0.0.1-alpha.0"
+version = "0.1.0-alpha.1"
 description = "The official Python library for the lsproxy API"
 dynamic = ["readme"]
 license = "Apache-2.0"
 authors = [
-{ name = "Lsproxy", email = "dev-feedback@lsproxy.com" },
+{ name = "Lsproxy", email = "founders@agenticlabs.com" },
 ]
 dependencies = [
     "httpx>=0.23.0, <1",
@@ -36,8 +36,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/stainless-sdks/lsproxy-python"
-Repository = "https://github.com/stainless-sdks/lsproxy-python"
+Homepage = "https://github.com/agentic-labs/lsproxy-python-sdk"
+Repository = "https://github.com/agentic-labs/lsproxy-python-sdk"
 
 
 
@@ -123,7 +123,7 @@ path = "README.md"
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
 # replace relative links with absolute links
 pattern = '\[(.+?)\]\(((?!https?://)\S+?)\)'
-replacement = '[\1](https://github.com/stainless-sdks/lsproxy-python/tree/main/\g<2>)'
+replacement = '[\1](https://github.com/agentic-labs/lsproxy-python-sdk/tree/main/\g<2>)'
 
 [tool.black]
 line-length = 120
