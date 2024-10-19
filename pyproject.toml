@@ -1,11 +1,11 @@
 [project]
 name = "lsproxy"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 description = "The official Python library for the lsproxy API"
 dynamic = ["readme"]
 license = "Apache-2.0"
 authors = [
-{ name = "Lsproxy", email = "dev-feedback@lsproxy.com" },
+{ name = "Lsproxy", email = "founders@agenticlabs.com" },
 ]
 dependencies = [
     "httpx>=0.23.0, <1",
