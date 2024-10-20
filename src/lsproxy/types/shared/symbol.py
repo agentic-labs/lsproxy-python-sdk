@@ -1,5 +1,6 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
+from typing import Optional
 
 from .position import Position
 from ..._models import BaseModel
@@ -16,3 +17,5 @@ class Symbol(BaseModel):
 
     name: str
     """The name of the symbol."""
+
+    source_code: Optional[object] = None

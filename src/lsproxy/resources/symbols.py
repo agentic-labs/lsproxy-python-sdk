@@ -118,6 +118,7 @@ class SymbolsResource(SyncAPIResource):
         self,
         *,
         position: Position,
+        include_code_context: bool | NotGiven = NOT_GIVEN,
         include_raw_response: bool | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -152,6 +153,9 @@ class SymbolsResource(SyncAPIResource):
         Args:
           position: Specific position within a file.
 
+          include_code_context: Whether to include the source code of the symbol in the response. Defaults to
+              false.
+
           include_raw_response: Whether to include the raw response from the langserver in the response.
               Defaults to false.
 
@@ -168,6 +172,7 @@ class SymbolsResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "position": position,
+                    "include_code_context": include_code_context,
                     "include_raw_response": include_raw_response,
                 },
                 symbol_find_definition_params.SymbolFindDefinitionParams,
@@ -336,6 +341,7 @@ class AsyncSymbolsResource(AsyncAPIResource):
         self,
         *,
         position: Position,
+        include_code_context: bool | NotGiven = NOT_GIVEN,
         include_raw_response: bool | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -370,6 +376,9 @@ class AsyncSymbolsResource(AsyncAPIResource):
         Args:
           position: Specific position within a file.
 
+          include_code_context: Whether to include the source code of the symbol in the response. Defaults to
+              false.
+
           include_raw_response: Whether to include the raw response from the langserver in the response.
               Defaults to false.
 
@@ -386,6 +395,7 @@ class AsyncSymbolsResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "position": position,
+                    "include_code_context": include_code_context,
                     "include_raw_response": include_raw_response,
                 },
                 symbol_find_definition_params.SymbolFindDefinitionParams,
