@@ -7,8 +7,6 @@ __all__ = ["Position"]
 
 
 class Position(BaseModel):
-    character: int
-
-    line: int
-
     path: str
+
+    position: object

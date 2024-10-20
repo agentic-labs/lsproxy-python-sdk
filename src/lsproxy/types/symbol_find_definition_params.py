@@ -13,6 +13,12 @@ class SymbolFindDefinitionParams(TypedDict, total=False):
     position: Required[Position]
     """Specific position within a file."""
 
+    include_code_context: bool
+    """
+    Whether to include the source code of the symbol in the response. Defaults to
+    false.
+    """
+
     include_raw_response: bool
     """
     Whether to include the raw response from the langserver in the response.

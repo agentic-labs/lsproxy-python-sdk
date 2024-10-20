@@ -8,8 +8,6 @@ __all__ = ["Position"]
 
 
 class Position(TypedDict, total=False):
-    character: Required[int]
-
-    line: Required[int]
-
     path: Required[str]
+
+    position: Required[object]

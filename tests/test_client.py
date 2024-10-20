@@ -676,9 +676,8 @@ class TestLsproxy:
                     object,
                     dict(
                         position={
-                            "character": 5,
-                            "line": 10,
                             "path": "src/main.py",
+                            "position": {},
                         }
                     ),
                 ),
@@ -700,9 +699,8 @@ class TestLsproxy:
                     object,
                     dict(
                         position={
-                            "character": 5,
-                            "line": 10,
                             "path": "src/main.py",
+                            "position": {},
                         }
                     ),
                 ),
@@ -731,9 +729,8 @@ class TestLsproxy:
 
         response = client.symbols.with_raw_response.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {},
             }
         )
 
@@ -761,9 +758,8 @@ class TestLsproxy:
 
         response = client.symbols.with_raw_response.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {},
             },
             extra_headers={"x-stainless-retry-count": Omit()},
         )
@@ -791,9 +787,8 @@ class TestLsproxy:
 
         response = client.symbols.with_raw_response.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {},
             },
             extra_headers={"x-stainless-retry-count": "42"},
         )
@@ -1432,9 +1427,8 @@ class TestAsyncLsproxy:
                     object,
                     dict(
                         position={
-                            "character": 5,
-                            "line": 10,
                             "path": "src/main.py",
+                            "position": {},
                         }
                     ),
                 ),
@@ -1456,9 +1450,8 @@ class TestAsyncLsproxy:
                     object,
                     dict(
                         position={
-                            "character": 5,
-                            "line": 10,
                             "path": "src/main.py",
+                            "position": {},
                         }
                     ),
                 ),
@@ -1490,9 +1483,8 @@ class TestAsyncLsproxy:
 
         response = await client.symbols.with_raw_response.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {},
             }
         )
 
@@ -1521,9 +1513,8 @@ class TestAsyncLsproxy:
 
         response = await client.symbols.with_raw_response.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {},
             },
             extra_headers={"x-stainless-retry-count": Omit()},
         )
@@ -1552,9 +1543,8 @@ class TestAsyncLsproxy:
 
         response = await client.symbols.with_raw_response.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {},
             },
             extra_headers={"x-stainless-retry-count": "42"},
         )

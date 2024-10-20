@@ -29,4 +29,3 @@ from lsproxy.types import WorkspaceListFilesResponse
 Methods:
 
 - <code title="get /workspace-files">client.workspace.<a href="./src/lsproxy/resources/workspace.py">list_files</a>() -> <a href="./src/lsproxy/types/workspace_list_files_response.py">WorkspaceListFilesResponse</a></code>
-- <code title="get /workspace-symbols">client.workspace.<a href="./src/lsproxy/resources/workspace.py">search_symbols</a>(\*\*<a href="src/lsproxy/types/workspace_search_symbols_params.py">params</a>) -> <a href="./src/lsproxy/types/shared/symbol_response.py">SymbolResponse</a></code>
