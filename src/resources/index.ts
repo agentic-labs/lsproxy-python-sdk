@@ -9,4 +9,4 @@ export {
   SymbolFindReferencesParams,
   Symbols,
 } from './symbols';
-export { WorkspaceListFilesResponse, WorkspaceSearchSymbolsParams, Workspace } from './workspace';
+export { WorkspaceListFilesResponse, Workspace } from './workspace';

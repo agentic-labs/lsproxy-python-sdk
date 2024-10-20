@@ -3,7 +3,6 @@
 import { APIResource } from '../resource';
 import * as Core from '../core';
 import * as WorkspaceAPI from './workspace';
-import * as Shared from './shared';
 
 export class Workspace extends APIResource {
   /**
@@ -17,49 +16,10 @@ export class Workspace extends APIResource {
   listFiles(options?: Core.RequestOptions): Core.APIPromise<WorkspaceListFilesResponse> {
     return this._client.get('/workspace-files', options);
   }
-
-  /**
-   * Search for symbols across the entire workspace
-   *
-   * Returns a list of symbols matching the given query string from all files in the
-   * workspace.
-   *
-   * The returned positions point to the start of the symbol's identifier.
-   *
-   * e.g. for `User` on line 0 of `src/main.py`:
-   *
-   * ```
-   * 0: class User:
-   * _________^
-   * 1:     def __init__(self, name, age):
-   * 2:         self.name = name
-   * 3:         self.age = age
-   * ```
-   */
-  searchSymbols(
-    query: WorkspaceSearchSymbolsParams,
-    options?: Core.RequestOptions,
-  ): Core.APIPromise<Shared.SymbolResponse> {
-    return this._client.get('/workspace-symbols', { query, ...options });
-  }
 }
 
 export type WorkspaceListFilesResponse = Array<string>;
 
-export interface WorkspaceSearchSymbolsParams {
-  /**
-   * The query to search for.
-   */
-  query: string;
-
-  /**
-   * Whether to include the raw response from the langserver in the response.
-   * Defaults to false.
-   */
-  include_raw_response?: boolean;
-}
-
 export namespace Workspace {
   export import WorkspaceListFilesResponse = WorkspaceAPI.WorkspaceListFilesResponse;
-  export import WorkspaceSearchSymbolsParams = WorkspaceAPI.WorkspaceSearchSymbolsParams;
 }

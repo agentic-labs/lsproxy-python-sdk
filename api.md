@@ -28,4 +28,3 @@ Types:
 Methods:
 
 - <code title="get /workspace-files">client.workspace.<a href="./src/resources/workspace.ts">listFiles</a>() -> WorkspaceListFilesResponse</code>
-- <code title="get /workspace-symbols">client.workspace.<a href="./src/resources/workspace.ts">searchSymbols</a>({ ...params }) -> SymbolResponse</code>

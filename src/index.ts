@@ -164,7 +164,6 @@ export namespace Lsproxy {
 
   export import Workspace = API.Workspace;
   export import WorkspaceListFilesResponse = API.WorkspaceListFilesResponse;
-  export import WorkspaceSearchSymbolsParams = API.WorkspaceSearchSymbolsParams;
 
   export import Position = API.Position;
   export import Symbol = API.Symbol;

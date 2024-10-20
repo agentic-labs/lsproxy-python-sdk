@@ -4,11 +4,9 @@
  * Specific position within a file.
  */
 export interface Position {
-  character: number;
-
-  line: number;
-
   path: string;
+
+  position: unknown;
 }
 
 export interface Symbol {
@@ -26,6 +24,8 @@ export interface Symbol {
    * The name of the symbol.
    */
   name: string;
+
+  source_code?: unknown | null;
 }
 
 export interface SymbolResponse {
