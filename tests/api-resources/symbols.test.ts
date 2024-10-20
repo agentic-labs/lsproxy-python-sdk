@@ -26,7 +26,7 @@ describe('resource symbols', () => {
 
   test('findDefinition: only required params', async () => {
     const responsePromise = client.symbols.findDefinition({
-      position: { character: 5, line: 10, path: 'src/main.py' },
+      position: { path: 'src/main.py', position: {} },
     });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
@@ -39,14 +39,15 @@ describe('resource symbols', () => {
 
   test('findDefinition: required and optional params', async () => {
     const response = await client.symbols.findDefinition({
-      position: { character: 5, line: 10, path: 'src/main.py' },
+      position: { path: 'src/main.py', position: {} },
+      include_code_context: false,
       include_raw_response: false,
     });
   });
 
   test('findReferences: only required params', async () => {
     const responsePromise = client.symbols.findReferences({
-      symbol_identifier_position: { character: 5, line: 10, path: 'src/main.py' },
+      symbol_identifier_position: { path: 'src/main.py', position: {} },
     });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
@@ -59,7 +60,7 @@ describe('resource symbols', () => {
 
   test('findReferences: required and optional params', async () => {
     const response = await client.symbols.findReferences({
-      symbol_identifier_position: { character: 5, line: 10, path: 'src/main.py' },
+      symbol_identifier_position: { path: 'src/main.py', position: {} },
       include_declaration: true,
       include_raw_response: false,
     });

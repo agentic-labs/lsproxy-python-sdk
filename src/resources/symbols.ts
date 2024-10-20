@@ -180,6 +180,12 @@ export interface SymbolFindDefinitionParams {
   position: Shared.Position;
 
   /**
+   * Whether to include the source code of the symbol in the response. Defaults to
+   * false.
+   */
+  include_code_context?: boolean;
+
+  /**
    * Whether to include the raw response from the langserver in the response.
    * Defaults to false.
    */
