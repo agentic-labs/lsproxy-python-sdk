@@ -10,14 +10,17 @@ It is generated with [Stainless](https://www.stainlessapi.com/).
 
 ## Documentation
 
-The REST API documentation can be found on [docs.lsproxy.dev](https://docs.lsproxy.dev). The full API of this library can be found in [api.md](api.md).
+The REST API documentation can be found on [docs.lsproxy.com](https://docs.lsproxy.com). The full API of this library can be found in [api.md](api.md).
 
 ## Installation
 
 ```sh
-# install from PyPI
-pip install --pre lsproxy
+# install from this staging repo
+pip install git+ssh://git@github.com/stainless-sdks/lsproxy-python.git
 ```
+
+> [!NOTE]
+> Once this package is [published to PyPI](https://app.stainlessapi.com/docs/guides/publish), this will become: `pip install --pre lsproxy`
 
 ## Usage
 
@@ -28,8 +31,8 @@ from lsproxy import Lsproxy
 
 client = Lsproxy()
 
-definition_response = client.symbol.find_definition(
-    position={
+references_response = client.symbols.find_references(
+    symbol_identifier_position={
         "path": "src/main.py",
         "position": {
             "character": 5,
@@ -37,7 +40,7 @@ definition_response = client.symbol.find_definition(
         },
     },
 )
-print(definition_response.definitions)
+print(references_response.references)
 ```
 
 ## Async usage
@@ -52,8 +55,8 @@ client = AsyncLsproxy()
 
 
 async def main() -> None:
-    definition_response = await client.symbol.find_definition(
-        position={
+    references_response = await client.symbols.find_references(
+        symbol_identifier_position={
             "path": "src/main.py",
             "position": {
                 "character": 5,
@@ -61,7 +64,7 @@ async def main() -> None:
             },
         },
     )
-    print(definition_response.definitions)
+    print(references_response.references)
 
 
 asyncio.run(main())
@@ -94,14 +97,8 @@ from lsproxy import Lsproxy
 client = Lsproxy()
 
 try:
-    client.symbol.find_definition(
-        position={
-            "path": "src/main.py",
-            "position": {
-                "character": 5,
-                "line": 10,
-            },
-        },
+    client.symbols.definitions_in_file(
+        file_path="file_path",
     )
 except lsproxy.APIConnectionError as e:
     print("The server could not be reached")
@@ -145,14 +142,8 @@ client = Lsproxy(
 )
 
 # Or, configure per-request:
-client.with_options(max_retries=5).symbol.find_definition(
-    position={
-        "path": "src/main.py",
-        "position": {
-            "character": 5,
-            "line": 10,
-        },
-    },
+client.with_options(max_retries=5).symbols.definitions_in_file(
+    file_path="file_path",
 )
 ```
 
@@ -176,14 +167,8 @@ client = Lsproxy(
 )
 
 # Override per-request:
-client.with_options(timeout=5.0).symbol.find_definition(
-    position={
-        "path": "src/main.py",
-        "position": {
-            "character": 5,
-            "line": 10,
-        },
-    },
+client.with_options(timeout=5.0).symbols.definitions_in_file(
+    file_path="file_path",
 )
 ```
 
@@ -223,24 +208,18 @@ The "raw" Response object can be accessed by prefixing `.with_raw_response.` to 
 from lsproxy import Lsproxy
 
 client = Lsproxy()
-response = client.symbol.with_raw_response.find_definition(
-    position={
-        "path": "src/main.py",
-        "position": {
-            "character": 5,
-            "line": 10,
-        },
-    },
+response = client.symbols.with_raw_response.definitions_in_file(
+    file_path="file_path",
 )
 print(response.headers.get('X-My-Header'))
 
-symbol = response.parse()  # get the object that `symbol.find_definition()` would have returned
-print(symbol.definitions)
+symbol = response.parse()  # get the object that `symbols.definitions_in_file()` would have returned
+print(symbol.symbols)
 ```
 
-These methods return an [`APIResponse`](https://github.com/agentic-labs/lsproxy-python-sdk/tree/main/src/lsproxy/_response.py) object.
+These methods return an [`APIResponse`](https://github.com/stainless-sdks/lsproxy-python/tree/main/src/lsproxy/_response.py) object.
 
-The async client returns an [`AsyncAPIResponse`](https://github.com/agentic-labs/lsproxy-python-sdk/tree/main/src/lsproxy/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
+The async client returns an [`AsyncAPIResponse`](https://github.com/stainless-sdks/lsproxy-python/tree/main/src/lsproxy/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
 
 #### `.with_streaming_response`
 
@@ -249,14 +228,8 @@ The above interface eagerly reads the full response body when you make the reque
 To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
 
 ```python
-with client.symbol.with_streaming_response.find_definition(
-    position={
-        "path": "src/main.py",
-        "position": {
-            "character": 5,
-            "line": 10,
-        },
-    },
+with client.symbols.with_streaming_response.definitions_in_file(
+    file_path="file_path",
 ) as response:
     print(response.headers.get("X-My-Header"))
 
@@ -342,7 +315,7 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/agentic-labs/lsproxy-python-sdk/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/stainless-sdks/lsproxy-python/issues) with questions, bugs, or suggestions.
 
 ### Determining the installed version
 

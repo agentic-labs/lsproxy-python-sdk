@@ -4,13 +4,13 @@ from typing import List, Optional
 
 from .._models import BaseModel
 from .code_context import CodeContext
-from .file_postion import FilePostion
+from .file_position import FilePosition
 
 __all__ = ["DefinitionResponse"]
 
 
 class DefinitionResponse(BaseModel):
-    definitions: List[FilePostion]
+    definitions: List[FilePosition]
 
     raw_response: Optional[object] = None
     """The raw response from the langserver.

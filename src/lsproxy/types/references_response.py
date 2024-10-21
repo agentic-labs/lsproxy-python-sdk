@@ -4,13 +4,13 @@ from typing import List, Optional
 
 from .._models import BaseModel
 from .code_context import CodeContext
-from .file_postion import FilePostion
+from .file_position import FilePosition
 
 __all__ = ["ReferencesResponse"]
 
 
 class ReferencesResponse(BaseModel):
-    references: List[FilePostion]
+    references: List[FilePosition]
 
     context: Optional[List[CodeContext]] = None
     """The source code around the references."""

@@ -5,13 +5,13 @@ from __future__ import annotations
 from typing import Optional
 from typing_extensions import Required, TypedDict
 
-from .file_postion_param import FilePostionParam
+from .file_position_param import FilePositionParam
 
 __all__ = ["SymbolFindReferencesParams"]
 
 
 class SymbolFindReferencesParams(TypedDict, total=False):
-    symbol_identifier_position: Required[FilePostionParam]
+    symbol_identifier_position: Required[FilePositionParam]
     """Specific position within a file."""
 
     include_code_context_lines: Optional[int]
