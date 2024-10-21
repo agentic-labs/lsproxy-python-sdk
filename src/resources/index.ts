@@ -3,13 +3,14 @@
 export {
   CodeContext,
   DefinitionResponse,
-  FilePostion,
+  FilePosition,
   FileRange,
   Position,
   ReferencesResponse,
   SymbolResponse,
+  SymbolDefinitionsInFileParams,
   SymbolFindDefinitionParams,
   SymbolFindReferencesParams,
-  Symbol,
-} from './symbol/symbol';
-export { Workspace } from './workspace/workspace';
+  Symbols,
+} from './symbols';
+export { WorkspaceListFilesResponse, Workspace } from './workspace';

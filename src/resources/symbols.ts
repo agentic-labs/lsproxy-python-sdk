@@ -3,7 +3,6 @@
 import { APIResource } from '../resource';
 import * as Core from '../core';
 import * as SymbolsAPI from './symbols';
-import * as Shared from './shared';
 
 export class Symbols extends APIResource {
   /**
@@ -27,7 +26,7 @@ export class Symbols extends APIResource {
   definitionsInFile(
     query: SymbolDefinitionsInFileParams,
     options?: Core.RequestOptions,
-  ): Core.APIPromise<Shared.SymbolResponse> {
+  ): Core.APIPromise<SymbolResponse> {
     return this._client.get('/symbol/definitions-in-file', { query, ...options });
   }
 
@@ -93,89 +92,10 @@ export class Symbols extends APIResource {
   }
 }
 
-/**
- * Response to a definition request.
- *
- * The definition(s) of the symbol. Points to the start position of the symbol's
- * identifier.
- *
- * e.g. for the definition of `User` on line 5 of `src/main.py` with the code:
- *
- * ```
- * 0: class User:
- * _________^
- * 1:     def __init__(self, name, age):
- * 2:         self.name = name
- * 3:         self.age = age
- * 4:
- * 5: user = User("John", 30)
- * __________^
- * ```
- *
- * The definition(s) will be
- * `[{"path": "src/main.py", "line": 0, "character": 6}]`.
- */
-export interface DefinitionResponse {
-  definitions: Array<Shared.Position>;
+export interface CodeContext {
+  range: FileRange;
 
-  /**
-   * The raw response from the langserver.
-   *
-   * https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_definition
-   */
-  raw_response?: unknown | null;
-
-  /**
-   * The source code of symbol definitions.
-   */
-  source_code_context?: Array<DefinitionResponse.SourceCodeContext> | null;
-}
-
-export namespace DefinitionResponse {
-  export interface SourceCodeContext {
-    range: SourceCodeContext.Range;
-
-    source_code: string;
-  }
-
-  export namespace SourceCodeContext {
-    export interface Range {
-      end: Range.End;
-
-      /**
-       * The path to the file.
-       */
-      path: string;
-
-      start: Range.Start;
-    }
-
-    export namespace Range {
-      export interface End {
-        /**
-         * 0-indexed character index.
-         */
-        character: number;
-
-        /**
-         * 0-indexed line number.
-         */
-        line: number;
-      }
-
-      export interface Start {
-        /**
-         * 0-indexed character index.
-         */
-        character: number;
-
-        /**
-         * 0-indexed line number.
-         */
-        line: number;
-      }
-    }
-  }
+  source_code: string;
 }
 
 /**
@@ -201,7 +121,7 @@ export namespace DefinitionResponse {
  * `[{"path": "src/main.py", "line": 0, "character": 6}]`.
  */
 export interface DefinitionResponse {
-  definitions: Array<Shared.Position>;
+  definitions: Array<FilePosition>;
 
   /**
    * The raw response from the langserver.
@@ -213,54 +133,39 @@ export interface DefinitionResponse {
   /**
    * The source code of symbol definitions.
    */
-  source_code_context?: Array<DefinitionResponse.SourceCodeContext> | null;
+  source_code_context?: Array<CodeContext> | null;
 }
 
-export namespace DefinitionResponse {
-  export interface SourceCodeContext {
-    range: SourceCodeContext.Range;
+/**
+ * Specific position within a file.
+ */
+export interface FilePosition {
+  path: string;
 
-    source_code: string;
-  }
+  position: Position;
+}
 
-  export namespace SourceCodeContext {
-    export interface Range {
-      end: Range.End;
+export interface FileRange {
+  end: Position;
 
-      /**
-       * The path to the file.
-       */
-      path: string;
+  /**
+   * The path to the file.
+   */
+  path: string;
 
-      start: Range.Start;
-    }
+  start: Position;
+}
 
-    export namespace Range {
-      export interface End {
-        /**
-         * 0-indexed character index.
-         */
-        character: number;
+export interface Position {
+  /**
+   * 0-indexed character index.
+   */
+  character: number;
 
-        /**
-         * 0-indexed line number.
-         */
-        line: number;
-      }
-
-      export interface Start {
-        /**
-         * 0-indexed character index.
-         */
-        character: number;
-
-        /**
-         * 0-indexed line number.
-         */
-        line: number;
-      }
-    }
-  }
+  /**
+   * 0-indexed line number.
+   */
+  line: number;
 }
 
 /**
@@ -286,12 +191,12 @@ export namespace DefinitionResponse {
  * The references will be `[{"path": "src/main.py", "line": 5, "character": 7}]`.
  */
 export interface ReferencesResponse {
-  references: Array<Shared.Position>;
+  references: Array<FilePosition>;
 
   /**
    * The source code around the references.
    */
-  context?: Array<ReferencesResponse.Context> | null;
+  context?: Array<CodeContext> | null;
 
   /**
    * The raw response from the langserver.
@@ -299,142 +204,10 @@ export interface ReferencesResponse {
    * https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_references
    */
   raw_response?: unknown | null;
-}
-
-export namespace ReferencesResponse {
-  export interface Context {
-    range: Context.Range;
-
-    source_code: string;
-  }
-
-  export namespace Context {
-    export interface Range {
-      end: Range.End;
-
-      /**
-       * The path to the file.
-       */
-      path: string;
-
-      start: Range.Start;
-    }
-
-    export namespace Range {
-      export interface End {
-        /**
-         * 0-indexed character index.
-         */
-        character: number;
-
-        /**
-         * 0-indexed line number.
-         */
-        line: number;
-      }
-
-      export interface Start {
-        /**
-         * 0-indexed character index.
-         */
-        character: number;
-
-        /**
-         * 0-indexed line number.
-         */
-        line: number;
-      }
-    }
-  }
-}
-
-/**
- * Response to a references request.
- *
- * Points to the start position of the symbol's identifier.
- *
- * e.g. for the references of `User` on line 0 character 6 of `src/main.py` with
- * the code:
- *
- * ```
- * 0: class User:
- * 1:     def __init__(self, name, age):
- * 2:         self.name = name
- * 3:         self.age = age
- * 4:
- * 5: user = User("John", 30)
- * _________^
- * 6:
- * 7: print(user.name)
- * ```
- *
- * The references will be `[{"path": "src/main.py", "line": 5, "character": 7}]`.
- */
-export interface ReferencesResponse {
-  references: Array<Shared.Position>;
-
-  /**
-   * The source code around the references.
-   */
-  context?: Array<ReferencesResponse.Context> | null;
-
-  /**
-   * The raw response from the langserver.
-   *
-   * https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_references
-   */
-  raw_response?: unknown | null;
-}
-
-export namespace ReferencesResponse {
-  export interface Context {
-    range: Context.Range;
-
-    source_code: string;
-  }
-
-  export namespace Context {
-    export interface Range {
-      end: Range.End;
-
-      /**
-       * The path to the file.
-       */
-      path: string;
-
-      start: Range.Start;
-    }
-
-    export namespace Range {
-      export interface End {
-        /**
-         * 0-indexed character index.
-         */
-        character: number;
-
-        /**
-         * 0-indexed line number.
-         */
-        line: number;
-      }
-
-      export interface Start {
-        /**
-         * 0-indexed character index.
-         */
-        character: number;
-
-        /**
-         * 0-indexed line number.
-         */
-        line: number;
-      }
-    }
-  }
 }
 
 export interface SymbolResponse {
-  symbols: Array<Shared.Symbol>;
+  symbols: Array<SymbolResponse.Symbol>;
 
   /**
    * The raw response from the langserver.
@@ -443,6 +216,25 @@ export interface SymbolResponse {
    * https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#document_symbol
    */
   raw_response?: unknown | null;
+}
+
+export namespace SymbolResponse {
+  export interface Symbol {
+    /**
+     * Specific position within a file.
+     */
+    identifier_start_position: SymbolsAPI.FilePosition;
+
+    /**
+     * The kind of the symbol (e.g., function, class).
+     */
+    kind: string;
+
+    /**
+     * The name of the symbol.
+     */
+    name: string;
+  }
 }
 
 export interface SymbolDefinitionsInFileParams {
@@ -463,7 +255,7 @@ export interface SymbolFindDefinitionParams {
   /**
    * Specific position within a file.
    */
-  position: Shared.Position;
+  position: FilePosition;
 
   /**
    * Whether to include the raw response from the langserver in the response.
@@ -482,7 +274,7 @@ export interface SymbolFindReferencesParams {
   /**
    * Specific position within a file.
    */
-  symbol_identifier_position: Shared.Position;
+  symbol_identifier_position: FilePosition;
 
   /**
    * Whether to include the source code of the symbol in the response. Defaults to
@@ -504,7 +296,11 @@ export interface SymbolFindReferencesParams {
 }
 
 export namespace Symbols {
+  export import CodeContext = SymbolsAPI.CodeContext;
   export import DefinitionResponse = SymbolsAPI.DefinitionResponse;
+  export import FilePosition = SymbolsAPI.FilePosition;
+  export import FileRange = SymbolsAPI.FileRange;
+  export import Position = SymbolsAPI.Position;
   export import ReferencesResponse = SymbolsAPI.ReferencesResponse;
   export import SymbolResponse = SymbolsAPI.SymbolResponse;
   export import SymbolDefinitionsInFileParams = SymbolsAPI.SymbolDefinitionsInFileParams;
