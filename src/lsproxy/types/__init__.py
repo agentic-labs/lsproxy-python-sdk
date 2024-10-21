@@ -13,5 +13,4 @@ from .file_position_param import FilePositionParam as FilePositionParam
 from .references_response import ReferencesResponse as ReferencesResponse
 from .symbol_find_definition_params import SymbolFindDefinitionParams as SymbolFindDefinitionParams
 from .symbol_find_references_params import SymbolFindReferencesParams as SymbolFindReferencesParams
-from .workspace_list_files_response import WorkspaceListFilesResponse as WorkspaceListFilesResponse
 from .symbol_definitions_in_file_params import SymbolDefinitionsInFileParams as SymbolDefinitionsInFileParams
