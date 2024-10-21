@@ -180,10 +180,10 @@ export interface SymbolFindDefinitionParams {
   position: Shared.Position;
 
   /**
-   * Whether to include the source code of the symbol in the response. Defaults to
-   * false.
+   * Whether to include the source code around the symbol's identifier in the
+   * response. Defaults to false.
    */
-  include_code_context?: boolean;
+  include_code_context_lines?: number | null;
 
   /**
    * Whether to include the raw response from the langserver in the response.
@@ -197,6 +197,12 @@ export interface SymbolFindReferencesParams {
    * Specific position within a file.
    */
   symbol_identifier_position: Shared.Position;
+
+  /**
+   * Whether to include the source code of the symbol in the response. Defaults to
+   * false.
+   */
+  include_code_context_context_lines?: number | null;
 
   /**
    * Whether to include the declaration (definition) of the symbol in the response.

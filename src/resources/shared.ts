@@ -6,7 +6,21 @@
 export interface Position {
   path: string;
 
-  position: unknown;
+  position: Position.Position;
+}
+
+export namespace Position {
+  export interface Position {
+    /**
+     * 0-indexed character index.
+     */
+    character: number;
+
+    /**
+     * 0-indexed line number.
+     */
+    line: number;
+  }
 }
 
 export interface Symbol {
