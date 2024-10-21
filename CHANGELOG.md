@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0-alpha.5 (2024-10-21)
+
+Full Changelog: [v0.1.0-alpha.4...v0.1.0-alpha.5](https://github.com/agentic-labs/lsproxy-python-sdk/compare/v0.1.0-alpha.4...v0.1.0-alpha.5)
+
+### Features
+
+* **api:** api update ([#15](https://github.com/agentic-labs/lsproxy-python-sdk/issues/15)) ([5532f97](https://github.com/agentic-labs/lsproxy-python-sdk/commit/5532f977a7668fd156ce2e538f4a8a23ef7c7c54))
+* **api:** api update ([#17](https://github.com/agentic-labs/lsproxy-python-sdk/issues/17)) ([21f39a3](https://github.com/agentic-labs/lsproxy-python-sdk/commit/21f39a3000b73e90f5c87a11858e2fdc32f6dc97))
+
 ## 0.1.0-alpha.4 (2024-10-19)
 
 Full Changelog: [v0.1.0-alpha.3...v0.1.0-alpha.4](https://github.com/agentic-labs/lsproxy-python-sdk/compare/v0.1.0-alpha.3...v0.1.0-alpha.4)
