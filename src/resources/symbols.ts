@@ -124,6 +124,58 @@ export interface DefinitionResponse {
    * https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_definition
    */
   raw_response?: unknown | null;
+
+  /**
+   * The source code of symbol definitions.
+   */
+  source_code_context?: Array<DefinitionResponse.SourceCodeContext> | null;
+}
+
+export namespace DefinitionResponse {
+  export interface SourceCodeContext {
+    range: SourceCodeContext.Range;
+
+    source_code: string;
+  }
+
+  export namespace SourceCodeContext {
+    export interface Range {
+      end: Range.End;
+
+      /**
+       * The path to the file.
+       */
+      path: string;
+
+      start: Range.Start;
+    }
+
+    export namespace Range {
+      export interface End {
+        /**
+         * 0-indexed character index.
+         */
+        character: number;
+
+        /**
+         * 0-indexed line number.
+         */
+        line: number;
+      }
+
+      export interface Start {
+        /**
+         * 0-indexed character index.
+         */
+        character: number;
+
+        /**
+         * 0-indexed line number.
+         */
+        line: number;
+      }
+    }
+  }
 }
 
 /**
@@ -152,11 +204,63 @@ export interface ReferencesResponse {
   references: Array<Shared.Position>;
 
   /**
+   * The source code around the references.
+   */
+  context?: Array<ReferencesResponse.Context> | null;
+
+  /**
    * The raw response from the langserver.
    *
    * https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_references
    */
   raw_response?: unknown | null;
+}
+
+export namespace ReferencesResponse {
+  export interface Context {
+    range: Context.Range;
+
+    source_code: string;
+  }
+
+  export namespace Context {
+    export interface Range {
+      end: Range.End;
+
+      /**
+       * The path to the file.
+       */
+      path: string;
+
+      start: Range.Start;
+    }
+
+    export namespace Range {
+      export interface End {
+        /**
+         * 0-indexed character index.
+         */
+        character: number;
+
+        /**
+         * 0-indexed line number.
+         */
+        line: number;
+      }
+
+      export interface Start {
+        /**
+         * 0-indexed character index.
+         */
+        character: number;
+
+        /**
+         * 0-indexed line number.
+         */
+        line: number;
+      }
+    }
+  }
 }
 
 export interface SymbolDefinitionsInFileParams {
@@ -180,16 +284,16 @@ export interface SymbolFindDefinitionParams {
   position: Shared.Position;
 
   /**
-   * Whether to include the source code around the symbol's identifier in the
-   * response. Defaults to false.
-   */
-  include_code_context_lines?: number | null;
-
-  /**
    * Whether to include the raw response from the langserver in the response.
    * Defaults to false.
    */
   include_raw_response?: boolean;
+
+  /**
+   * Whether to include the source code around the symbol's identifier in the
+   * response. Defaults to false.
+   */
+  include_source_code?: boolean;
 }
 
 export interface SymbolFindReferencesParams {
@@ -200,9 +304,9 @@ export interface SymbolFindReferencesParams {
 
   /**
    * Whether to include the source code of the symbol in the response. Defaults to
-   * false.
+   * none.
    */
-  include_code_context_context_lines?: number | null;
+  include_code_context_lines?: number | null;
 
   /**
    * Whether to include the declaration (definition) of the symbol in the response.
