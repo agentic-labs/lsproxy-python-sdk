@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing_extensions import Required, TypedDict
 
-from .shared_params.file_position import FilePosition
+from .file_position import FilePosition
 
 __all__ = ["DefinitionGetParams"]
 
