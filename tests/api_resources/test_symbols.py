@@ -65,7 +65,10 @@ class TestSymbols:
         symbol = client.symbols.find_definition(
             position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
         assert_matches_type(DefinitionResponse, symbol, path=["response"])
@@ -75,9 +78,12 @@ class TestSymbols:
         symbol = client.symbols.find_definition(
             position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
-            include_code_context=False,
+            include_code_context_lines=5,
             include_raw_response=False,
         )
         assert_matches_type(DefinitionResponse, symbol, path=["response"])
@@ -87,7 +93,10 @@ class TestSymbols:
         response = client.symbols.with_raw_response.find_definition(
             position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
 
@@ -101,7 +110,10 @@ class TestSymbols:
         with client.symbols.with_streaming_response.find_definition(
             position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         ) as response:
             assert not response.is_closed
@@ -117,7 +129,10 @@ class TestSymbols:
         symbol = client.symbols.find_references(
             symbol_identifier_position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
         assert_matches_type(ReferencesResponse, symbol, path=["response"])
@@ -127,8 +142,12 @@ class TestSymbols:
         symbol = client.symbols.find_references(
             symbol_identifier_position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
+            include_code_context_context_lines=5,
             include_declaration=True,
             include_raw_response=False,
         )
@@ -139,7 +158,10 @@ class TestSymbols:
         response = client.symbols.with_raw_response.find_references(
             symbol_identifier_position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
 
@@ -153,7 +175,10 @@ class TestSymbols:
         with client.symbols.with_streaming_response.find_references(
             symbol_identifier_position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         ) as response:
             assert not response.is_closed
@@ -212,7 +237,10 @@ class TestAsyncSymbols:
         symbol = await async_client.symbols.find_definition(
             position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
         assert_matches_type(DefinitionResponse, symbol, path=["response"])
@@ -222,9 +250,12 @@ class TestAsyncSymbols:
         symbol = await async_client.symbols.find_definition(
             position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
-            include_code_context=False,
+            include_code_context_lines=5,
             include_raw_response=False,
         )
         assert_matches_type(DefinitionResponse, symbol, path=["response"])
@@ -234,7 +265,10 @@ class TestAsyncSymbols:
         response = await async_client.symbols.with_raw_response.find_definition(
             position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
 
@@ -248,7 +282,10 @@ class TestAsyncSymbols:
         async with async_client.symbols.with_streaming_response.find_definition(
             position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         ) as response:
             assert not response.is_closed
@@ -264,7 +301,10 @@ class TestAsyncSymbols:
         symbol = await async_client.symbols.find_references(
             symbol_identifier_position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
         assert_matches_type(ReferencesResponse, symbol, path=["response"])
@@ -274,8 +314,12 @@ class TestAsyncSymbols:
         symbol = await async_client.symbols.find_references(
             symbol_identifier_position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
+            include_code_context_context_lines=5,
             include_declaration=True,
             include_raw_response=False,
         )
@@ -286,7 +330,10 @@ class TestAsyncSymbols:
         response = await async_client.symbols.with_raw_response.find_references(
             symbol_identifier_position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
 
@@ -300,7 +347,10 @@ class TestAsyncSymbols:
         async with async_client.symbols.with_streaming_response.find_references(
             symbol_identifier_position={
                 "path": "src/main.py",
-                "position": {},
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         ) as response:
             assert not response.is_closed

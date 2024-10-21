@@ -9,4 +9,4 @@ __all__ = ["Position"]
 class Position(BaseModel):
     path: str
 
-    position: object
+    position: Position
