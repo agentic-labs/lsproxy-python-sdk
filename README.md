@@ -10,17 +10,14 @@ It is generated with [Stainless](https://www.stainlessapi.com/).
 
 ## Documentation
 
-The REST API documentation can be found on [docs.lsproxy.com](https://docs.lsproxy.com). The full API of this library can be found in [api.md](api.md).
+The REST API documentation can be found on [docs.lsproxy.dev](https://docs.lsproxy.dev). The full API of this library can be found in [api.md](api.md).
 
 ## Installation
 
 ```sh
-# install from this staging repo
-pip install git+ssh://git@github.com/stainless-sdks/lsproxy-python.git
+# install from PyPI
+pip install --pre lsproxy
 ```
-
-> [!NOTE]
-> Once this package is [published to PyPI](https://app.stainlessapi.com/docs/guides/publish), this will become: `pip install --pre lsproxy`
 
 ## Usage
 
@@ -31,16 +28,10 @@ from lsproxy import Lsproxy
 
 client = Lsproxy()
 
-references_response = client.symbols.find_references(
-    symbol_identifier_position={
-        "path": "src/main.py",
-        "position": {
-            "character": 5,
-            "line": 10,
-        },
-    },
+symbol_response = client.symbols.definitions_in_file(
+    file_path="file_path",
 )
-print(references_response.references)
+print(symbol_response.symbols)
 ```
 
 ## Async usage
@@ -55,16 +46,10 @@ client = AsyncLsproxy()
 
 
 async def main() -> None:
-    references_response = await client.symbols.find_references(
-        symbol_identifier_position={
-            "path": "src/main.py",
-            "position": {
-                "character": 5,
-                "line": 10,
-            },
-        },
+    symbol_response = await client.symbols.definitions_in_file(
+        file_path="file_path",
     )
-    print(references_response.references)
+    print(symbol_response.symbols)
 
 
 asyncio.run(main())
@@ -217,9 +202,9 @@ symbol = response.parse()  # get the object that `symbols.definitions_in_file()`
 print(symbol.symbols)
 ```
 
-These methods return an [`APIResponse`](https://github.com/stainless-sdks/lsproxy-python/tree/main/src/lsproxy/_response.py) object.
+These methods return an [`APIResponse`](https://github.com/agentic-labs/lsproxy-python-sdk/tree/main/src/lsproxy/_response.py) object.
 
-The async client returns an [`AsyncAPIResponse`](https://github.com/stainless-sdks/lsproxy-python/tree/main/src/lsproxy/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
+The async client returns an [`AsyncAPIResponse`](https://github.com/agentic-labs/lsproxy-python-sdk/tree/main/src/lsproxy/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
 
 #### `.with_streaming_response`
 
@@ -315,7 +300,7 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/stainless-sdks/lsproxy-python/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/agentic-labs/lsproxy-python-sdk/issues) with questions, bugs, or suggestions.
 
 ### Determining the installed version
 
