@@ -15,12 +15,9 @@ The REST API documentation can be found on [docs.lsproxy.dev](https://docs.lspro
 ## Installation
 
 ```sh
-# install from the production repo
-pip install git+ssh://git@github.com/agentic-labs/lsproxy-python-sdk.git
+# install from PyPI
+pip install --pre lsproxy
 ```
-
-> [!NOTE]
-> Once this package is [published to PyPI](https://app.stainlessapi.com/docs/guides/publish), this will become: `pip install --pre lsproxy`
 
 ## Usage
 
