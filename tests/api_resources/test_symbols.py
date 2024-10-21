@@ -64,9 +64,11 @@ class TestSymbols:
     def test_method_find_definition(self, client: Lsproxy) -> None:
         symbol = client.symbols.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
         assert_matches_type(DefinitionResponse, symbol, path=["response"])
@@ -75,10 +77,13 @@ class TestSymbols:
     def test_method_find_definition_with_all_params(self, client: Lsproxy) -> None:
         symbol = client.symbols.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
+            include_code_context_lines=5,
             include_raw_response=False,
         )
         assert_matches_type(DefinitionResponse, symbol, path=["response"])
@@ -87,9 +92,11 @@ class TestSymbols:
     def test_raw_response_find_definition(self, client: Lsproxy) -> None:
         response = client.symbols.with_raw_response.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
 
@@ -102,9 +109,11 @@ class TestSymbols:
     def test_streaming_response_find_definition(self, client: Lsproxy) -> None:
         with client.symbols.with_streaming_response.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         ) as response:
             assert not response.is_closed
@@ -119,9 +128,11 @@ class TestSymbols:
     def test_method_find_references(self, client: Lsproxy) -> None:
         symbol = client.symbols.find_references(
             symbol_identifier_position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
         assert_matches_type(ReferencesResponse, symbol, path=["response"])
@@ -130,10 +141,13 @@ class TestSymbols:
     def test_method_find_references_with_all_params(self, client: Lsproxy) -> None:
         symbol = client.symbols.find_references(
             symbol_identifier_position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
+            include_code_context_context_lines=5,
             include_declaration=True,
             include_raw_response=False,
         )
@@ -143,9 +157,11 @@ class TestSymbols:
     def test_raw_response_find_references(self, client: Lsproxy) -> None:
         response = client.symbols.with_raw_response.find_references(
             symbol_identifier_position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
 
@@ -158,9 +174,11 @@ class TestSymbols:
     def test_streaming_response_find_references(self, client: Lsproxy) -> None:
         with client.symbols.with_streaming_response.find_references(
             symbol_identifier_position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         ) as response:
             assert not response.is_closed
@@ -218,9 +236,11 @@ class TestAsyncSymbols:
     async def test_method_find_definition(self, async_client: AsyncLsproxy) -> None:
         symbol = await async_client.symbols.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
         assert_matches_type(DefinitionResponse, symbol, path=["response"])
@@ -229,10 +249,13 @@ class TestAsyncSymbols:
     async def test_method_find_definition_with_all_params(self, async_client: AsyncLsproxy) -> None:
         symbol = await async_client.symbols.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
+            include_code_context_lines=5,
             include_raw_response=False,
         )
         assert_matches_type(DefinitionResponse, symbol, path=["response"])
@@ -241,9 +264,11 @@ class TestAsyncSymbols:
     async def test_raw_response_find_definition(self, async_client: AsyncLsproxy) -> None:
         response = await async_client.symbols.with_raw_response.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
 
@@ -256,9 +281,11 @@ class TestAsyncSymbols:
     async def test_streaming_response_find_definition(self, async_client: AsyncLsproxy) -> None:
         async with async_client.symbols.with_streaming_response.find_definition(
             position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         ) as response:
             assert not response.is_closed
@@ -273,9 +300,11 @@ class TestAsyncSymbols:
     async def test_method_find_references(self, async_client: AsyncLsproxy) -> None:
         symbol = await async_client.symbols.find_references(
             symbol_identifier_position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
         assert_matches_type(ReferencesResponse, symbol, path=["response"])
@@ -284,10 +313,13 @@ class TestAsyncSymbols:
     async def test_method_find_references_with_all_params(self, async_client: AsyncLsproxy) -> None:
         symbol = await async_client.symbols.find_references(
             symbol_identifier_position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
+            include_code_context_context_lines=5,
             include_declaration=True,
             include_raw_response=False,
         )
@@ -297,9 +329,11 @@ class TestAsyncSymbols:
     async def test_raw_response_find_references(self, async_client: AsyncLsproxy) -> None:
         response = await async_client.symbols.with_raw_response.find_references(
             symbol_identifier_position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         )
 
@@ -312,9 +346,11 @@ class TestAsyncSymbols:
     async def test_streaming_response_find_references(self, async_client: AsyncLsproxy) -> None:
         async with async_client.symbols.with_streaming_response.find_references(
             symbol_identifier_position={
-                "character": 5,
-                "line": 10,
                 "path": "src/main.py",
+                "position": {
+                    "character": 5,
+                    "line": 10,
+                },
             },
         ) as response:
             assert not response.is_closed

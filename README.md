@@ -30,9 +30,11 @@ client = Lsproxy()
 
 definition_response = client.symbols.find_definition(
     position={
-        "character": 5,
-        "line": 10,
         "path": "src/main.py",
+        "position": {
+            "character": 5,
+            "line": 10,
+        },
     },
 )
 print(definition_response.definitions)
@@ -52,9 +54,11 @@ client = AsyncLsproxy()
 async def main() -> None:
     definition_response = await client.symbols.find_definition(
         position={
-            "character": 5,
-            "line": 10,
             "path": "src/main.py",
+            "position": {
+                "character": 5,
+                "line": 10,
+            },
         },
     )
     print(definition_response.definitions)
@@ -92,9 +96,11 @@ client = Lsproxy()
 try:
     client.symbols.find_definition(
         position={
-            "character": 5,
-            "line": 10,
             "path": "src/main.py",
+            "position": {
+                "character": 5,
+                "line": 10,
+            },
         },
     )
 except lsproxy.APIConnectionError as e:
@@ -141,9 +147,11 @@ client = Lsproxy(
 # Or, configure per-request:
 client.with_options(max_retries=5).symbols.find_definition(
     position={
-        "character": 5,
-        "line": 10,
         "path": "src/main.py",
+        "position": {
+            "character": 5,
+            "line": 10,
+        },
     },
 )
 ```
@@ -170,9 +178,11 @@ client = Lsproxy(
 # Override per-request:
 client.with_options(timeout=5.0).symbols.find_definition(
     position={
-        "character": 5,
-        "line": 10,
         "path": "src/main.py",
+        "position": {
+            "character": 5,
+            "line": 10,
+        },
     },
 )
 ```
@@ -215,9 +225,11 @@ from lsproxy import Lsproxy
 client = Lsproxy()
 response = client.symbols.with_raw_response.find_definition(
     position={
-        "character": 5,
-        "line": 10,
         "path": "src/main.py",
+        "position": {
+            "character": 5,
+            "line": 10,
+        },
     },
 )
 print(response.headers.get('X-My-Header'))
@@ -239,9 +251,11 @@ To stream the response body, use `.with_streaming_response` instead, which requi
 ```python
 with client.symbols.with_streaming_response.find_definition(
     position={
-        "character": 5,
-        "line": 10,
         "path": "src/main.py",
+        "position": {
+            "character": 5,
+            "line": 10,
+        },
     },
 ) as response:
     print(response.headers.get("X-My-Header"))

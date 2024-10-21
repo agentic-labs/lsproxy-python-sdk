@@ -1,6 +1,6 @@
 [project]
 name = "lsproxy"
-version = "0.1.0-alpha.4"
+version = "0.1.0-alpha.5"
 description = "The official Python library for the lsproxy API"
 dynamic = ["readme"]
 license = "Apache-2.0"
@@ -66,7 +66,6 @@ format = { chain = [
   # run formatting again to fix any inconsistencies when imports are stripped
   "format:ruff",
 ]}
-"format:black" = "black ."
 "format:docs" = "python scripts/utils/ruffen-docs.py README.md api.md"
 "format:ruff" = "ruff format"
 
@@ -125,10 +124,6 @@ path = "README.md"
 # replace relative links with absolute links
 pattern = '\[(.+?)\]\(((?!https?://)\S+?)\)'
 replacement = '[\1](https://github.com/agentic-labs/lsproxy-python-sdk/tree/main/\g<2>)'
-
-[tool.black]
-line-length = 120
-target-version = ["py37"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
