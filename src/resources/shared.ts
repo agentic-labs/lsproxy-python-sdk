@@ -39,7 +39,54 @@ export interface Symbol {
    */
   name: string;
 
-  source_code?: unknown | null;
+  source_code?: Symbol.SourceCode | null;
+}
+
+export namespace Symbol {
+  export interface SourceCode {
+    range: SourceCode.Range;
+
+    source_code: string;
+  }
+
+  export namespace SourceCode {
+    export interface Range {
+      end: Range.End;
+
+      /**
+       * The path to the file.
+       */
+      path: string;
+
+      start: Range.Start;
+    }
+
+    export namespace Range {
+      export interface End {
+        /**
+         * 0-indexed character index.
+         */
+        character: number;
+
+        /**
+         * 0-indexed line number.
+         */
+        line: number;
+      }
+
+      export interface Start {
+        /**
+         * 0-indexed character index.
+         */
+        character: number;
+
+        /**
+         * 0-indexed line number.
+         */
+        line: number;
+      }
+    }
+  }
 }
 
 export interface SymbolResponse {

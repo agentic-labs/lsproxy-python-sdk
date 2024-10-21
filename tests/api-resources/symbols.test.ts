@@ -40,8 +40,8 @@ describe('resource symbols', () => {
   test('findDefinition: required and optional params', async () => {
     const response = await client.symbols.findDefinition({
       position: { path: 'src/main.py', position: { character: 5, line: 10 } },
-      include_code_context_lines: 5,
       include_raw_response: false,
+      include_source_code: false,
     });
   });
 
@@ -61,7 +61,7 @@ describe('resource symbols', () => {
   test('findReferences: required and optional params', async () => {
     const response = await client.symbols.findReferences({
       symbol_identifier_position: { path: 'src/main.py', position: { character: 5, line: 10 } },
-      include_code_context_context_lines: 5,
+      include_code_context_lines: 5,
       include_declaration: true,
       include_raw_response: false,
     });
