@@ -99,7 +99,7 @@ class SymbolsResource(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._get(
-            "/file-symbols",
+            "/symbol/definitions-in-file",
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -170,7 +170,7 @@ class SymbolsResource(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._post(
-            "/definition",
+            "/symbol/find-definition",
             body=maybe_transform(
                 {
                     "position": position,
@@ -244,7 +244,7 @@ class SymbolsResource(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._post(
-            "/references",
+            "/symbol/find-references",
             body=maybe_transform(
                 {
                     "symbol_identifier_position": symbol_identifier_position,
@@ -327,7 +327,7 @@ class AsyncSymbolsResource(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return await self._get(
-            "/file-symbols",
+            "/symbol/definitions-in-file",
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -398,7 +398,7 @@ class AsyncSymbolsResource(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return await self._post(
-            "/definition",
+            "/symbol/find-definition",
             body=await async_maybe_transform(
                 {
                     "position": position,
@@ -472,7 +472,7 @@ class AsyncSymbolsResource(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return await self._post(
-            "/references",
+            "/symbol/find-references",
             body=await async_maybe_transform(
                 {
                     "symbol_identifier_position": symbol_identifier_position,
