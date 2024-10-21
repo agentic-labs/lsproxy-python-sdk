@@ -31,7 +31,10 @@ client = Lsproxy()
 definition_response = client.symbols.find_definition(
     position={
         "path": "src/main.py",
-        "position": {},
+        "position": {
+            "character": 5,
+            "line": 10,
+        },
     },
 )
 print(definition_response.definitions)
@@ -52,7 +55,10 @@ async def main() -> None:
     definition_response = await client.symbols.find_definition(
         position={
             "path": "src/main.py",
-            "position": {},
+            "position": {
+                "character": 5,
+                "line": 10,
+            },
         },
     )
     print(definition_response.definitions)
@@ -91,7 +97,10 @@ try:
     client.symbols.find_definition(
         position={
             "path": "src/main.py",
-            "position": {},
+            "position": {
+                "character": 5,
+                "line": 10,
+            },
         },
     )
 except lsproxy.APIConnectionError as e:
@@ -139,7 +148,10 @@ client = Lsproxy(
 client.with_options(max_retries=5).symbols.find_definition(
     position={
         "path": "src/main.py",
-        "position": {},
+        "position": {
+            "character": 5,
+            "line": 10,
+        },
     },
 )
 ```
@@ -167,7 +179,10 @@ client = Lsproxy(
 client.with_options(timeout=5.0).symbols.find_definition(
     position={
         "path": "src/main.py",
-        "position": {},
+        "position": {
+            "character": 5,
+            "line": 10,
+        },
     },
 )
 ```
@@ -211,7 +226,10 @@ client = Lsproxy()
 response = client.symbols.with_raw_response.find_definition(
     position={
         "path": "src/main.py",
-        "position": {},
+        "position": {
+            "character": 5,
+            "line": 10,
+        },
     },
 )
 print(response.headers.get('X-My-Header'))
@@ -234,7 +252,10 @@ To stream the response body, use `.with_streaming_response` instead, which requi
 with client.symbols.with_streaming_response.find_definition(
     position={
         "path": "src/main.py",
-        "position": {},
+        "position": {
+            "character": 5,
+            "line": 10,
+        },
     },
 ) as response:
     print(response.headers.get("X-My-Header"))

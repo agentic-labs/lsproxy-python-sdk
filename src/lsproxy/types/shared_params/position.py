@@ -10,4 +10,4 @@ __all__ = ["Position"]
 class Position(TypedDict, total=False):
     path: Required[str]
 
-    position: Required[object]
+    position: Required[Position]
