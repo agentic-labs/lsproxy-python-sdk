@@ -4,7 +4,7 @@
 
 This library provides convenient access to the Lsproxy REST API from server-side TypeScript or JavaScript.
 
-The REST API documentation can be found on [docs.lsproxy.dev](https://docs.lsproxy.dev). The full API of this library can be found in [api.md](api.md).
+The REST API documentation can be found on [docs.lsproxy.com](https://docs.lsproxy.com). The full API of this library can be found in [api.md](api.md).
 
 It is generated with [Stainless](https://www.stainlessapi.com/).
 
@@ -28,11 +28,11 @@ import Lsproxy from 'lsproxy';
 const client = new Lsproxy();
 
 async function main() {
-  const definitionResponse = await client.symbol.findDefinition({
-    position: { path: 'src/main.py', position: { character: 5, line: 10 } },
+  const referencesResponse = await client.symbols.findReferences({
+    symbol_identifier_position: { path: 'src/main.py', position: { character: 5, line: 10 } },
   });
 
-  console.log(definitionResponse.definitions);
+  console.log(referencesResponse.references);
 }
 
 main();
@@ -49,10 +49,8 @@ import Lsproxy from 'lsproxy';
 const client = new Lsproxy();
 
 async function main() {
-  const params: Lsproxy.SymbolFindDefinitionParams = {
-    position: { path: 'src/main.py', position: { character: 5, line: 10 } },
-  };
-  const definitionResponse: Lsproxy.DefinitionResponse = await client.symbol.findDefinition(params);
+  const params: Lsproxy.SymbolDefinitionsInFileParams = { file_path: 'file_path' };
+  const symbolResponse: Lsproxy.SymbolResponse = await client.symbols.definitionsInFile(params);
 }
 
 main();
@@ -69,8 +67,8 @@ a subclass of `APIError` will be thrown:
 <!-- prettier-ignore -->
 ```ts
 async function main() {
-  const definitionResponse = await client.symbol
-    .findDefinition({ position: { path: 'src/main.py', position: { character: 5, line: 10 } } })
+  const symbolResponse = await client.symbols
+    .definitionsInFile({ file_path: 'file_path' })
     .catch(async (err) => {
       if (err instanceof Lsproxy.APIError) {
         console.log(err.status); // 400
@@ -114,7 +112,7 @@ const client = new Lsproxy({
 });
 
 // Or, configure per-request:
-await client.symbol.findDefinition({ position: { path: 'src/main.py', position: { character: 5, line: 10 } } }, {
+await client.symbols.definitionsInFile({ file_path: 'file_path' }, {
   maxRetries: 5,
 });
 ```
@@ -131,7 +129,7 @@ const client = new Lsproxy({
 });
 
 // Override per-request:
-await client.symbol.findDefinition({ position: { path: 'src/main.py', position: { character: 5, line: 10 } } }, {
+await client.symbols.definitionsInFile({ file_path: 'file_path' }, {
   timeout: 5 * 1000,
 });
 ```
@@ -152,17 +150,15 @@ You can also use the `.withResponse()` method to get the raw `Response` along wi
 ```ts
 const client = new Lsproxy();
 
-const response = await client.symbol
-  .findDefinition({ position: { path: 'src/main.py', position: { character: 5, line: 10 } } })
-  .asResponse();
+const response = await client.symbols.definitionsInFile({ file_path: 'file_path' }).asResponse();
 console.log(response.headers.get('X-My-Header'));
 console.log(response.statusText); // access the underlying Response object
 
-const { data: definitionResponse, response: raw } = await client.symbol
-  .findDefinition({ position: { path: 'src/main.py', position: { character: 5, line: 10 } } })
+const { data: symbolResponse, response: raw } = await client.symbols
+  .definitionsInFile({ file_path: 'file_path' })
   .withResponse();
 console.log(raw.headers.get('X-My-Header'));
-console.log(definitionResponse.definitions);
+console.log(symbolResponse.symbols);
 ```
 
 ### Making custom/undocumented requests
@@ -266,8 +262,8 @@ const client = new Lsproxy({
 });
 
 // Override per-request:
-await client.symbol.findDefinition(
-  { position: { path: 'src/main.py', position: { character: 5, line: 10 } } },
+await client.symbols.definitionsInFile(
+  { file_path: 'file_path' },
   {
     httpAgent: new http.Agent({ keepAlive: false }),
   },
