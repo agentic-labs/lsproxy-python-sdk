@@ -8,6 +8,14 @@ from .symbols import (
     SymbolsResourceWithStreamingResponse,
     AsyncSymbolsResourceWithStreamingResponse,
 )
+from .workspace import (
+    WorkspaceResource,
+    AsyncWorkspaceResource,
+    WorkspaceResourceWithRawResponse,
+    AsyncWorkspaceResourceWithRawResponse,
+    WorkspaceResourceWithStreamingResponse,
+    AsyncWorkspaceResourceWithStreamingResponse,
+)
 
 __all__ = [
     "SymbolsResource",
@@ -16,4 +24,10 @@ __all__ = [
     "AsyncSymbolsResourceWithRawResponse",
     "SymbolsResourceWithStreamingResponse",
     "AsyncSymbolsResourceWithStreamingResponse",
+    "WorkspaceResource",
+    "AsyncWorkspaceResource",
+    "WorkspaceResourceWithRawResponse",
+    "AsyncWorkspaceResourceWithRawResponse",
+    "WorkspaceResourceWithStreamingResponse",
+    "AsyncWorkspaceResourceWithStreamingResponse",
 ]

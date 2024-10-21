@@ -47,6 +47,7 @@ __all__ = [
 
 class Lsproxy(SyncAPIClient):
     symbols: resources.SymbolsResource
+    workspace: resources.WorkspaceResource
     with_raw_response: LsproxyWithRawResponse
     with_streaming_response: LsproxyWithStreamedResponse
 
@@ -92,6 +93,7 @@ class Lsproxy(SyncAPIClient):
         )
 
         self.symbols = resources.SymbolsResource(self)
+        self.workspace = resources.WorkspaceResource(self)
         self.with_raw_response = LsproxyWithRawResponse(self)
         self.with_streaming_response = LsproxyWithStreamedResponse(self)
 
@@ -194,6 +196,7 @@ class Lsproxy(SyncAPIClient):
 
 class AsyncLsproxy(AsyncAPIClient):
     symbols: resources.AsyncSymbolsResource
+    workspace: resources.AsyncWorkspaceResource
     with_raw_response: AsyncLsproxyWithRawResponse
     with_streaming_response: AsyncLsproxyWithStreamedResponse
 
@@ -239,6 +242,7 @@ class AsyncLsproxy(AsyncAPIClient):
         )
 
         self.symbols = resources.AsyncSymbolsResource(self)
+        self.workspace = resources.AsyncWorkspaceResource(self)
         self.with_raw_response = AsyncLsproxyWithRawResponse(self)
         self.with_streaming_response = AsyncLsproxyWithStreamedResponse(self)
 
@@ -342,21 +346,25 @@ class AsyncLsproxy(AsyncAPIClient):
 class LsproxyWithRawResponse:
     def __init__(self, client: Lsproxy) -> None:
         self.symbols = resources.SymbolsResourceWithRawResponse(client.symbols)
+        self.workspace = resources.WorkspaceResourceWithRawResponse(client.workspace)
 
 
 class AsyncLsproxyWithRawResponse:
     def __init__(self, client: AsyncLsproxy) -> None:
         self.symbols = resources.AsyncSymbolsResourceWithRawResponse(client.symbols)
+        self.workspace = resources.AsyncWorkspaceResourceWithRawResponse(client.workspace)
 
 
 class LsproxyWithStreamedResponse:
     def __init__(self, client: Lsproxy) -> None:
         self.symbols = resources.SymbolsResourceWithStreamingResponse(client.symbols)
+        self.workspace = resources.WorkspaceResourceWithStreamingResponse(client.workspace)
 
 
 class AsyncLsproxyWithStreamedResponse:
     def __init__(self, client: AsyncLsproxy) -> None:
         self.symbols = resources.AsyncSymbolsResourceWithStreamingResponse(client.symbols)
+        self.workspace = resources.AsyncWorkspaceResourceWithStreamingResponse(client.workspace)
 
 
 Client = Lsproxy
