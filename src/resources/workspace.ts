@@ -14,7 +14,7 @@ export class Workspace extends APIResource {
    * directly, but it does apply the same filtering.
    */
   listFiles(options?: Core.RequestOptions): Core.APIPromise<WorkspaceListFilesResponse> {
-    return this._client.get('/workspace-files', options);
+    return this._client.get('/workspace/list-files', options);
   }
 }
 
