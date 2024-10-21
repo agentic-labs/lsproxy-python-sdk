@@ -98,7 +98,7 @@ export class Lsproxy extends Core.APIClient {
     this._options = options;
   }
 
-  symbols: API.Symbols = new API.Symbols(this);
+  symbol: API.Symbol = new API.Symbol(this);
   workspace: API.Workspace = new API.Workspace(this);
 
   protected override defaultQuery(): Core.DefaultQuery | undefined {
@@ -155,20 +155,18 @@ export import fileFromPath = Uploads.fileFromPath;
 export namespace Lsproxy {
   export import RequestOptions = Core.RequestOptions;
 
-  export import Symbols = API.Symbols;
+  export import Symbol = API.Symbol;
+  export import CodeContext = API.CodeContext;
   export import DefinitionResponse = API.DefinitionResponse;
+  export import FilePostion = API.FilePostion;
+  export import FileRange = API.FileRange;
+  export import Position = API.Position;
   export import ReferencesResponse = API.ReferencesResponse;
   export import SymbolResponse = API.SymbolResponse;
-  export import SymbolDefinitionsInFileParams = API.SymbolDefinitionsInFileParams;
   export import SymbolFindDefinitionParams = API.SymbolFindDefinitionParams;
   export import SymbolFindReferencesParams = API.SymbolFindReferencesParams;
 
   export import Workspace = API.Workspace;
-  export import WorkspaceListFilesResponse = API.WorkspaceListFilesResponse;
-
-  export import Position = API.Position;
-  export import Symbol = API.Symbol;
-  export import SymbolResponse = API.SymbolResponse;
 }
 
 export default Lsproxy;
