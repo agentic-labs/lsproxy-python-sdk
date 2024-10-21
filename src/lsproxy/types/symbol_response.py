@@ -3,13 +3,13 @@
 from typing import List, Optional
 
 from .._models import BaseModel
-from .shared.file_position import FilePosition
+from .file_postion import FilePostion
 
 __all__ = ["SymbolResponse", "Symbol"]
 
 
 class Symbol(BaseModel):
-    identifier_start_position: FilePosition
+    identifier_start_position: FilePostion
     """Specific position within a file."""
 
     kind: str

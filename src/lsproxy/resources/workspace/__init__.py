@@ -1,12 +1,12 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from .symbol import (
-    SymbolResource,
-    AsyncSymbolResource,
-    SymbolResourceWithRawResponse,
-    AsyncSymbolResourceWithRawResponse,
-    SymbolResourceWithStreamingResponse,
-    AsyncSymbolResourceWithStreamingResponse,
+from .files import (
+    FilesResource,
+    AsyncFilesResource,
+    FilesResourceWithRawResponse,
+    AsyncFilesResourceWithRawResponse,
+    FilesResourceWithStreamingResponse,
+    AsyncFilesResourceWithStreamingResponse,
 )
 from .workspace import (
     WorkspaceResource,
@@ -18,12 +18,12 @@ from .workspace import (
 )
 
 __all__ = [
-    "SymbolResource",
-    "AsyncSymbolResource",
-    "SymbolResourceWithRawResponse",
-    "AsyncSymbolResourceWithRawResponse",
-    "SymbolResourceWithStreamingResponse",
-    "AsyncSymbolResourceWithStreamingResponse",
+    "FilesResource",
+    "AsyncFilesResource",
+    "FilesResourceWithRawResponse",
+    "AsyncFilesResourceWithRawResponse",
+    "FilesResourceWithStreamingResponse",
+    "AsyncFilesResourceWithStreamingResponse",
     "WorkspaceResource",
     "AsyncWorkspaceResource",
     "WorkspaceResourceWithRawResponse",
