@@ -28,16 +28,10 @@ from lsproxy import Lsproxy
 
 client = Lsproxy()
 
-definition_response = client.symbols.find_definition(
-    position={
-        "path": "src/main.py",
-        "position": {
-            "character": 5,
-            "line": 10,
-        },
-    },
+symbol_response = client.symbols.definitions_in_file(
+    file_path="file_path",
 )
-print(definition_response.definitions)
+print(symbol_response.symbols)
 ```
 
 ## Async usage
@@ -52,16 +46,10 @@ client = AsyncLsproxy()
 
 
 async def main() -> None:
-    definition_response = await client.symbols.find_definition(
-        position={
-            "path": "src/main.py",
-            "position": {
-                "character": 5,
-                "line": 10,
-            },
-        },
+    symbol_response = await client.symbols.definitions_in_file(
+        file_path="file_path",
     )
-    print(definition_response.definitions)
+    print(symbol_response.symbols)
 
 
 asyncio.run(main())
@@ -94,14 +82,8 @@ from lsproxy import Lsproxy
 client = Lsproxy()
 
 try:
-    client.symbols.find_definition(
-        position={
-            "path": "src/main.py",
-            "position": {
-                "character": 5,
-                "line": 10,
-            },
-        },
+    client.symbols.definitions_in_file(
+        file_path="file_path",
     )
 except lsproxy.APIConnectionError as e:
     print("The server could not be reached")
@@ -145,14 +127,8 @@ client = Lsproxy(
 )
 
 # Or, configure per-request:
-client.with_options(max_retries=5).symbols.find_definition(
-    position={
-        "path": "src/main.py",
-        "position": {
-            "character": 5,
-            "line": 10,
-        },
-    },
+client.with_options(max_retries=5).symbols.definitions_in_file(
+    file_path="file_path",
 )
 ```
 
@@ -176,14 +152,8 @@ client = Lsproxy(
 )
 
 # Override per-request:
-client.with_options(timeout=5.0).symbols.find_definition(
-    position={
-        "path": "src/main.py",
-        "position": {
-            "character": 5,
-            "line": 10,
-        },
-    },
+client.with_options(timeout=5.0).symbols.definitions_in_file(
+    file_path="file_path",
 )
 ```
 
@@ -223,19 +193,13 @@ The "raw" Response object can be accessed by prefixing `.with_raw_response.` to 
 from lsproxy import Lsproxy
 
 client = Lsproxy()
-response = client.symbols.with_raw_response.find_definition(
-    position={
-        "path": "src/main.py",
-        "position": {
-            "character": 5,
-            "line": 10,
-        },
-    },
+response = client.symbols.with_raw_response.definitions_in_file(
+    file_path="file_path",
 )
 print(response.headers.get('X-My-Header'))
 
-symbol = response.parse()  # get the object that `symbols.find_definition()` would have returned
-print(symbol.definitions)
+symbol = response.parse()  # get the object that `symbols.definitions_in_file()` would have returned
+print(symbol.symbols)
 ```
 
 These methods return an [`APIResponse`](https://github.com/agentic-labs/lsproxy-python-sdk/tree/main/src/lsproxy/_response.py) object.
@@ -249,14 +213,8 @@ The above interface eagerly reads the full response body when you make the reque
 To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
 
 ```python
-with client.symbols.with_streaming_response.find_definition(
-    position={
-        "path": "src/main.py",
-        "position": {
-            "character": 5,
-            "line": 10,
-        },
-    },
+with client.symbols.with_streaming_response.definitions_in_file(
+    file_path="file_path",
 ) as response:
     print(response.headers.get("X-My-Header"))
 

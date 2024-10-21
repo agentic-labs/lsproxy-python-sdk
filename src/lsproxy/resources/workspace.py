@@ -58,7 +58,7 @@ class WorkspaceResource(SyncAPIResource):
         directly, but it does apply the same filtering.
         """
         return self._get(
-            "/workspace-files",
+            "/workspace/list-files",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -105,7 +105,7 @@ class AsyncWorkspaceResource(AsyncAPIResource):
         directly, but it does apply the same filtering.
         """
         return await self._get(
-            "/workspace-files",
+            "/workspace/list-files",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
