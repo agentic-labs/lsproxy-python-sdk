@@ -29,7 +29,7 @@ const client = new Lsproxy();
 
 async function main() {
   const definitionResponse = await client.symbols.findDefinition({
-    position: { path: 'src/main.py', position: {} },
+    position: { path: 'src/main.py', position: { character: 5, line: 10 } },
   });
 
   console.log(definitionResponse.definitions);
@@ -49,7 +49,9 @@ import Lsproxy from 'lsproxy';
 const client = new Lsproxy();
 
 async function main() {
-  const params: Lsproxy.SymbolFindDefinitionParams = { position: { path: 'src/main.py', position: {} } };
+  const params: Lsproxy.SymbolFindDefinitionParams = {
+    position: { path: 'src/main.py', position: { character: 5, line: 10 } },
+  };
   const definitionResponse: Lsproxy.DefinitionResponse = await client.symbols.findDefinition(params);
 }
 
@@ -68,7 +70,7 @@ a subclass of `APIError` will be thrown:
 ```ts
 async function main() {
   const definitionResponse = await client.symbols
-    .findDefinition({ position: { path: 'src/main.py', position: {} } })
+    .findDefinition({ position: { path: 'src/main.py', position: { character: 5, line: 10 } } })
     .catch(async (err) => {
       if (err instanceof Lsproxy.APIError) {
         console.log(err.status); // 400
@@ -112,7 +114,7 @@ const client = new Lsproxy({
 });
 
 // Or, configure per-request:
-await client.symbols.findDefinition({ position: { path: 'src/main.py', position: {} } }, {
+await client.symbols.findDefinition({ position: { path: 'src/main.py', position: { character: 5, line: 10 } } }, {
   maxRetries: 5,
 });
 ```
@@ -129,7 +131,7 @@ const client = new Lsproxy({
 });
 
 // Override per-request:
-await client.symbols.findDefinition({ position: { path: 'src/main.py', position: {} } }, {
+await client.symbols.findDefinition({ position: { path: 'src/main.py', position: { character: 5, line: 10 } } }, {
   timeout: 5 * 1000,
 });
 ```
@@ -151,13 +153,13 @@ You can also use the `.withResponse()` method to get the raw `Response` along wi
 const client = new Lsproxy();
 
 const response = await client.symbols
-  .findDefinition({ position: { path: 'src/main.py', position: {} } })
+  .findDefinition({ position: { path: 'src/main.py', position: { character: 5, line: 10 } } })
   .asResponse();
 console.log(response.headers.get('X-My-Header'));
 console.log(response.statusText); // access the underlying Response object
 
 const { data: definitionResponse, response: raw } = await client.symbols
-  .findDefinition({ position: { path: 'src/main.py', position: {} } })
+  .findDefinition({ position: { path: 'src/main.py', position: { character: 5, line: 10 } } })
   .withResponse();
 console.log(raw.headers.get('X-My-Header'));
 console.log(definitionResponse.definitions);
@@ -265,7 +267,7 @@ const client = new Lsproxy({
 
 // Override per-request:
 await client.symbols.findDefinition(
-  { position: { path: 'src/main.py', position: {} } },
+  { position: { path: 'src/main.py', position: { character: 5, line: 10 } } },
   {
     httpAgent: new http.Agent({ keepAlive: false }),
   },
