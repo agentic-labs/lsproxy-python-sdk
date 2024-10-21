@@ -5,7 +5,38 @@ from typing import Optional
 from .position import Position
 from ..._models import BaseModel
 
-__all__ = ["Symbol"]
+__all__ = ["Symbol", "SourceCode", "SourceCodeRange", "SourceCodeRangeEnd", "SourceCodeRangeStart"]
+
+
+class SourceCodeRangeEnd(BaseModel):
+    character: int
+    """0-indexed character index."""
+
+    line: int
+    """0-indexed line number."""
+
+
+class SourceCodeRangeStart(BaseModel):
+    character: int
+    """0-indexed character index."""
+
+    line: int
+    """0-indexed line number."""
+
+
+class SourceCodeRange(BaseModel):
+    end: SourceCodeRangeEnd
+
+    path: str
+    """The path to the file."""
+
+    start: SourceCodeRangeStart
+
+
+class SourceCode(BaseModel):
+    range: SourceCodeRange
+
+    source_code: str
 
 
 class Symbol(BaseModel):
@@ -18,4 +49,4 @@ class Symbol(BaseModel):
     name: str
     """The name of the symbol."""
 
-    source_code: Optional[object] = None
+    source_code: Optional[SourceCode] = None
