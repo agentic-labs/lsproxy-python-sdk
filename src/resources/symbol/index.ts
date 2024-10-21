@@ -11,5 +11,5 @@ export {
   SymbolFindDefinitionParams,
   SymbolFindReferencesParams,
   Symbol,
-} from './symbol/symbol';
-export { Workspace } from './workspace/workspace';
+} from './symbol';
+export { DefinitionsInFileListParams, DefinitionsInFile } from './definitions-in-file';
