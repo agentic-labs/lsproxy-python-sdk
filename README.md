@@ -31,10 +31,16 @@ from lsproxy import Lsproxy
 
 client = Lsproxy()
 
-symbol_response = client.symbols.definitions_in_file(
-    file_path="file_path",
+references_response = client.symbols.find_references(
+    symbol_identifier_position={
+        "path": "src/main.py",
+        "position": {
+            "character": 5,
+            "line": 10,
+        },
+    },
 )
-print(symbol_response.symbols)
+print(references_response.references)
 ```
 
 ## Async usage
@@ -49,10 +55,16 @@ client = AsyncLsproxy()
 
 
 async def main() -> None:
-    symbol_response = await client.symbols.definitions_in_file(
-        file_path="file_path",
+    references_response = await client.symbols.find_references(
+        symbol_identifier_position={
+            "path": "src/main.py",
+            "position": {
+                "character": 5,
+                "line": 10,
+            },
+        },
     )
-    print(symbol_response.symbols)
+    print(references_response.references)
 
 
 asyncio.run(main())
