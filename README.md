@@ -10,17 +10,14 @@ It is generated with [Stainless](https://www.stainlessapi.com/).
 
 ## Documentation
 
-The REST API documentation can be found on [docs.lsproxy.com](https://docs.lsproxy.com). The full API of this library can be found in [api.md](api.md).
+The REST API documentation can be found on [docs.lsproxy.dev](https://docs.lsproxy.dev). The full API of this library can be found in [api.md](api.md).
 
 ## Installation
 
 ```sh
-# install from the production repo
-pip install git+ssh://git@github.com/agentic-labs/lsproxy-python-sdk.git
+# install from PyPI
+pip install --pre lsproxy
 ```
-
-> [!NOTE]
-> Once this package is [published to PyPI](https://app.stainlessapi.com/docs/guides/publish), this will become: `pip install --pre lsproxy`
 
 ## Usage
 
@@ -31,16 +28,10 @@ from lsproxy import Lsproxy
 
 client = Lsproxy()
 
-references_response = client.symbols.find_references(
-    symbol_identifier_position={
-        "path": "src/main.py",
-        "position": {
-            "character": 5,
-            "line": 10,
-        },
-    },
+symbol_response = client.symbols.definitions_in_file(
+    file_path="file_path",
 )
-print(references_response.references)
+print(symbol_response.symbols)
 ```
 
 ## Async usage
@@ -55,16 +46,10 @@ client = AsyncLsproxy()
 
 
 async def main() -> None:
-    references_response = await client.symbols.find_references(
-        symbol_identifier_position={
-            "path": "src/main.py",
-            "position": {
-                "character": 5,
-                "line": 10,
-            },
-        },
+    symbol_response = await client.symbols.definitions_in_file(
+        file_path="file_path",
     )
-    print(references_response.references)
+    print(symbol_response.symbols)
 
 
 asyncio.run(main())

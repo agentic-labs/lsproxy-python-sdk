@@ -3,7 +3,7 @@
 from typing import List, Optional
 
 from .._models import BaseModel
-from .file_position import FilePosition
+from .shared.file_position import FilePosition
 
 __all__ = ["SymbolResponse", "Symbol"]
 

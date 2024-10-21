@@ -25,10 +25,10 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.symbol_response import SymbolResponse
 from ..types.definition_response import DefinitionResponse
-from ..types.file_position_param import FilePositionParam
 from ..types.references_response import ReferencesResponse
+from ..types.shared.symbol_response import SymbolResponse
+from ..types.shared_params.position import Position
 
 __all__ = ["SymbolsResource", "AsyncSymbolsResource"]
 
@@ -119,7 +119,7 @@ class SymbolsResource(SyncAPIResource):
     def find_definition(
         self,
         *,
-        position: FilePositionParam,
+        position: Position,
         include_raw_response: bool | NotGiven = NOT_GIVEN,
         include_source_code: bool | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -188,7 +188,7 @@ class SymbolsResource(SyncAPIResource):
     def find_references(
         self,
         *,
-        symbol_identifier_position: FilePositionParam,
+        symbol_identifier_position: Position,
         include_code_context_lines: Optional[int] | NotGiven = NOT_GIVEN,
         include_declaration: bool | NotGiven = NOT_GIVEN,
         include_raw_response: bool | NotGiven = NOT_GIVEN,
@@ -347,7 +347,7 @@ class AsyncSymbolsResource(AsyncAPIResource):
     async def find_definition(
         self,
         *,
-        position: FilePositionParam,
+        position: Position,
         include_raw_response: bool | NotGiven = NOT_GIVEN,
         include_source_code: bool | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -416,7 +416,7 @@ class AsyncSymbolsResource(AsyncAPIResource):
     async def find_references(
         self,
         *,
-        symbol_identifier_position: FilePositionParam,
+        symbol_identifier_position: Position,
         include_code_context_lines: Optional[int] | NotGiven = NOT_GIVEN,
         include_declaration: bool | NotGiven = NOT_GIVEN,
         include_raw_response: bool | NotGiven = NOT_GIVEN,
