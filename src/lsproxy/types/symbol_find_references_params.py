@@ -14,10 +14,10 @@ class SymbolFindReferencesParams(TypedDict, total=False):
     symbol_identifier_position: Required[Position]
     """Specific position within a file."""
 
-    include_code_context_context_lines: Optional[int]
+    include_code_context_lines: Optional[int]
     """
     Whether to include the source code of the symbol in the response. Defaults to
-    false.
+    none.
     """
 
     include_declaration: bool

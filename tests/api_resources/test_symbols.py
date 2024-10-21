@@ -83,8 +83,8 @@ class TestSymbols:
                     "line": 10,
                 },
             },
-            include_code_context_lines=5,
             include_raw_response=False,
+            include_source_code=False,
         )
         assert_matches_type(DefinitionResponse, symbol, path=["response"])
 
@@ -147,7 +147,7 @@ class TestSymbols:
                     "line": 10,
                 },
             },
-            include_code_context_context_lines=5,
+            include_code_context_lines=5,
             include_declaration=True,
             include_raw_response=False,
         )
@@ -255,8 +255,8 @@ class TestAsyncSymbols:
                     "line": 10,
                 },
             },
-            include_code_context_lines=5,
             include_raw_response=False,
+            include_source_code=False,
         )
         assert_matches_type(DefinitionResponse, symbol, path=["response"])
 
@@ -319,7 +319,7 @@ class TestAsyncSymbols:
                     "line": 10,
                 },
             },
-            include_code_context_context_lines=5,
+            include_code_context_lines=5,
             include_declaration=True,
             include_raw_response=False,
         )
