@@ -1,0 +1,443 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "lsproxy",
+    "description": "",
+    "license": {
+      "name": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4444/v1",
+      "description": "API server v1"
+    }
+  ],
+  "paths": {
+    "/symbol/definitions-in-file": {
+      "get": {
+        "tags": [
+          "symbol"
+        ],
+        "summary": "Get symbols in a specific file",
+        "description": "Get symbols in a specific file\n\nReturns a list of symbols (functions, classes, variables, etc.) defined in the specified file.\n\nThe returned positions point to the start of the symbol's identifier.\n\ne.g. for `User` on line 0 of `src/main.py`:\n```\n0: class User:\n_________^\n1:     def __init__(self, name, age):\n2:         self.name = name\n3:         self.age = age\n```",
+        "operationId": "definitions_in_file",
+        "parameters": [
+          {
+            "name": "file_path",
+            "in": "query",
+            "description": "The path to the file to get the symbols for, relative to the root of the workspace.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_raw_response",
+            "in": "query",
+            "description": "Whether to include the raw response from the langserver in the response.\nDefaults to false.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Symbols retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SymbolResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/symbol/find-definition": {
+      "post": {
+        "tags": [
+          "symbol"
+        ],
+        "summary": "Get the definition of a symbol at a specific position in a file",
+        "description": "Get the definition of a symbol at a specific position in a file\n\nReturns the location of the definition for the symbol at the given position.\n\nThe input position should point inside the symbol's identifier, e.g.\n\nThe returned position points to the identifier of the symbol, and the file_path from workspace root\n\ne.g. for the definition of `User` on line 5 of `src/main.py` with the code:\n```\n0: class User:\noutput___^\n1:     def __init__(self, name, age):\n2:         self.name = name\n3:         self.age = age\n4:\n5: user = User(\"John\", 30)\ninput_____^^^^\n```",
+        "operationId": "find_definition",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetDefinitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Definition retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefinitionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/symbol/find-references": {
+      "post": {
+        "tags": [
+          "symbol"
+        ],
+        "summary": "Find all references to a symbol",
+        "description": "Find all references to a symbol\n\nThe input position should point to the identifier of the symbol you want to get the references for.\n\nReturns a list of locations where the symbol at the given position is referenced.\n\nThe returned positions point to the start of the reference identifier.\n\ne.g. for `User` on line 0 of `src/main.py`:\n```\n0: class User:\ninput____^^^^\n1:     def __init__(self, name, age):\n2:         self.name = name\n3:         self.age = age\n4:\n5: user = User(\"John\", 30)\noutput____^\n```",
+        "operationId": "find_references",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetReferencesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "References retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferencesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/workspace/list-files": {
+      "get": {
+        "tags": [
+          "workspace"
+        ],
+        "summary": "Get a list of all files in the workspace",
+        "description": "Get a list of all files in the workspace\n\nReturns an array of file paths for all files in the current workspace.\n\nThis is a convenience endpoint that does not use the underlying Language Servers directly, but it does apply the same filtering.",
+        "operationId": "list_files",
+        "responses": {
+          "200": {
+            "description": "Workspace files retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CodeContext": {
+        "type": "object",
+        "required": [
+          "range",
+          "source_code"
+        ],
+        "properties": {
+          "range": {
+            "$ref": "#/components/schemas/FileRange"
+          },
+          "source_code": {
+            "type": "string"
+          }
+        }
+      },
+      "DefinitionResponse": {
+        "type": "object",
+        "description": "Response to a definition request.\n\nThe definition(s) of the symbol.\nPoints to the start position of the symbol's identifier.\n\ne.g. for the definition of `User` on line 5 of `src/main.py` with the code:\n```\n0: class User:\n_________^\n1:     def __init__(self, name, age):\n2:         self.name = name\n3:         self.age = age\n4:\n5: user = User(\"John\", 30)\n__________^\n```\nThe definition(s) will be `[{\"path\": \"src/main.py\", \"line\": 0, \"character\": 6}]`.",
+        "required": [
+          "definitions"
+        ],
+        "properties": {
+          "definitions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FilePosition"
+            }
+          },
+          "raw_response": {
+            "description": "The raw response from the langserver.\n\nhttps://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_definition",
+            "nullable": true
+          },
+          "source_code_context": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeContext"
+            },
+            "description": "The source code of symbol definitions.",
+            "nullable": true
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "FilePosition": {
+        "type": "object",
+        "description": "Specific position within a file.",
+        "required": [
+          "path",
+          "position"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "example": "src/main.py"
+          },
+          "position": {
+            "$ref": "#/components/schemas/Position"
+          }
+        }
+      },
+      "FileRange": {
+        "type": "object",
+        "required": [
+          "path",
+          "start",
+          "end"
+        ],
+        "properties": {
+          "end": {
+            "$ref": "#/components/schemas/Position"
+          },
+          "path": {
+            "type": "string",
+            "description": "The path to the file.",
+            "example": "src/main.py"
+          },
+          "start": {
+            "$ref": "#/components/schemas/Position"
+          }
+        }
+      },
+      "FileSymbolsRequest": {
+        "type": "object",
+        "description": "Request to get the symbols in a file.",
+        "required": [
+          "file_path"
+        ],
+        "properties": {
+          "file_path": {
+            "type": "string",
+            "description": "The path to the file to get the symbols for, relative to the root of the workspace.",
+            "example": "src/main.py"
+          },
+          "include_raw_response": {
+            "type": "boolean",
+            "description": "Whether to include the raw response from the langserver in the response.\nDefaults to false.",
+            "example": false
+          }
+        }
+      },
+      "GetDefinitionRequest": {
+        "type": "object",
+        "required": [
+          "position"
+        ],
+        "properties": {
+          "include_raw_response": {
+            "type": "boolean",
+            "description": "Whether to include the raw response from the langserver in the response.\nDefaults to false.",
+            "example": false
+          },
+          "include_source_code": {
+            "type": "boolean",
+            "description": "Whether to include the source code around the symbol's identifier in the response.\nDefaults to false.",
+            "example": false
+          },
+          "position": {
+            "$ref": "#/components/schemas/FilePosition"
+          }
+        }
+      },
+      "GetReferencesRequest": {
+        "type": "object",
+        "required": [
+          "start_position"
+        ],
+        "properties": {
+          "include_code_context_lines": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Whether to include the source code of the symbol in the response.\nDefaults to none.",
+            "example": 5,
+            "nullable": true,
+            "minimum": 0
+          },
+          "include_declaration": {
+            "type": "boolean",
+            "description": "Whether to include the declaration (definition) of the symbol in the response.\nDefaults to false."
+          },
+          "include_raw_response": {
+            "type": "boolean",
+            "description": "Whether to include the raw response from the langserver in the response.\nDefaults to false.",
+            "example": false
+          },
+          "start_position": {
+            "$ref": "#/components/schemas/FilePosition"
+          }
+        }
+      },
+      "Position": {
+        "type": "object",
+        "required": [
+          "line",
+          "character"
+        ],
+        "properties": {
+          "character": {
+            "type": "integer",
+            "format": "int32",
+            "description": "0-indexed character index.",
+            "example": 5,
+            "minimum": 0
+          },
+          "line": {
+            "type": "integer",
+            "format": "int32",
+            "description": "0-indexed line number.",
+            "example": 10,
+            "minimum": 0
+          }
+        }
+      },
+      "ReferencesResponse": {
+        "type": "object",
+        "description": "Response to a references request.\n\nPoints to the start position of the symbol's identifier.\n\ne.g. for the references of `User` on line 0 character 6 of `src/main.py` with the code:\n```\n0: class User:\n1:     def __init__(self, name, age):\n2:         self.name = name\n3:         self.age = age\n4:\n5: user = User(\"John\", 30)\n_________^\n6:\n7: print(user.name)\n```\nThe references will be `[{\"path\": \"src/main.py\", \"line\": 5, \"character\": 7}]`.",
+        "required": [
+          "references"
+        ],
+        "properties": {
+          "context": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeContext"
+            },
+            "description": "The source code around the references.",
+            "nullable": true
+          },
+          "raw_response": {
+            "description": "The raw response from the langserver.\n\nhttps://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_references",
+            "nullable": true
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FilePosition"
+            }
+          }
+        }
+      },
+      "SupportedLanguages": {
+        "type": "string",
+        "enum": [
+          "python",
+          "typescript_javascript",
+          "rust"
+        ]
+      },
+      "Symbol": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "start_position"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "The kind of the symbol (e.g., function, class).",
+            "example": "class"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the symbol.",
+            "example": "User"
+          },
+          "start_position": {
+            "$ref": "#/components/schemas/FilePosition"
+          }
+        }
+      },
+      "SymbolResponse": {
+        "type": "object",
+        "required": [
+          "symbols"
+        ],
+        "properties": {
+          "raw_response": {
+            "description": "The raw response from the langserver.\n\nhttps://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_symbol\nhttps://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#document_symbol",
+            "nullable": true
+          },
+          "symbols": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Symbol"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "lsproxy-api",
+      "description": "LSP Proxy API"
+    }
+  ]
+}
