@@ -9,6 +9,8 @@ dist
 
 .venv
 .idea
+build
+*.egg-info
 
 .env
 .envrc
