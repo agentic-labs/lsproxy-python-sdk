@@ -10,10 +10,9 @@ fi
 
 # Run OpenAPI Generator with hardcoded values
 echo "Generating SDK..."
-LANGUAGE=$1
 openapi-generator generate \
     -i "openapi.json" \
-    -g  "$LANGUAGE" \
+    -g  python \
     --additional-properties=packageName=lsproxy
 
 # Check if generation was successful
