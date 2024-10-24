@@ -69,14 +69,16 @@ def __(ApiClient, Configuration, SymbolApi, WorkspaceApi, mo):
 def __(
     ApiClient,
     Configuration,
+    GetDefinitionRequest,
     GetReferencesRequest,
     SymbolApi,
-    json,
+    WorkspaceApi,
     mo,
 ):
     def process_file(file_path: str, hops: int = 1):
         with ApiClient(Configuration()) as api_client:
             edges = {}
+            workspace_files = {file: True for file in WorkspaceApi(api_client).list_files()}
             current_files = [file_path]
             with mo.status.progress_bar(total=hops, title=f"On hop 1/{hops}", remove_on_exit=True) as hop_bar:
                 for i in range(hops):
@@ -85,26 +87,42 @@ def __(
                         break
                     with mo.status.progress_bar(total=len(current_files), title=f"Processing file 1/{len(current_files)}: {current_files[0]}", remove_on_exit=True) as file_bar:
                         for j, file in enumerate(current_files):
-                            symbol_response = SymbolApi(api_client).definitions_in_file(file, include_raw_response=True) or []
-                            symbols = symbol_response.symbols                      
-
-                            for symbol in symbols:
-                                print(f"{file}:{symbol.start_position.position.line+1}:{symbol.start_position.position.character+1} claims to define {symbol.name}:{symbol.kind}")
+                            symbols = SymbolApi(api_client).definitions_in_file(file, include_raw_response=True).symbols or []
                             for symbol_idx in mo.status.progress_bar(range(len(symbols)), remove_on_exit=True, title="Symbols Processed"):
                                 symbol = symbols[symbol_idx]
+                                if symbol.name.startswith("\"") and symbol.name.endswith("\""):
+                                    print(f"{symbol.name}:{symbol.kind}")
+                                    print("SKIPPY THE STRINGY")
+                                    continue
+                                get_definition_request = GetDefinitionRequest(position=symbol.start_position)
+                                definitions = SymbolApi(api_client).find_definition(get_definition_request).definitions
+                                #print(f"Symbol: {symbol.name}")
+                                #for definition in definitions:
+                                    #print(f"    {definition.path}:{definition.position.line}:{definition.position.character}")
                                 get_references_request = GetReferencesRequest(start_position=symbol.start_position, include_declaration=True)
                                 references = SymbolApi(api_client).find_references(get_references_request).references
-                                print(f"References raw response:\n{json.dumps(symbol_response.raw_response, indent=4)}")
+                                skip = False
+                                for reference in references:
+                                    dest_file = reference.path
+                                    if reference.path not in workspace_files:
+                                        print(f"FUCK YOU: {symbol}")
+                                        skip = True
+                                        break
+                                if skip:
+                                    continue
                                 for reference in references:
                                     dest_file = reference.path
                                     if dest_file == file:
                                         continue
                                     new_files.add(dest_file)
+                                    #print(f"{symbol.name}:{file}:{symbol.start_position.position.line}:{symbol.start_position.position.character} is referenced at {dest_file}:{reference.position.line}:{reference.position.character}")
                                     edges.setdefault((file, dest_file), set()).add(symbol.name)
                             file_bar.update(title=f"Processing file {j+2}/{len(current_files)}: {current_files[j+1] if j+1 < len(current_files) else ''}")
                         current_files = list(new_files)
 
                     hop_bar.update(title=f"On hop {i+2}/{hops}")
+            if not edges:
+                return file_path
             return edges
     return (process_file,)
 
@@ -130,66 +148,77 @@ def __():
         """
         Convert a dictionary of file dependencies and their referenced symbols into a Mermaid diagram string.
         Arrows point from referenced file back to source file through reference nodes.
-
+        If no dependencies exist, displays a single node for the root file.
+        
         Args:
             dependencies: Dict where keys are tuples of (defined_file, referenced_file) and values are sets of referenced symbols
-
+                         OR a string representing the root file path when there are no dependencies
         Returns:
             String containing the Mermaid diagram definition
         """
+        # Handle case where dependencies is just a root file string
+        if isinstance(dependencies, str):
+            base_name = dependencies.split('/')[-1]  # Get just the filename
+            clean_name = base_name.replace('"', '&quot;')
+            return f"""graph LR
+        root["{clean_name}"]
+        classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px;
+        classDef source fill:#e1f5fe,stroke:#0277bd,stroke-width:2px;
+        class root source;"""
+
         if not dependencies:
             return "graph LR\n    %% No dependencies to display"
-        # Initialize the Mermaid diagram
-        mermaid_lines = ["graph LR"]
 
-        # Keep track of unique files and create node definitions
+        # Rest of the function remains the same...
+        mermaid_lines = ["graph LR"]
+        
         unique_files = set()
         node_names = {}
-
-        # Collect all unique files and create sanitized node names
+        
         for defined_file, referenced_file in dependencies.keys():
             unique_files.add(defined_file)
             unique_files.add(referenced_file)
-
-        # Create sanitized node names for each file
+        
         for idx, file in enumerate(unique_files):
             node_name = f"n{idx}"
             node_names[file] = node_name
-            # Create node definition with the file name
-            base_name = file.split('/')[-1]  # Get just the filename
-            # Add extra spaces and line breaks to make the node bigger
-            padded_name = f"<div style='padding: 10px'>{base_name}</div>"
-            mermaid_lines.append(f'    {node_name}["{padded_name}"]')
-
-        # Create reference nodes and relationships
+            base_name = file.split('/')[-1]
+            clean_name = base_name.replace('"', '&quot;')
+            mermaid_lines.append(f'    {node_name}["{clean_name}"]')
+        
         for idx, ((defined_file, referenced_file), symbols) in enumerate(dependencies.items()):
             from_node = node_names[defined_file]
             to_node = node_names[referenced_file]
             ref_node = f"ref{idx}"
-
-            # Create a formatted list of symbols
-            symbols_list = '<br/>'.join(f'{symbol}' for symbol in sorted(symbols))
-            num_refs = len(symbols)
-
-            # Create the reference node with rounded rectangle
-            ref_node_def = f'    {ref_node}({num_refs} refs:<br/>{symbols_list})'
+            
+            cleaned_symbols = []
+            for symbol in sorted(symbols):
+                clean_symbol = str(symbol)
+                clean_symbol = clean_symbol.replace('"', '&quot;')
+                clean_symbol = clean_symbol.replace('<', '&lt;')
+                clean_symbol = clean_symbol.replace('>', '&gt;')
+                if len(clean_symbol) > 20:
+                    clean_symbol = clean_symbol[:17] + "..."
+                cleaned_symbols.append(clean_symbol)
+            
+            symbols_display = "<br/>" + "<br/>".join(cleaned_symbols)
+            if len(cleaned_symbols) > 5:
+                symbols_display = "<br/>" + "<br/>".join(cleaned_symbols[:5]) + "<br/>..."
+            
+            ref_node_def = f'    {ref_node}["{len(symbols)} refs{symbols_display}"]'
             mermaid_lines.append(ref_node_def)
-
-            # Create the relationships with reversed arrows
+            
             mermaid_lines.append(f'    {to_node} --> {ref_node} --> {from_node}')
-
-            # Add reference node styling
-            mermaid_lines.append(f'    class {ref_node} reference;')
-
-        # Add styling
+            mermaid_lines.append(f'    class {ref_node} reference')
+        
         mermaid_lines.extend([
             "    %% Styling",
-            "    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px,padding:10px;",
-            "    classDef source fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,padding:10px;",
-            "    classDef reference fill:#e8e7ff,stroke:#6b69d6,stroke-width:2px,rx:10;",
+            "    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px;",
+            "    classDef source fill:#e1f5fe,stroke:#0277bd,stroke-width:2px;",
+            "    classDef reference fill:#e8e7ff,stroke:#6b69d6,stroke-width:2px;",
             f"    class {node_names[next(iter(dependencies))[0]]} source;"
         ])
-
+        
         return '\n'.join(mermaid_lines)
     return (create_mermaid_from_dependencies,)
 

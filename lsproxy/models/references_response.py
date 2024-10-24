@@ -29,7 +29,7 @@ class ReferencesResponse(BaseModel):
     Response to a references request.  Points to the start position of the symbol's identifier.  e.g. for the references of `User` on line 0 character 6 of `src/main.py` with the code: ``` 0: class User: 1:     def __init__(self, name, age): 2:         self.name = name 3:         self.age = age 4: 5: user = User(\"John\", 30) _________^ 6: 7: print(user.name) ``` The references will be `[{\"path\": \"src/main.py\", \"line\": 5, \"character\": 7}]`.
     """ # noqa: E501
     context: Optional[List[CodeContext]] = Field(default=None, description="The source code around the references.")
-    raw_response: Optional[Any] = Field(default=None, description="The raw response from the langserver.  https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_references")
+    raw_response: Optional[Any] = None
     references: List[FilePosition]
     __properties: ClassVar[List[str]] = ["context", "raw_response", "references"]
 

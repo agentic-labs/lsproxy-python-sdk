@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**raw_response** | **object** | The raw response from the langserver.  https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_symbol https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#document_symbol | [optional] 
+**raw_response** | **object** |  | [optional] 
 **symbols** | [**List[Symbol]**](Symbol.md) |  | 
 
 ## Example

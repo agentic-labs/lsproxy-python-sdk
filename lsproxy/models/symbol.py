@@ -29,7 +29,7 @@ class Symbol(BaseModel):
     """ # noqa: E501
     kind: StrictStr = Field(description="The kind of the symbol (e.g., function, class).")
     name: StrictStr = Field(description="The name of the symbol.")
-    start_position: FilePosition
+    start_position: FilePosition = Field(description="The start position of the symbol's identifier.")
     __properties: ClassVar[List[str]] = ["kind", "name", "start_position"]
 
     model_config = ConfigDict(

@@ -5,9 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**end** | [**Position**](Position.md) |  | 
+**end** | [**Position**](Position.md) | The end position of the range. | 
 **path** | **str** | The path to the file. | 
-**start** | [**Position**](Position.md) |  | 
+**start** | [**Position**](Position.md) | The start position of the range. | 
 
 ## Example
 

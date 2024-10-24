@@ -7,7 +7,7 @@ Response to a references request.  Points to the start position of the symbol's 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **context** | [**List[CodeContext]**](CodeContext.md) | The source code around the references. | [optional] 
-**raw_response** | **object** | The raw response from the langserver.  https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_references | [optional] 
+**raw_response** | **object** |  | [optional] 
 **references** | [**List[FilePosition]**](FilePosition.md) |  | 
 
 ## Example

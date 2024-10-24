@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **kind** | **str** | The kind of the symbol (e.g., function, class). | 
 **name** | **str** | The name of the symbol. | 
-**start_position** | [**FilePosition**](FilePosition.md) |  | 
+**start_position** | [**FilePosition**](FilePosition.md) | The start position of the symbol&#39;s identifier. | 
 
 ## Example
 

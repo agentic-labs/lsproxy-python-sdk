@@ -29,7 +29,7 @@ class DefinitionResponse(BaseModel):
     Response to a definition request.  The definition(s) of the symbol. Points to the start position of the symbol's identifier.  e.g. for the definition of `User` on line 5 of `src/main.py` with the code: ``` 0: class User: _________^ 1:     def __init__(self, name, age): 2:         self.name = name 3:         self.age = age 4: 5: user = User(\"John\", 30) __________^ ``` The definition(s) will be `[{\"path\": \"src/main.py\", \"line\": 0, \"character\": 6}]`.
     """ # noqa: E501
     definitions: List[FilePosition]
-    raw_response: Optional[Any] = Field(default=None, description="The raw response from the langserver.  https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_definition")
+    raw_response: Optional[Any] = None
     source_code_context: Optional[List[CodeContext]] = Field(default=None, description="The source code of symbol definitions.")
     __properties: ClassVar[List[str]] = ["definitions", "raw_response", "source_code_context"]
 

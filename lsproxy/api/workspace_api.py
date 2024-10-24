@@ -55,7 +55,7 @@ class WorkspaceApi:
     ) -> List[str]:
         """Get a list of all files in the workspace
 
-        Get a list of all files in the workspace  Returns an array of file paths for all files in the current workspace.  This is a convenience endpoint that does not use the underlying Language Servers directly, but it does apply the same filtering.
+        Returns an array of file paths for all files in the current workspace.  This is a convenience endpoint that does not use the underlying Language Servers directly, but it does apply the same filtering.
 
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -120,7 +120,7 @@ class WorkspaceApi:
     ) -> ApiResponse[List[str]]:
         """Get a list of all files in the workspace
 
-        Get a list of all files in the workspace  Returns an array of file paths for all files in the current workspace.  This is a convenience endpoint that does not use the underlying Language Servers directly, but it does apply the same filtering.
+        Returns an array of file paths for all files in the current workspace.  This is a convenience endpoint that does not use the underlying Language Servers directly, but it does apply the same filtering.
 
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -185,7 +185,7 @@ class WorkspaceApi:
     ) -> RESTResponseType:
         """Get a list of all files in the workspace
 
-        Get a list of all files in the workspace  Returns an array of file paths for all files in the current workspace.  This is a convenience endpoint that does not use the underlying Language Servers directly, but it does apply the same filtering.
+        Returns an array of file paths for all files in the current workspace.  This is a convenience endpoint that does not use the underlying Language Servers directly, but it does apply the same filtering.
 
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request

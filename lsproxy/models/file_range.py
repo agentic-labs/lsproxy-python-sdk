@@ -27,9 +27,9 @@ class FileRange(BaseModel):
     """
     FileRange
     """ # noqa: E501
-    end: Position
+    end: Position = Field(description="The end position of the range.")
     path: StrictStr = Field(description="The path to the file.")
-    start: Position
+    start: Position = Field(description="The start position of the range.")
     __properties: ClassVar[List[str]] = ["end", "path", "start"]
 
     model_config = ConfigDict(
