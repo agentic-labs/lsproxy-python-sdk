@@ -1,0 +1,83 @@
+[
+  {
+    "from": "backend/src/code_search/codebase_searcher/redis_codebase_searcher.py",
+    "to": "backend/src/app/builder/celery/clone_workflow.py",
+    "referenced_symbols": [
+      "get_all_nodes_source_code",
+      "store_codebase_data",
+      "set_reference_summaries",
+      "exists",
+      "ttl",
+      "RedisCodebaseSearcher",
+      "set_documentation_upload_finished"
+    ]
+  },
+  {
+    "from": "backend/src/code_search/codebase_searcher/redis_codebase_searcher.py",
+    "to": "backend/src/app/index/clone_index_store_repo_sample.py",
+    "referenced_symbols": [
+      "ttl",
+      "RedisCodebaseSearcher",
+      "exists"
+    ]
+  },
+  {
+    "from": "backend/src/code_search/codebase_searcher/redis_codebase_searcher.py",
+    "to": "backend/src/app/index/clone_index_store_single_repo_if_missing.py",
+    "referenced_symbols": [
+      "RedisCodebaseSearcher",
+      "exists",
+      "exists_partial"
+    ]
+  },
+  {
+    "from": "backend/src/code_search/codebase_searcher/redis_codebase_searcher.py",
+    "to": "backend/src/app/index/server.py",
+    "referenced_symbols": [
+      "get_file_uris_in_directory",
+      "uris_to_exclude",
+      "redis_client",
+      "limit",
+      "get_directory_structure",
+      "exists_partial",
+      "fuzzy_search_uris",
+      "tag_filter_include",
+      "exists",
+      "get_source_code",
+      "RedisCodebaseSearcher",
+      "regex_search",
+      "repo_params",
+      "fuzzy_search_directories"
+    ]
+  },
+  {
+    "from": "backend/src/code_search/codebase_searcher/redis_codebase_searcher.py",
+    "to": "backend/src/app/index/utils.py",
+    "referenced_symbols": [
+      "get_all_nodes_source_code",
+      "RedisCodebaseSearcher",
+      "set_trieve_source_code_upload_finished"
+    ]
+  },
+  {
+    "from": "backend/src/code_search/codebase_searcher/redis_codebase_searcher.py",
+    "to": "backend/src/summarization/summarization.py",
+    "referenced_symbols": [
+      "get_file_and_directory_dag",
+      "get_file_source_code",
+      "get_reference_summary",
+      "RedisCodebaseSearcher",
+      "repo_params"
+    ]
+  },
+  {
+    "from": "backend/src/code_search/codebase_searcher/redis_codebase_searcher.py",
+    "to": "backend/tests/test_code_search/test_redis_codebase_searcher.py",
+    "referenced_symbols": [
+      "RedisCodebaseSearcher",
+      "store_codebase_searcher",
+      "limit",
+      "regex_search"
+    ]
+  }
+]
