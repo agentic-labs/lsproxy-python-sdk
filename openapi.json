@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.3",
+  "openapi": "3.1.0",
   "info": {
     "title": "lsproxy",
     "description": "",
@@ -22,7 +22,7 @@
           "symbol"
         ],
         "summary": "Get symbols in a specific file",
-        "description": "Get symbols in a specific file\n\nReturns a list of symbols (functions, classes, variables, etc.) defined in the specified file.\n\nThe returned positions point to the start of the symbol's identifier.\n\ne.g. for `User` on line 0 of `src/main.py`:\n```\n0: class User:\n_________^\n1:     def __init__(self, name, age):\n2:         self.name = name\n3:         self.age = age\n```",
+        "description": "Returns a list of symbols (functions, classes, variables, etc.) defined in the specified file.\n\nThe returned positions point to the start of the symbol's identifier.\n\ne.g. for `User` on line 0 of `src/main.py`:\n```\n0: class User:\n_________^\n1:     def __init__(self, name, age):\n2:         self.name = name\n3:         self.age = age\n```",
         "operationId": "definitions_in_file",
         "parameters": [
           {
@@ -70,7 +70,7 @@
           "symbol"
         ],
         "summary": "Get the definition of a symbol at a specific position in a file",
-        "description": "Get the definition of a symbol at a specific position in a file\n\nReturns the location of the definition for the symbol at the given position.\n\nThe input position should point inside the symbol's identifier, e.g.\n\nThe returned position points to the identifier of the symbol, and the file_path from workspace root\n\ne.g. for the definition of `User` on line 5 of `src/main.py` with the code:\n```\n0: class User:\noutput___^\n1:     def __init__(self, name, age):\n2:         self.name = name\n3:         self.age = age\n4:\n5: user = User(\"John\", 30)\ninput_____^^^^\n```",
+        "description": "Returns the location of the definition for the symbol at the given position.\n\nThe input position should point inside the symbol's identifier, e.g.\n\nThe returned position points to the identifier of the symbol, and the file_path from workspace root\n\ne.g. for the definition of `User` on line 5 of `src/main.py` with the code:\n```\n0: class User:\noutput___^\n1:     def __init__(self, name, age):\n2:         self.name = name\n3:         self.age = age\n4:\n5: user = User(\"John\", 30)\ninput_____^^^^\n```",
         "operationId": "find_definition",
         "requestBody": {
           "content": {
@@ -99,7 +99,13 @@
           "500": {
             "description": "Internal server error"
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "python",
+            "source": "\nimport requests\n\ndef get_pet(pet_id: int):\n    response = requests.get(f'/pets/{pet_id}')\n    return response.json()\n"
+          }
+        ]
       }
     },
     "/symbol/find-references": {
@@ -108,7 +114,7 @@
           "symbol"
         ],
         "summary": "Find all references to a symbol",
-        "description": "Find all references to a symbol\n\nThe input position should point to the identifier of the symbol you want to get the references for.\n\nReturns a list of locations where the symbol at the given position is referenced.\n\nThe returned positions point to the start of the reference identifier.\n\ne.g. for `User` on line 0 of `src/main.py`:\n```\n0: class User:\ninput____^^^^\n1:     def __init__(self, name, age):\n2:         self.name = name\n3:         self.age = age\n4:\n5: user = User(\"John\", 30)\noutput____^\n```",
+        "description": "The input position should point to the identifier of the symbol you want to get the references for.\n\nReturns a list of locations where the symbol at the given position is referenced.\n\nThe returned positions point to the start of the reference identifier.\n\ne.g. for `User` on line 0 of `src/main.py`:\n```\n 0: class User:\n input____^^^^\n 1:     def __init__(self, name, age):\n 2:         self.name = name\n 3:         self.age = age\n 4:\n 5: user = User(\"John\", 30)\n output____^\n```",
         "operationId": "find_references",
         "requestBody": {
           "content": {
@@ -146,7 +152,7 @@
           "workspace"
         ],
         "summary": "Get a list of all files in the workspace",
-        "description": "Get a list of all files in the workspace\n\nReturns an array of file paths for all files in the current workspace.\n\nThis is a convenience endpoint that does not use the underlying Language Servers directly, but it does apply the same filtering.",
+        "description": "Returns an array of file paths for all files in the current workspace.\n\nThis is a convenience endpoint that does not use the underlying Language Servers directly, but it does apply the same filtering.",
         "operationId": "list_files",
         "responses": {
           "200": {
@@ -203,16 +209,17 @@
             }
           },
           "raw_response": {
-            "description": "The raw response from the langserver.\n\nhttps://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_definition",
-            "nullable": true
+            "description": "The raw response from the langserver.\n\nhttps://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_definition"
           },
           "source_code_context": {
-            "type": "array",
+            "type": [
+              "array",
+              "null"
+            ],
             "items": {
               "$ref": "#/components/schemas/CodeContext"
             },
-            "description": "The source code of symbol definitions.",
-            "nullable": true
+            "description": "The source code of symbol definitions."
           }
         }
       },
@@ -253,7 +260,8 @@
         ],
         "properties": {
           "end": {
-            "$ref": "#/components/schemas/Position"
+            "$ref": "#/components/schemas/Position",
+            "description": "The end position of the range."
           },
           "path": {
             "type": "string",
@@ -261,7 +269,8 @@
             "example": "src/main.py"
           },
           "start": {
-            "$ref": "#/components/schemas/Position"
+            "$ref": "#/components/schemas/Position",
+            "description": "The start position of the range."
           }
         }
       },
@@ -312,11 +321,13 @@
         ],
         "properties": {
           "include_code_context_lines": {
-            "type": "integer",
+            "type": [
+              "integer",
+              "null"
+            ],
             "format": "int32",
             "description": "Whether to include the source code of the symbol in the response.\nDefaults to none.",
             "example": 5,
-            "nullable": true,
             "minimum": 0
           },
           "include_declaration": {
@@ -364,16 +375,17 @@
         ],
         "properties": {
           "context": {
-            "type": "array",
+            "type": [
+              "array",
+              "null"
+            ],
             "items": {
               "$ref": "#/components/schemas/CodeContext"
             },
-            "description": "The source code around the references.",
-            "nullable": true
+            "description": "The source code around the references."
           },
           "raw_response": {
-            "description": "The raw response from the langserver.\n\nhttps://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_references",
-            "nullable": true
+            "description": "The raw response from the langserver.\n\nhttps://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_references"
           },
           "references": {
             "type": "array",
@@ -410,7 +422,8 @@
             "example": "User"
           },
           "start_position": {
-            "$ref": "#/components/schemas/FilePosition"
+            "$ref": "#/components/schemas/FilePosition",
+            "description": "The start position of the symbol's identifier."
           }
         }
       },
@@ -421,8 +434,7 @@
         ],
         "properties": {
           "raw_response": {
-            "description": "The raw response from the langserver.\n\nhttps://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_symbol\nhttps://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#document_symbol",
-            "nullable": true
+            "description": "The raw response from the langserver.\n\nhttps://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_symbol\nhttps://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#document_symbol"
           },
           "symbols": {
             "type": "array",

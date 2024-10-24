@@ -14,7 +14,7 @@ Method | HTTP request | Description
 
 Get symbols in a specific file
 
-Get symbols in a specific file  Returns a list of symbols (functions, classes, variables, etc.) defined in the specified file.  The returned positions point to the start of the symbol's identifier.  e.g. for `User` on line 0 of `src/main.py`: ``` 0: class User: _________^ 1:     def __init__(self, name, age): 2:         self.name = name 3:         self.age = age ```
+Returns a list of symbols (functions, classes, variables, etc.) defined in the specified file.  The returned positions point to the start of the symbol's identifier.  e.g. for `User` on line 0 of `src/main.py`: ``` 0: class User: _________^ 1:     def __init__(self, name, age): 2:         self.name = name 3:         self.age = age ```
 
 ### Example
 
@@ -86,7 +86,7 @@ No authorization required
 
 Get the definition of a symbol at a specific position in a file
 
-Get the definition of a symbol at a specific position in a file  Returns the location of the definition for the symbol at the given position.  The input position should point inside the symbol's identifier, e.g.  The returned position points to the identifier of the symbol, and the file_path from workspace root  e.g. for the definition of `User` on line 5 of `src/main.py` with the code: ``` 0: class User: output___^ 1:     def __init__(self, name, age): 2:         self.name = name 3:         self.age = age 4: 5: user = User(\"John\", 30) input_____^^^^ ```
+Returns the location of the definition for the symbol at the given position.  The input position should point inside the symbol's identifier, e.g.  The returned position points to the identifier of the symbol, and the file_path from workspace root  e.g. for the definition of `User` on line 5 of `src/main.py` with the code: ``` 0: class User: output___^ 1:     def __init__(self, name, age): 2:         self.name = name 3:         self.age = age 4: 5: user = User(\"John\", 30) input_____^^^^ ```
 
 ### Example
 
@@ -157,7 +157,7 @@ No authorization required
 
 Find all references to a symbol
 
-Find all references to a symbol  The input position should point to the identifier of the symbol you want to get the references for.  Returns a list of locations where the symbol at the given position is referenced.  The returned positions point to the start of the reference identifier.  e.g. for `User` on line 0 of `src/main.py`: ``` 0: class User: input____^^^^ 1:     def __init__(self, name, age): 2:         self.name = name 3:         self.age = age 4: 5: user = User(\"John\", 30) output____^ ```
+The input position should point to the identifier of the symbol you want to get the references for.  Returns a list of locations where the symbol at the given position is referenced.  The returned positions point to the start of the reference identifier.  e.g. for `User` on line 0 of `src/main.py`: ```  0: class User:  input____^^^^  1:     def __init__(self, name, age):  2:         self.name = name  3:         self.age = age  4:  5: user = User(\"John\", 30)  output____^ ```
 
 ### Example
 

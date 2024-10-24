@@ -12,7 +12,7 @@ Method | HTTP request | Description
 
 Get a list of all files in the workspace
 
-Get a list of all files in the workspace  Returns an array of file paths for all files in the current workspace.  This is a convenience endpoint that does not use the underlying Language Servers directly, but it does apply the same filtering.
+Returns an array of file paths for all files in the current workspace.  This is a convenience endpoint that does not use the underlying Language Servers directly, but it does apply the same filtering.
 
 ### Example
 

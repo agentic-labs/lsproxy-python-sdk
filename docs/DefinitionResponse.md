@@ -7,7 +7,7 @@ Response to a definition request.  The definition(s) of the symbol. Points to th
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **definitions** | [**List[FilePosition]**](FilePosition.md) |  | 
-**raw_response** | **object** | The raw response from the langserver.  https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_definition | [optional] 
+**raw_response** | **object** |  | [optional] 
 **source_code_context** | [**List[CodeContext]**](CodeContext.md) | The source code of symbol definitions. | [optional] 
 
 ## Example
