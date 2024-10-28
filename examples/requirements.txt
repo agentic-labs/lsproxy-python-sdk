@@ -1,2 +1,3 @@
 marimo
 requests
+-e ../sdk
