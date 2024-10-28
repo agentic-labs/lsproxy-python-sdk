@@ -17,22 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List
 from lsproxy.models.file_position import FilePosition
 from typing import Optional, Set
 from typing_extensions import Self
 
-class GetReferencesRequest(BaseModel):
+class VecInner(BaseModel):
     """
-    GetReferencesRequest
+    VecInner
     """ # noqa: E501
-    include_code_context_lines: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=None, description="Whether to include the source code of the symbol in the response. Defaults to none.")
-    include_declaration: Optional[StrictBool] = Field(default=None, description="Whether to include the declaration (definition) of the symbol in the response. Defaults to false.")
-    include_raw_response: Optional[StrictBool] = Field(default=None, description="Whether to include the raw response from the langserver in the response. Defaults to false.")
-    start_position: FilePosition
-    __properties: ClassVar[List[str]] = ["include_code_context_lines", "include_declaration", "include_raw_response", "start_position"]
+    identifier_position: FilePosition = Field(description="The start position of the symbol's identifier.")
+    kind: StrictStr = Field(description="The kind of the symbol (e.g., function, class).")
+    name: StrictStr = Field(description="The name of the symbol.")
+    __properties: ClassVar[List[str]] = ["identifier_position", "kind", "name"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -52,7 +50,7 @@ class GetReferencesRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of GetReferencesRequest from a JSON string"""
+        """Create an instance of VecInner from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,19 +71,14 @@ class GetReferencesRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of start_position
-        if self.start_position:
-            _dict['start_position'] = self.start_position.to_dict()
-        # set to None if include_code_context_lines (nullable) is None
-        # and model_fields_set contains the field
-        if self.include_code_context_lines is None and "include_code_context_lines" in self.model_fields_set:
-            _dict['include_code_context_lines'] = None
-
+        # override the default output from pydantic by calling `to_dict()` of identifier_position
+        if self.identifier_position:
+            _dict['identifier_position'] = self.identifier_position.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of GetReferencesRequest from a dict"""
+        """Create an instance of VecInner from a dict"""
         if obj is None:
             return None
 
@@ -93,10 +86,9 @@ class GetReferencesRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "include_code_context_lines": obj.get("include_code_context_lines"),
-            "include_declaration": obj.get("include_declaration"),
-            "include_raw_response": obj.get("include_raw_response"),
-            "start_position": FilePosition.from_dict(obj["start_position"]) if obj.get("start_position") is not None else None
+            "identifier_position": FilePosition.from_dict(obj["identifier_position"]) if obj.get("identifier_position") is not None else None,
+            "kind": obj.get("kind"),
+            "name": obj.get("name")
         })
         return _obj
 

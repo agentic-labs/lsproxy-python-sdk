@@ -4,15 +4,15 @@ All URIs are relative to *http://localhost:4444/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**definitions_in_file**](SymbolApi.md#definitions_in_file) | **GET** /symbol/definitions-in-file | Get symbols in a specific file
+[**definitions_in_file**](SymbolApi.md#definitions_in_file) | **GET** /symbol/definitions-in-file | Get symbols in a specific file using ctags
 [**find_definition**](SymbolApi.md#find_definition) | **POST** /symbol/find-definition | Get the definition of a symbol at a specific position in a file
 [**find_references**](SymbolApi.md#find_references) | **POST** /symbol/find-references | Find all references to a symbol
 
 
 # **definitions_in_file**
-> SymbolResponse definitions_in_file(file_path, include_raw_response=include_raw_response)
+> List[Symbol] definitions_in_file(file_path, include_raw_response=include_raw_response, include_source_code=include_source_code)
 
-Get symbols in a specific file
+Get symbols in a specific file using ctags
 
 Returns a list of symbols (functions, classes, variables, etc.) defined in the specified file.  The returned positions point to the start of the symbol's identifier.  e.g. for `User` on line 0 of `src/main.py`: ``` 0: class User: _________^ 1:     def __init__(self, name, age): 2:         self.name = name 3:         self.age = age ```
 
@@ -21,7 +21,7 @@ Returns a list of symbols (functions, classes, variables, etc.) defined in the s
 
 ```python
 import lsproxy
-from lsproxy.models.symbol_response import SymbolResponse
+from lsproxy.models.symbol import Symbol
 from lsproxy.rest import ApiException
 from pprint import pprint
 
@@ -38,10 +38,11 @@ with lsproxy.ApiClient(configuration) as api_client:
     api_instance = lsproxy.SymbolApi(api_client)
     file_path = 'file_path_example' # str | The path to the file to get the symbols for, relative to the root of the workspace.
     include_raw_response = True # bool | Whether to include the raw response from the langserver in the response. Defaults to false. (optional)
+    include_source_code = True # bool | Whether to include the source code of the symbols in the response. Defaults to false. TODO: Implement this (optional)
 
     try:
-        # Get symbols in a specific file
-        api_response = api_instance.definitions_in_file(file_path, include_raw_response=include_raw_response)
+        # Get symbols in a specific file using ctags
+        api_response = api_instance.definitions_in_file(file_path, include_raw_response=include_raw_response, include_source_code=include_source_code)
         print("The response of SymbolApi->definitions_in_file:\n")
         pprint(api_response)
     except Exception as e:
@@ -57,10 +58,11 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **file_path** | **str**| The path to the file to get the symbols for, relative to the root of the workspace. | 
  **include_raw_response** | **bool**| Whether to include the raw response from the langserver in the response. Defaults to false. | [optional] 
+ **include_source_code** | **bool**| Whether to include the source code of the symbols in the response. Defaults to false. TODO: Implement this | [optional] 
 
 ### Return type
 
-[**SymbolResponse**](SymbolResponse.md)
+[**List[Symbol]**](Symbol.md)
 
 ### Authorization
 

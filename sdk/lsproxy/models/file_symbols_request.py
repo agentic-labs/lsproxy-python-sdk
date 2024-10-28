@@ -17,20 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
-from lsproxy.models.file_position import FilePosition
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
-class Symbol(BaseModel):
+class FileSymbolsRequest(BaseModel):
     """
-    Symbol
+    Request to get the symbols in a file.
     """ # noqa: E501
-    kind: StrictStr = Field(description="The kind of the symbol (e.g., function, class).")
-    name: StrictStr = Field(description="The name of the symbol.")
-    start_position: FilePosition = Field(description="The start position of the symbol's identifier.")
-    __properties: ClassVar[List[str]] = ["kind", "name", "start_position"]
+    file_path: StrictStr = Field(description="The path to the file to get the symbols for, relative to the root of the workspace.")
+    include_raw_response: Optional[StrictBool] = Field(default=None, description="Whether to include the raw response from the langserver in the response. Defaults to false.")
+    include_source_code: Optional[StrictBool] = Field(default=None, description="Whether to include the source code of the symbols in the response. Defaults to false. TODO: Implement this")
+    __properties: ClassVar[List[str]] = ["file_path", "include_raw_response", "include_source_code"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -50,7 +49,7 @@ class Symbol(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of Symbol from a JSON string"""
+        """Create an instance of FileSymbolsRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -71,14 +70,11 @@ class Symbol(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of start_position
-        if self.start_position:
-            _dict['start_position'] = self.start_position.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of Symbol from a dict"""
+        """Create an instance of FileSymbolsRequest from a dict"""
         if obj is None:
             return None
 
@@ -86,9 +82,9 @@ class Symbol(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "kind": obj.get("kind"),
-            "name": obj.get("name"),
-            "start_position": FilePosition.from_dict(obj["start_position"]) if obj.get("start_position") is not None else None
+            "file_path": obj.get("file_path"),
+            "include_raw_response": obj.get("include_raw_response"),
+            "include_source_code": obj.get("include_source_code")
         })
         return _obj
 

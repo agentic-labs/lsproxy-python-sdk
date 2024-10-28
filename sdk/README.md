@@ -69,10 +69,11 @@ with lsproxy.ApiClient(configuration) as api_client:
     api_instance = lsproxy.SymbolApi(api_client)
     file_path = 'file_path_example' # str | The path to the file to get the symbols for, relative to the root of the workspace.
     include_raw_response = True # bool | Whether to include the raw response from the langserver in the response. Defaults to false. (optional)
+    include_source_code = True # bool | Whether to include the source code of the symbols in the response. Defaults to false. TODO: Implement this (optional)
 
     try:
-        # Get symbols in a specific file
-        api_response = api_instance.definitions_in_file(file_path, include_raw_response=include_raw_response)
+        # Get symbols in a specific file using ctags
+        api_response = api_instance.definitions_in_file(file_path, include_raw_response=include_raw_response, include_source_code=include_source_code)
         print("The response of SymbolApi->definitions_in_file:\n")
         pprint(api_response)
     except ApiException as e:
@@ -86,7 +87,7 @@ All URIs are relative to *http://localhost:4444/v1*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*SymbolApi* | [**definitions_in_file**](docs/SymbolApi.md#definitions_in_file) | **GET** /symbol/definitions-in-file | Get symbols in a specific file
+*SymbolApi* | [**definitions_in_file**](docs/SymbolApi.md#definitions_in_file) | **GET** /symbol/definitions-in-file | Get symbols in a specific file using ctags
 *SymbolApi* | [**find_definition**](docs/SymbolApi.md#find_definition) | **POST** /symbol/find-definition | Get the definition of a symbol at a specific position in a file
 *SymbolApi* | [**find_references**](docs/SymbolApi.md#find_references) | **POST** /symbol/find-references | Find all references to a symbol
 *WorkspaceApi* | [**list_files**](docs/WorkspaceApi.md#list_files) | **GET** /workspace/list-files | Get a list of all files in the workspace
@@ -106,7 +107,7 @@ Class | Method | HTTP request | Description
  - [ReferencesResponse](docs/ReferencesResponse.md)
  - [SupportedLanguages](docs/SupportedLanguages.md)
  - [Symbol](docs/Symbol.md)
- - [SymbolResponse](docs/SymbolResponse.md)
+ - [VecInner](docs/VecInner.md)
 
 
 <a id="documentation-for-authorization"></a>

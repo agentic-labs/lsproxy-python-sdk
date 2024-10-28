@@ -17,20 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List
 from lsproxy.models.file_position import FilePosition
 from typing import Optional, Set
 from typing_extensions import Self
 
-class GetDefinitionRequest(BaseModel):
+class Symbol(BaseModel):
     """
-    GetDefinitionRequest
+    Symbol
     """ # noqa: E501
-    include_raw_response: Optional[StrictBool] = Field(default=None, description="Whether to include the raw response from the langserver in the response. Defaults to false.")
-    include_source_code: Optional[StrictBool] = Field(default=None, description="Whether to include the source code around the symbol's identifier in the response. Defaults to false.")
-    position: FilePosition
-    __properties: ClassVar[List[str]] = ["include_raw_response", "include_source_code", "position"]
+    identifier_position: FilePosition = Field(description="The start position of the symbol's identifier.")
+    kind: StrictStr = Field(description="The kind of the symbol (e.g., function, class).")
+    name: StrictStr = Field(description="The name of the symbol.")
+    __properties: ClassVar[List[str]] = ["identifier_position", "kind", "name"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -50,7 +50,7 @@ class GetDefinitionRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of GetDefinitionRequest from a JSON string"""
+        """Create an instance of Symbol from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -71,14 +71,14 @@ class GetDefinitionRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of position
-        if self.position:
-            _dict['position'] = self.position.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of identifier_position
+        if self.identifier_position:
+            _dict['identifier_position'] = self.identifier_position.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of GetDefinitionRequest from a dict"""
+        """Create an instance of Symbol from a dict"""
         if obj is None:
             return None
 
@@ -86,9 +86,9 @@ class GetDefinitionRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "include_raw_response": obj.get("include_raw_response"),
-            "include_source_code": obj.get("include_source_code"),
-            "position": FilePosition.from_dict(obj["position"]) if obj.get("position") is not None else None
+            "identifier_position": FilePosition.from_dict(obj["identifier_position"]) if obj.get("identifier_position") is not None else None,
+            "kind": obj.get("kind"),
+            "name": obj.get("name")
         })
         return _obj
 

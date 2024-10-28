@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **file_path** | **str** | The path to the file to get the symbols for, relative to the root of the workspace. | 
 **include_raw_response** | **bool** | Whether to include the raw response from the langserver in the response. Defaults to false. | [optional] 
+**include_source_code** | **bool** | Whether to include the source code of the symbols in the response. Defaults to false. TODO: Implement this | [optional] 
 
 ## Example
 

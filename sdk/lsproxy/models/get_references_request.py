@@ -17,19 +17,22 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, StrictBool
 from typing import Any, ClassVar, Dict, List, Optional
-from lsproxy.models.symbol import Symbol
+from typing_extensions import Annotated
+from lsproxy.models.file_position import FilePosition
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SymbolResponse(BaseModel):
+class GetReferencesRequest(BaseModel):
     """
-    SymbolResponse
+    GetReferencesRequest
     """ # noqa: E501
-    raw_response: Optional[Any] = None
-    symbols: List[Symbol]
-    __properties: ClassVar[List[str]] = ["raw_response", "symbols"]
+    identifier_position: FilePosition
+    include_code_context_lines: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=None, description="Whether to include the source code of the symbol in the response. Defaults to none.")
+    include_declaration: Optional[StrictBool] = Field(default=None, description="Whether to include the declaration (definition) of the symbol in the response. Defaults to false.")
+    include_raw_response: Optional[StrictBool] = Field(default=None, description="Whether to include the raw response from the langserver in the response. Defaults to false.")
+    __properties: ClassVar[List[str]] = ["identifier_position", "include_code_context_lines", "include_declaration", "include_raw_response"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -49,7 +52,7 @@ class SymbolResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SymbolResponse from a JSON string"""
+        """Create an instance of GetReferencesRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,23 +73,19 @@ class SymbolResponse(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in symbols (list)
-        _items = []
-        if self.symbols:
-            for _item_symbols in self.symbols:
-                if _item_symbols:
-                    _items.append(_item_symbols.to_dict())
-            _dict['symbols'] = _items
-        # set to None if raw_response (nullable) is None
+        # override the default output from pydantic by calling `to_dict()` of identifier_position
+        if self.identifier_position:
+            _dict['identifier_position'] = self.identifier_position.to_dict()
+        # set to None if include_code_context_lines (nullable) is None
         # and model_fields_set contains the field
-        if self.raw_response is None and "raw_response" in self.model_fields_set:
-            _dict['raw_response'] = None
+        if self.include_code_context_lines is None and "include_code_context_lines" in self.model_fields_set:
+            _dict['include_code_context_lines'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SymbolResponse from a dict"""
+        """Create an instance of GetReferencesRequest from a dict"""
         if obj is None:
             return None
 
@@ -94,8 +93,10 @@ class SymbolResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "raw_response": obj.get("raw_response"),
-            "symbols": [Symbol.from_dict(_item) for _item in obj["symbols"]] if obj.get("symbols") is not None else None
+            "identifier_position": FilePosition.from_dict(obj["identifier_position"]) if obj.get("identifier_position") is not None else None,
+            "include_code_context_lines": obj.get("include_code_context_lines"),
+            "include_declaration": obj.get("include_declaration"),
+            "include_raw_response": obj.get("include_raw_response")
         })
         return _obj
 
