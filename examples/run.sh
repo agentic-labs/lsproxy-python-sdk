@@ -1,12 +1,15 @@
 #!/bin/bash
+
 # Exit on any error
 set -e
+
 # Function to cleanup on exit or interrupt
 cleanup() {
     echo "Cleaning up..."
     docker stop lsproxy 2>/dev/null || true
     exit
 }
+
 # Function to check if server is ready using OpenAPI endpoint
 wait_for_server() {
     echo "Waiting for server to be ready..."
@@ -51,6 +54,7 @@ wait_for_server() {
         ((attempt++))
     done
 }
+
 # Function to setup virtual environment
 setup_venv() {
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -64,6 +68,7 @@ setup_venv() {
         echo "Python3 is required but not installed. Please install Python3 first."
         exit 1
     fi 
+
     # Create virtual environment if it doesn't exist
     if [ ! -d "$VENV_DIR" ]; then
         echo "Setting up virtual environment..."
@@ -86,27 +91,35 @@ setup_venv() {
         source "$VENV_DIR/bin/activate"
     fi
 }
+
 # Set up trap for SIGINT (Ctrl+C) and SIGTERM
 trap cleanup SIGINT SIGTERM
+
 # Check if argument is provided
 if [ $# -ne 1 ]; then
     echo "Usage: $0 /absolute/path/to/code"
     exit 1
 fi
+
 # Check if path is absolute
 if [[ "$1" != /* ]]; then
     echo "Error: Please provide an absolute path"
     exit 1
 fi
+
 # Setup and activate virtual environment
 setup_venv
+
 # Start docker container
 echo "Starting docker container..."
 docker run --rm -d -p 4444:4444 -v $1:/mnt/workspace --name lsproxy agenticlabs/lsproxy:0.1.0a1
+
 # Show logs in background
 docker logs -f lsproxy &
+
 # Wait for server to be ready
 wait_for_server
-# Run your command with the provided absolute path
+
+# Run the code graph
 echo "Running example..."
 marimo run $SCRIPT_DIR/code_graph/code_graph.py
