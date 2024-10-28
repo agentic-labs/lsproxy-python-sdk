@@ -58,8 +58,11 @@ wait_for_server() {
 # Function to setup virtual environment
 setup_venv() {
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-    VENV_DIR="$SCRIPT_DIR/../venv"
-
+    VENV_DIR="$SCRIPT_DIR/venv"
+    
+    # Change to script directory before doing anything else
+    cd "$SCRIPT_DIR"
+    
     # Check if Python is installed
     if ! command -v python3 &> /dev/null; then
         echo "Python3 is required but not installed. Please install Python3 first."
@@ -74,17 +77,14 @@ setup_venv() {
         
         # Update pip
         python -m pip install --upgrade pip
-
         # Install requirements
-        if [ -f "$SCRIPT_DIR/../requirements.txt" ]; then
+        if [ -f "requirements.txt" ]; then
             echo "Installing requirements from requirements.txt..."
-            pip install -r "$SCRIPT_DIR/../requirements.txt"
-            pip install $SCRIPT_DIR/../../sdk
+            pip install -r requirements.txt
         else
             echo "Requirements file not found"
             exit 1
         fi
-
         echo "Virtual environment setup completed!"
     else
         echo "Using existing virtual environment..."
@@ -120,6 +120,6 @@ docker logs -f lsproxy &
 # Wait for server to be ready
 wait_for_server
 
-# Run your command with the provided absolute path
+# Run the code graph
 echo "Running example..."
-marimo run $SCRIPT_DIR/code_graph.py
+marimo run $SCRIPT_DIR/code_graph/code_graph.py
