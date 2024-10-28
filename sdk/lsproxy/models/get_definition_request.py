@@ -17,18 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool
 from typing import Any, ClassVar, Dict, List, Optional
+from lsproxy.models.file_position import FilePosition
 from typing import Optional, Set
 from typing_extensions import Self
 
-class FileSymbolsRequest(BaseModel):
+class GetDefinitionRequest(BaseModel):
     """
-    Request to get the symbols in a file.
+    GetDefinitionRequest
     """ # noqa: E501
-    file_path: StrictStr = Field(description="The path to the file to get the symbols for, relative to the root of the workspace.")
     include_raw_response: Optional[StrictBool] = Field(default=None, description="Whether to include the raw response from the langserver in the response. Defaults to false.")
-    __properties: ClassVar[List[str]] = ["file_path", "include_raw_response"]
+    include_source_code: Optional[StrictBool] = Field(default=None, description="Whether to include the source code around the symbol's identifier in the response. Defaults to false. TODO: Implement this")
+    position: FilePosition
+    __properties: ClassVar[List[str]] = ["include_raw_response", "include_source_code", "position"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +50,7 @@ class FileSymbolsRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of FileSymbolsRequest from a JSON string"""
+        """Create an instance of GetDefinitionRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,11 +71,14 @@ class FileSymbolsRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of position
+        if self.position:
+            _dict['position'] = self.position.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of FileSymbolsRequest from a dict"""
+        """Create an instance of GetDefinitionRequest from a dict"""
         if obj is None:
             return None
 
@@ -81,8 +86,9 @@ class FileSymbolsRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "file_path": obj.get("file_path"),
-            "include_raw_response": obj.get("include_raw_response")
+            "include_raw_response": obj.get("include_raw_response"),
+            "include_source_code": obj.get("include_source_code"),
+            "position": FilePosition.from_dict(obj["position"]) if obj.get("position") is not None else None
         })
         return _obj
 

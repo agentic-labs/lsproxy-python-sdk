@@ -13,7 +13,8 @@ echo "Generating SDK..."
 openapi-generator generate \
     -i "openapi.json" \
     -g  python \
-    --additional-properties=packageName=lsproxy
+    --additional-properties=packageName=lsproxy \
+    -o sdk
 
 # Check if generation was successful
 if [ $? -eq 0 ]; then

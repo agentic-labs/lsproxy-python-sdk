@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **include_raw_response** | **bool** | Whether to include the raw response from the langserver in the response. Defaults to false. | [optional] 
-**include_source_code** | **bool** | Whether to include the source code around the symbol&#39;s identifier in the response. Defaults to false. | [optional] 
+**include_source_code** | **bool** | Whether to include the source code around the symbol&#39;s identifier in the response. Defaults to false. TODO: Implement this | [optional] 
 **position** | [**FilePosition**](FilePosition.md) |  | 
 
 ## Example

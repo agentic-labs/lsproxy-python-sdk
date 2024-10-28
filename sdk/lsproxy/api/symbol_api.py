@@ -17,13 +17,13 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
 from pydantic import Field, StrictBool, StrictStr
-from typing import Optional
+from typing import List, Optional
 from typing_extensions import Annotated
 from lsproxy.models.definition_response import DefinitionResponse
 from lsproxy.models.get_definition_request import GetDefinitionRequest
 from lsproxy.models.get_references_request import GetReferencesRequest
 from lsproxy.models.references_response import ReferencesResponse
-from lsproxy.models.symbol_response import SymbolResponse
+from lsproxy.models.symbol import Symbol
 
 from lsproxy.api_client import ApiClient, RequestSerialized
 from lsproxy.api_response import ApiResponse
@@ -48,6 +48,7 @@ class SymbolApi:
         self,
         file_path: Annotated[StrictStr, Field(description="The path to the file to get the symbols for, relative to the root of the workspace.")],
         include_raw_response: Annotated[Optional[StrictBool], Field(description="Whether to include the raw response from the langserver in the response. Defaults to false.")] = None,
+        include_source_code: Annotated[Optional[StrictBool], Field(description="Whether to include the source code of the symbols in the response. Defaults to false. TODO: Implement this")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -60,8 +61,8 @@ class SymbolApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SymbolResponse:
-        """Get symbols in a specific file
+    ) -> List[Symbol]:
+        """Get symbols in a specific file using ctags
 
         Returns a list of symbols (functions, classes, variables, etc.) defined in the specified file.  The returned positions point to the start of the symbol's identifier.  e.g. for `User` on line 0 of `src/main.py`: ``` 0: class User: _________^ 1:     def __init__(self, name, age): 2:         self.name = name 3:         self.age = age ```
 
@@ -69,6 +70,8 @@ class SymbolApi:
         :type file_path: str
         :param include_raw_response: Whether to include the raw response from the langserver in the response. Defaults to false.
         :type include_raw_response: bool
+        :param include_source_code: Whether to include the source code of the symbols in the response. Defaults to false. TODO: Implement this
+        :type include_source_code: bool
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -94,6 +97,7 @@ class SymbolApi:
         _param = self._definitions_in_file_serialize(
             file_path=file_path,
             include_raw_response=include_raw_response,
+            include_source_code=include_source_code,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -101,7 +105,7 @@ class SymbolApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SymbolResponse",
+            '200': "List[Symbol]",
             '400': None,
             '500': None,
         }
@@ -121,6 +125,7 @@ class SymbolApi:
         self,
         file_path: Annotated[StrictStr, Field(description="The path to the file to get the symbols for, relative to the root of the workspace.")],
         include_raw_response: Annotated[Optional[StrictBool], Field(description="Whether to include the raw response from the langserver in the response. Defaults to false.")] = None,
+        include_source_code: Annotated[Optional[StrictBool], Field(description="Whether to include the source code of the symbols in the response. Defaults to false. TODO: Implement this")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -133,8 +138,8 @@ class SymbolApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SymbolResponse]:
-        """Get symbols in a specific file
+    ) -> ApiResponse[List[Symbol]]:
+        """Get symbols in a specific file using ctags
 
         Returns a list of symbols (functions, classes, variables, etc.) defined in the specified file.  The returned positions point to the start of the symbol's identifier.  e.g. for `User` on line 0 of `src/main.py`: ``` 0: class User: _________^ 1:     def __init__(self, name, age): 2:         self.name = name 3:         self.age = age ```
 
@@ -142,6 +147,8 @@ class SymbolApi:
         :type file_path: str
         :param include_raw_response: Whether to include the raw response from the langserver in the response. Defaults to false.
         :type include_raw_response: bool
+        :param include_source_code: Whether to include the source code of the symbols in the response. Defaults to false. TODO: Implement this
+        :type include_source_code: bool
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -167,6 +174,7 @@ class SymbolApi:
         _param = self._definitions_in_file_serialize(
             file_path=file_path,
             include_raw_response=include_raw_response,
+            include_source_code=include_source_code,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -174,7 +182,7 @@ class SymbolApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SymbolResponse",
+            '200': "List[Symbol]",
             '400': None,
             '500': None,
         }
@@ -194,6 +202,7 @@ class SymbolApi:
         self,
         file_path: Annotated[StrictStr, Field(description="The path to the file to get the symbols for, relative to the root of the workspace.")],
         include_raw_response: Annotated[Optional[StrictBool], Field(description="Whether to include the raw response from the langserver in the response. Defaults to false.")] = None,
+        include_source_code: Annotated[Optional[StrictBool], Field(description="Whether to include the source code of the symbols in the response. Defaults to false. TODO: Implement this")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -207,7 +216,7 @@ class SymbolApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get symbols in a specific file
+        """Get symbols in a specific file using ctags
 
         Returns a list of symbols (functions, classes, variables, etc.) defined in the specified file.  The returned positions point to the start of the symbol's identifier.  e.g. for `User` on line 0 of `src/main.py`: ``` 0: class User: _________^ 1:     def __init__(self, name, age): 2:         self.name = name 3:         self.age = age ```
 
@@ -215,6 +224,8 @@ class SymbolApi:
         :type file_path: str
         :param include_raw_response: Whether to include the raw response from the langserver in the response. Defaults to false.
         :type include_raw_response: bool
+        :param include_source_code: Whether to include the source code of the symbols in the response. Defaults to false. TODO: Implement this
+        :type include_source_code: bool
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -240,6 +251,7 @@ class SymbolApi:
         _param = self._definitions_in_file_serialize(
             file_path=file_path,
             include_raw_response=include_raw_response,
+            include_source_code=include_source_code,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -247,7 +259,7 @@ class SymbolApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SymbolResponse",
+            '200': "List[Symbol]",
             '400': None,
             '500': None,
         }
@@ -262,6 +274,7 @@ class SymbolApi:
         self,
         file_path,
         include_raw_response,
+        include_source_code,
         _request_auth,
         _content_type,
         _headers,
@@ -291,6 +304,10 @@ class SymbolApi:
         if include_raw_response is not None:
             
             _query_params.append(('include_raw_response', include_raw_response))
+            
+        if include_source_code is not None:
+            
+            _query_params.append(('include_source_code', include_source_code))
             
         # process the header parameters
         # process the form parameters

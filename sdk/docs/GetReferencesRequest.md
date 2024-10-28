@@ -5,10 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**identifier_position** | [**FilePosition**](FilePosition.md) |  | 
 **include_code_context_lines** | **int** | Whether to include the source code of the symbol in the response. Defaults to none. | [optional] 
 **include_declaration** | **bool** | Whether to include the declaration (definition) of the symbol in the response. Defaults to false. | [optional] 
 **include_raw_response** | **bool** | Whether to include the raw response from the langserver in the response. Defaults to false. | [optional] 
-**start_position** | [**FilePosition**](FilePosition.md) |  | 
 
 ## Example
 
