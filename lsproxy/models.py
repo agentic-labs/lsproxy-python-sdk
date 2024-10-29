@@ -10,9 +10,6 @@ class SupportedLanguages(str, Enum):
     rust = "rust"
 
 
-logger = logging.getLogger(__name__)
-
-
 class Position(BaseModel):
     """Specific position within a file."""
 
@@ -57,10 +54,9 @@ class FilePosition(BaseModel):
     def __lt__(self, other: "FilePosition") -> bool:
         """Compare file positions by path first, then position."""
         if self.path != other.path:
-            logger.warning(
+            raise NotImplementedError(
                 f"Comparing file positions with different paths: {self.path} and {other.path}"
             )
-            return self.path < other.path
         return self.position < other.position
 
     def __eq__(self, other: "FilePosition") -> bool:
