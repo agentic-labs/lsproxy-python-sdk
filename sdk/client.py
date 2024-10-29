@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class APIClient:
+class Lsproxy:
     """Client for interacting with the lsproxy API."""
 
         # Shared HTTP client with connection pooling
