@@ -2,12 +2,11 @@ import json
 import httpx
 import logging
 from typing import List
-from models import (
+from .models import (
     DefinitionResponse,
     ReferencesResponse,
     GetDefinitionRequest,
     GetReferencesRequest,
-    FileSymbolsRequest,
     Symbol,
 )
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -20,26 +19,24 @@ logger = logging.getLogger(__name__)
 class Lsproxy:
     """Client for interacting with the lsproxy API."""
 
-        # Shared HTTP client with connection pooling
+    # Shared HTTP client with connection pooling
     _client = httpx.Client(
         base_url="http://localhost:4444/v1",
-        timeout=30.0,
+        timeout=10,
         headers={"Content-Type": "application/json"},
-        limits=httpx.Limits(
-            max_keepalive_connections=20,
-            max_connections=100
-        )
+        limits=httpx.Limits(max_keepalive_connections=20, max_connections=100),
     )
 
-    def __init__(self, base_url: str = "http://localhost:4444/v1", timeout: float = 30.0):
+    def __init__(
+        self, base_url: str = "http://localhost:4444/v1", timeout: float = 10.0
+    ):
         self._client.base_url = base_url
         self._client.timeout = timeout
-
 
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=4, max=10),
-        reraise=True
+        reraise=True,
     )
     def _request(self, method: str, endpoint: str, **kwargs) -> httpx.Response:
         """Make HTTP request with retry logic and better error handling."""
@@ -51,18 +48,19 @@ class Lsproxy:
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 400:
                 error_data = e.response.json()
-                raise ValueError(error_data.get('error', str(e)))
+                raise ValueError(error_data.get("error", str(e)))
             raise
 
-    def get_definitions_in_file(self, request: FileSymbolsRequest) -> List[Symbol]:
+    def definitions_in_file(self, file_path: str) -> List[Symbol]:
         """Retrieve symbols from a specific file."""
         response = self._request(
-            "GET", "/symbol/definitions-in-file", params=request.model_dump()
+            "GET", "/symbol/definitions-in-file", params={"file_path": file_path}
         )
-        symbols = [Symbol.model_validate_json(symbol_dict) for symbol_dict in json.loads(response.text)]
-        logger.debug(
-            f"Retrieved {len(symbols)} symbols from {request.file_path}"
-        )
+        symbols = [
+            Symbol.model_validate_json(symbol_dict)
+            for symbol_dict in json.loads(response.text)
+        ]
+        logger.debug(f"Retrieved {len(symbols)} symbols from {file_path}")
         return symbols
 
     def find_definition(self, request: GetDefinitionRequest) -> DefinitionResponse:

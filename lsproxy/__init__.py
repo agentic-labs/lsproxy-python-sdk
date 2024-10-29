@@ -9,8 +9,7 @@ from .models import (
     GetDefinitionRequest,
     ReferencesResponse,
     GetReferencesRequest,
-    FileSymbolsRequest,
-    SupportedLanguages
+    SupportedLanguages,
 )
 
 __version__ = "0.1.0"
@@ -26,6 +25,5 @@ __all__ = [
     "GetDefinitionRequest",
     "ReferencesResponse",
     "GetReferencesRequest",
-    "FileSymbolsRequest",
-    "SupportedLanguages"
+    "SupportedLanguages",
 ]

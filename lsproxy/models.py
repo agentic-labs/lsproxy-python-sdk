@@ -94,17 +94,21 @@ class FileRange(BaseModel):
             and self.start <= file_position.position
             and file_position.position <= self.end
         )
-    
+
     def __lt__(self, other: "FileRange") -> bool:
         """Compare ranges by path first, then start position."""
         if self.path != other.path:
             return self.path < other.path
         return self.start < other.start
-    
+
     def __eq__(self, other: "FileRange") -> bool:
         """Check if two ranges are equal."""
-        return self.path == other.path and self.start == other.start and self.end == other.end
-    
+        return (
+            self.path == other.path
+            and self.start == other.start
+            and self.end == other.end
+        )
+
     def __le__(self, other: "FileRange") -> bool:
         """Less than or equal comparison."""
         return self < other or self == other
@@ -139,9 +143,7 @@ class Symbol(BaseModel):
     identifier_position: FilePosition = Field(
         ..., description="The start position of the symbol's identifier."
     )
-    range: FileRange = Field(
-        ..., description="The full range of the symbol."
-    )
+    range: FileRange = Field(..., description="The full range of the symbol.")
 
 
 class DefinitionResponse(BaseModel):
@@ -216,25 +218,6 @@ class GetReferencesRequest(BaseModel):
     include_raw_response: Optional[bool] = Field(
         False,
         description="Whether to include the raw response from the language server.",
-    )
-
-
-class FileSymbolsRequest(BaseModel):
-    """Request to retrieve symbols from a specific file."""
-
-    file_path: str = Field(
-        ...,
-        description="The path to the file to get the symbols for, relative to the root of the workspace.",
-        example="src/main.py",
-    )
-    include_raw_response: Optional[bool] = Field(
-        False,
-        description="Whether to include the raw response from the language server.",
-    )
-
-    include_source_code: Optional[bool] = Field(
-        False,
-        description="Whether to include the source code of each symbol definition.",
     )
 
 
