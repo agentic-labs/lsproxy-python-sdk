@@ -57,7 +57,7 @@ class Lsproxy:
             "GET", "/symbol/definitions-in-file", params={"file_path": file_path}
         )
         symbols = [
-            Symbol.model_validate_json(symbol_dict)
+            Symbol.model_validate(symbol_dict)
             for symbol_dict in json.loads(response.text)
         ]
         logger.debug(f"Retrieved {len(symbols)} symbols from {file_path}")

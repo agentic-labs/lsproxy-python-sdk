@@ -11,12 +11,22 @@ def __():
     import sys
     from typing import Dict, Any, Optional
 
-    from lsproxy import Lsproxy
+    from lsproxy import Lsproxy, GetReferencesRequest
 
     import marimo as mo
     from dataclasses import dataclass
-
-    return Any, Dict, Lsproxy, Optional, dataclass, json, mo, requests, sys
+    return (
+        Any,
+        Dict,
+        GetReferencesRequest,
+        Lsproxy,
+        Optional,
+        dataclass,
+        json,
+        mo,
+        requests,
+        sys,
+    )
 
 
 @app.cell
@@ -122,7 +132,6 @@ def __():
         )
 
         return "\n".join(mermaid_lines)
-
     return (create_mermaid_from_dependencies,)
 
 
@@ -204,7 +213,6 @@ def __(create_lang_dropdown, get_files):
         )
         rs_dropdown = create_lang_dropdown(file_with_symbol_count, ["rs"], "Rust files")
         return py_dropdown, js_dropdown, rs_dropdown, file_dict
-
     return (create_dropdowns,)
 
 
@@ -219,7 +227,6 @@ def __(api_client, mo):
             symbols = api_client.definitions_in_file(file)
             file_dict[file] = symbols
         return file_dict
-
     return (get_files,)
 
 
@@ -232,12 +239,11 @@ def __(mo):
             if file.split(".")[-1] in endings
         }
         return mo.ui.dropdown(options=file_options, label=label)
-
     return (create_lang_dropdown,)
 
 
 @app.cell
-def __(GetReferencesRequest, SymbolApi, file_symbol_dict, mo):
+def __(GetReferencesRequest, file_symbol_dict, mo):
     class GraphBuilder:
         def __init__(self, api_client, root_file, hops):
             # data
@@ -290,7 +296,7 @@ def __(GetReferencesRequest, SymbolApi, file_symbol_dict, mo):
                     identifier_position=symbol.identifier_position
                 )
                 references = (
-                    SymbolApi(self.api_client)
+                    self.api_client
                     .find_references(get_references_request)
                     .references
                 )
@@ -300,7 +306,6 @@ def __(GetReferencesRequest, SymbolApi, file_symbol_dict, mo):
                         self.next_hop_files.add(dest_file)
                         self.edges.setdefault((file, dest_file), set()).add(symbol.name)
             self.processed_files.add(file)
-
     return (GraphBuilder,)
 
 
