@@ -1,4 +1,3 @@
-import logging
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from enum import Enum

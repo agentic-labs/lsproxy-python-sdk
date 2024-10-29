@@ -1,6 +1,5 @@
 import json
 import httpx
-import logging
 from typing import List
 from .models import (
     DefinitionResponse,
