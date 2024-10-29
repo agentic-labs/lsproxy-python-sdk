@@ -5,22 +5,67 @@ app = marimo.App(width="medium")
 
 
 @app.cell
-def __(create_file_dropdown, mo):
-    file_options, file_symbol_dict = create_file_dropdown()
-    hops = mo.ui.number(1)
-    get_status, set_status = mo.state("Starting")
-    return file_options, file_symbol_dict, get_status, hops, set_status
+def __(hops, js_dropdown, lang_select, mo, py_dropdown, rs_dropdown):
+    lang_dropdown = None
+    if lang_select.value == "Python":
+        lang_dropdown = py_dropdown
+    elif lang_select.value == "Typescript/Javascript":
+        lang_dropdown = js_dropdown
+    elif lang_select.value == "Rust":
+        lang_dropdown = rs_dropdown
+
+    submit_button = mo.ui.run_button(label="Click to submit", disabled=not py_dropdown.value and not js_dropdown.value and not rs_dropdown.value)
+    selections = mo.hstack([mo.vstack([lang_dropdown, hops, submit_button], align="end"), lang_select], gap=2, justify="end")
+    selections
+    return lang_dropdown, selections, submit_button
+
+
+@app.cell
+def __(
+    create_graph,
+    create_mermaid_from_dependencies,
+    hops,
+    lang_dropdown,
+    mo,
+    submit_button,
+):
+    mo.stop(not submit_button.value, "Click `submit` to build the graph")
+    edges = create_graph(lang_dropdown.value, hops.value)
+    mermaid_string = create_mermaid_from_dependencies(edges)
+    mo.mermaid(mermaid_string)
+    return edges, mermaid_string
+
+
+@app.cell
+def __(create_dropdowns, mo):
+    py_dropdown, js_dropdown, rs_dropdown, file_symbol_dict = create_dropdowns()
+    hops = mo.ui.number(1, label="Number of hops")
+    lang_select = mo.ui.radio(options=["Python", "Typescript/Javascript", "Rust"], value="Python")
+    return (
+        file_symbol_dict,
+        hops,
+        js_dropdown,
+        lang_select,
+        py_dropdown,
+        rs_dropdown,
+    )
 
 
 @app.cell
 def __(get_files, mo):
-    def create_file_dropdown():
+    def create_dropdowns():
         file_dict = get_files()
         file_with_symbol_count = [(file, len(symbols)) for file, symbols in file_dict.items()] 
-        file_with_symbol_count = sorted(file_with_symbol_count, key=lambda file_item: -file_item[1])
-        file_options = {f"{file}: ({symbols} symbols)": file for file, symbols in file_with_symbol_count}
-        return mo.ui.dropdown(options=file_options), file_dict
-    return (create_file_dropdown,)
+        file_with_symbol_count = sorted(file_with_symbol_count, key=lambda item: -item[1])
+        file_options_python = {f"{file}: ({symbols} symbols)": file for file, symbols in file_with_symbol_count if file.split(".")[-1] in ["py"]}
+        python_dropdown = mo.ui.dropdown(options=file_options_python, label="Python files")
+        file_options_js = {f"{file}: ({symbols} symbols)": file for file, symbols in file_with_symbol_count if file.split(".")[-1] in ["ts", "tsx", "js", "jsx"]}
+        print(file_options_js)
+        js_dropdown = mo.ui.dropdown(options=file_options_js, label="Typescript/Javascript Files")
+        file_options_rust = {f"{file}: ({symbols} symbols)": file for file, symbols in file_with_symbol_count if file.split(".")[-1] in ["rs"]}
+        rs_dropdown = mo.ui.dropdown(options=file_options_rust, label="Rust files")
+        return python_dropdown, js_dropdown, rs_dropdown, file_dict
+    return (create_dropdowns,)
 
 
 @app.cell
@@ -32,36 +77,9 @@ def __(ApiClient, Configuration, SymbolApi, WorkspaceApi, mo):
             for i in mo.status.progress_bar(range(len(files)), title="Files processed", remove_on_exit=True):
                 file = files[i]
                 symbols = SymbolApi(api_client).definitions_in_file(file)
-                if symbols:
-                    file_dict[file] = symbols
+                file_dict[file] = symbols
         return file_dict
     return (get_files,)
-
-
-@app.cell
-def __(file_options, hops, mo):
-    submit_button = mo.ui.run_button(label="Click to submit", disabled=not file_options.value)
-    files_unit = mo.vstack([mo.md("Available files"),file_options])
-    hops_unit = mo.vstack([mo.md("Number of hops"), hops])
-    selections = mo.hstack([files_unit, hops_unit], justify="center")
-    mo.vstack([selections, submit_button], align="center")
-    return files_unit, hops_unit, selections, submit_button
-
-
-@app.cell
-def __(
-    create_graph,
-    create_mermaid_from_dependencies,
-    file_options,
-    hops,
-    mo,
-    submit_button,
-):
-    mo.stop(not submit_button.value, "Click `submit` to build the graph")
-    edges = create_graph(file_options.value, hops.value)
-    mermaid_string = create_mermaid_from_dependencies(edges)
-    mo.mermaid(mermaid_string)
-    return edges, mermaid_string
 
 
 @app.cell

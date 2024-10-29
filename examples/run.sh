@@ -112,7 +112,7 @@ setup_venv
 
 # Start docker container
 echo "Starting docker container..."
-docker run --rm -d -p 4444:4444 -v $1:/mnt/workspace --name lsproxy agenticlabs/lsproxy:0.1.0a1
+docker run --rm -d -p 4444:4444 -v "$1":/mnt/workspace --name lsproxy agenticlabs/lsproxy:0.1.0a1
 
 # Show logs in background
 docker logs -f lsproxy &
