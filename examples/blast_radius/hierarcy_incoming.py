@@ -41,14 +41,13 @@ class HierarchyItem(BaseModel):
         return f"{filename}:{self.defined_at.position.line}#{self.name}"
 
 
-def get_symbols_containing_position(
-    client: Lsproxy, target_positions: List[FilePosition]
+def get_symbols_containing_positions(
+    client: Lsproxy, target_positions: List[FilePosition], workspace_files: List[str]
 ) -> List[HierarchyItem]:
     assert all(
         pos.path == target_positions[0].path for pos in target_positions
     ), "All positions must be in the same file"
     file_path = target_positions[0].path
-    workspace_files = client.list_files()
     if file_path not in workspace_files:
         logging.error(f"File {file_path} not found in workspace")
         return []
@@ -75,9 +74,14 @@ def get_symbols_containing_position(
 def get_hierarchy_incoming(
     client: Lsproxy, starting_positions: List[FilePosition]
 ) -> Tuple[Set[HierarchyItem], Set[Tuple[HierarchyItem, HierarchyItem]]]:
+    """
+    Compute the chain of code symbols that use the code at the starting positions.
+    """
     nodes: Set[HierarchyItem] = set()
     edges: Set[Tuple[HierarchyItem, HierarchyItem]] = set()
-    stack = get_symbols_containing_position(client, starting_positions)
+    workspace_files = client.list_files()
+    # Initialize with symbols that contain the starting positions
+    stack = get_symbols_containing_positions(client, starting_positions, workspace_files)
 
     while stack:
         symbol = stack.pop()
@@ -85,6 +89,7 @@ def get_hierarchy_incoming(
             continue
         nodes.add(symbol)
 
+        # Find all references to this symbol across codebase
         references = client.find_references(
             GetReferencesRequest(
                 start_position=symbol.defined_at, include_declaration=False
@@ -95,12 +100,11 @@ def get_hierarchy_incoming(
         for ref in references:
             references_by_file.setdefault(ref.path, []).append(ref)
 
-        print(f"Found references in {len(references_by_file)} files for symbol {symbol.name}")
-
+        # Find symbols that contain the references, we will process these next
         related_symbols = [
             sym
             for refs in references_by_file.values()
-            for sym in get_symbols_containing_position(client, refs)
+            for sym in get_symbols_containing_positions(client, refs, workspace_files)
         ]
 
         for related_symbol in related_symbols:

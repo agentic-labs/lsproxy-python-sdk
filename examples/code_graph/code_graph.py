@@ -15,6 +15,7 @@ def __():
 
     import marimo as mo
     from dataclasses import dataclass
+
     return (
         Any,
         Dict,
@@ -132,6 +133,7 @@ def __():
         )
 
         return "\n".join(mermaid_lines)
+
     return (create_mermaid_from_dependencies,)
 
 
@@ -213,6 +215,7 @@ def __(create_lang_dropdown, get_files):
         )
         rs_dropdown = create_lang_dropdown(file_with_symbol_count, ["rs"], "Rust files")
         return py_dropdown, js_dropdown, rs_dropdown, file_dict
+
     return (create_dropdowns,)
 
 
@@ -227,6 +230,7 @@ def __(api_client, mo):
             symbols = api_client.definitions_in_file(file)
             file_dict[file] = symbols
         return file_dict
+
     return (get_files,)
 
 
@@ -239,6 +243,7 @@ def __(mo):
             if file.split(".")[-1] in endings
         }
         return mo.ui.dropdown(options=file_options, label=label)
+
     return (create_lang_dropdown,)
 
 
@@ -295,17 +300,16 @@ def __(GetReferencesRequest, file_symbol_dict, mo):
                 get_references_request = GetReferencesRequest(
                     identifier_position=symbol.identifier_position
                 )
-                references = (
-                    self.api_client
-                    .find_references(get_references_request)
-                    .references
-                )
+                references = self.api_client.find_references(
+                    get_references_request
+                ).references
                 for reference in references:
                     dest_file = reference.path
                     if dest_file != file:
                         self.next_hop_files.add(dest_file)
                         self.edges.setdefault((file, dest_file), set()).add(symbol.name)
             self.processed_files.add(file)
+
     return (GraphBuilder,)
 
 
