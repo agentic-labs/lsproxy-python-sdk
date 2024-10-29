@@ -3,11 +3,47 @@
 # Exit on any error
 set -e
 
-# Function to cleanup on exit or interrupt
-cleanup() {
-    echo "Cleaning up..."
+# Global variable for virtual environment path
+SCRIPT_DIR=""
+VENV_DIR=""
+
+# Function to cleanup docker and processes
+cleanup_docker() {
+    # Disable the trap temporarily to prevent recursive triggers
+    trap "" SIGINT SIGTERM
+
+    echo "Starting cleanup process..."
+
+    # Kill any background processes (like docker logs)
+    pkill -P $$ || true
+
+    echo "Stopping docker container..."
     docker stop lsproxy 2>/dev/null || true
-    exit
+
+    # Add a small delay to ensure docker has time to stop
+    sleep 2
+
+    # Double-check if container still exists and force kill if necessary
+    if docker ps -q -f name=lsproxy | grep -q .; then
+        echo "Container still running, forcing removal..."
+        docker kill lsproxy 2>/dev/null || true
+    fi
+
+    echo "Cleanup completed"
+    kill -9 $$  # Force exit the script
+}
+
+# Function to cleanup virtual environment on failure
+cleanup_venv() {
+    # Disable the trap temporarily to prevent recursive triggers
+    trap "" SIGINT SIGTERM
+
+    if [ -n "$VENV_DIR" ] && [ -d "$VENV_DIR" ]; then
+        echo "Cleaning up incomplete virtual environment..."
+        rm -rf "$VENV_DIR"
+        echo "Virtual environment cleanup completed"
+    fi
+    exit 1
 }
 
 # Function to check if server is ready using OpenAPI endpoint
@@ -20,7 +56,7 @@ wait_for_server() {
     while true; do
         if [ $attempt -ge $max_attempts ]; then
             echo "Server failed to start after $max_attempts attempts"
-            cleanup
+            cleanup_docker
             exit 1
         fi
         
@@ -72,28 +108,36 @@ setup_venv() {
     # Create virtual environment if it doesn't exist
     if [ ! -d "$VENV_DIR" ]; then
         echo "Setting up virtual environment..."
-        python3 -m venv "$VENV_DIR"
-        source "$VENV_DIR/bin/activate"
+        # Remove any partially created venv directory
+        rm -rf "$VENV_DIR"
         
-        # Update pip
-        python -m pip install --upgrade pip
-        # Install requirements
-        if [ -f "requirements.txt" ]; then
-            echo "Installing requirements from requirements.txt..."
+        echo "Creating virtual environment..."
+        {
+            python3 -m venv "$VENV_DIR" && \
+            source "$VENV_DIR/bin/activate" && \
+            # Update pip
+            python -m pip install --upgrade pip && \
+            # Check for requirements.txt
+            if [ ! -f "requirements.txt" ]; then
+                echo "Requirements file not found"
+                cleanup_venv
+                exit 1
+            fi && \
+            # Install requirements
+            echo "Installing requirements from requirements.txt..." && \
             pip install -r requirements.txt
-        else
-            echo "Requirements file not found"
+        } || {
+            # If any command in the chain fails
+            echo "Failed to setup virtual environment"
+            cleanup_venv
             exit 1
-        fi
+        }
         echo "Virtual environment setup completed!"
     else
         echo "Using existing virtual environment..."
         source "$VENV_DIR/bin/activate"
     fi
 }
-
-# Set up trap for SIGINT (Ctrl+C) and SIGTERM
-trap cleanup SIGINT SIGTERM
 
 # Check if argument is provided
 if [ $# -ne 1 ]; then
@@ -107,8 +151,14 @@ if [[ "$1" != /* ]]; then
     exit 1
 fi
 
+# Set initial trap for venv cleanup
+trap 'cleanup_venv' SIGINT SIGTERM EXIT
+
 # Setup and activate virtual environment
 setup_venv
+
+# Update trap for docker cleanup now that venv is setup
+trap 'cleanup_docker' SIGINT SIGTERM EXIT
 
 # Start docker container
 echo "Starting docker container..."
