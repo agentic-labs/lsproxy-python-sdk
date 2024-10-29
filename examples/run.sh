@@ -172,4 +172,4 @@ wait_for_server
 
 # Run the code graph
 echo "Running example..."
-marimo run $SCRIPT_DIR/code_graph/code_graph.py
+marimo edit $SCRIPT_DIR/code_graph/code_graph.py
