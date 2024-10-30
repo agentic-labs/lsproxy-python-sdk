@@ -17,12 +17,13 @@ import tempfile
 from time import sleep
 import logging
 import requests
-
+import networkx as nx
+import matplotlib.pyplot as plt
 from hierarcy_incoming import get_hierarchy_incoming, to_prompt
 from git_utils import checkout_commit, clone_repo, parse_diff
 
-from client import APIClient
-from models import (
+from lsproxy import (
+    Lsproxy,
     FilePosition,
     Position,
 )
@@ -97,9 +98,6 @@ def main():
                 all_nodes.update(nodes)
                 all_edges.update(edges)
 
-        # Draw graph using networkx and matplotlib
-        import networkx as nx
-        import matplotlib.pyplot as plt
 
         G = nx.DiGraph()
         G.add_nodes_from(all_nodes)

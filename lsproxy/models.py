@@ -220,3 +220,9 @@ class ErrorResponse(BaseModel):
     """Response representing an error."""
 
     error: str = Field(..., description="The error message.")
+
+
+class ReadSourceCodeResponse(BaseModel):
+    """Response containing source code for a file range."""
+
+    source_code: str = Field(..., description="The source code for the specified range.")

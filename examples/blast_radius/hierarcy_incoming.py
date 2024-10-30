@@ -36,10 +36,6 @@ class HierarchyItem(BaseModel):
             )
         )
 
-    def __repr__(self) -> str:
-        filename = self.defined_at.path.rsplit("/", 1)[-1]
-        return f"{filename}:{self.defined_at.position.line}#{self.name}"
-
 
 def get_symbols_containing_positions(
     client: Lsproxy, target_positions: List[FilePosition], workspace_files: List[str]

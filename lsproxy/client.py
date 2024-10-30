@@ -3,6 +3,8 @@ import httpx
 from typing import List
 from .models import (
     DefinitionResponse,
+    FileRange,
+    ReadSourceCodeResponse,
     ReferencesResponse,
     GetDefinitionRequest,
     GetReferencesRequest,
@@ -77,6 +79,14 @@ class Lsproxy:
         response = self._request("GET", "/workspace/list-files")
         files = response.json()
         return files
+    
+    def read_source_code(self, request: FileRange) -> ReadSourceCodeResponse:
+        """Read source code from a specified file range."""
+        response = self._request(
+            "POST", "/workspace/read-source-code", json=request.model_dump()
+        )
+        return ReadSourceCodeResponse.model_validate_json(response.text)
+
 
     def close(self):
         """Close the HTTP client."""

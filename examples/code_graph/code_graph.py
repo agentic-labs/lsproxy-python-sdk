@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.9.13"
+__generated_with = "0.9.14"
 app = marimo.App(width="medium")
 
 
@@ -14,8 +14,6 @@ def __():
     from lsproxy import Lsproxy, GetReferencesRequest, GetDefinitionRequest
 
     import marimo as mo
-    from dataclasses import dataclass
-
     return (
         Any,
         Dict,
@@ -23,7 +21,6 @@ def __():
         GetReferencesRequest,
         Lsproxy,
         Optional,
-        dataclass,
         json,
         mo,
         requests,
@@ -147,6 +144,27 @@ def __(
 
 @app.cell
 def __():
+    from pydantic import BaseModel
+    from lsproxy import FilePosition
+    class HierarchyItem(BaseModel):
+        name: str
+        kind: str
+        defined_at: FilePosition
+        source_code: str
+
+        def __hash__(self) -> int:
+            return hash(
+                (
+                    self.defined_at.path,
+                    self.defined_at.position.line,
+                    self.defined_at.position.character,
+                )
+            )
+    return BaseModel, FilePosition, HierarchyItem
+
+
+@app.cell
+def __():
     def pretty_format_code_result(code_result, lang_select):
         return f"""### `Code`\n---\n```{lang_select.value}\n\n{code_result}\n```\n"""
     return (pretty_format_code_result,)
@@ -233,7 +251,6 @@ def __(api_client, mo):
             symbols = api_client.definitions_in_file(file)
             file_dict[file] = symbols
         return file_dict
-
     return (get_files,)
 
 
@@ -270,7 +287,6 @@ def __(mo):
             if file.split(".")[-1] in endings
         }
         return mo.ui.dropdown(options=file_options, label=label)
-
     return (create_lang_dropdown,)
 
 
