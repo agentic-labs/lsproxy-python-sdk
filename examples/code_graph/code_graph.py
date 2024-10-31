@@ -33,7 +33,7 @@ def __():
 
 @app.cell
 def __(mo):
-    mo.md("""### Welcome to the `lsproxy` tutorial! We'll be showing you how you can use `lsproxy` to easily navigate and search another codebase from python. Let's get started!\n> We will be using an open-source repo to demonstrate `lsproxy`. We chose [Trieve](https://github.com/devflowinc/trieve), a rust-based infrastructure solution for search, recommendations and RAG. They have rust for their backend, and typescript to run multiple frontend interfaces. We love their product and their team, check them out!""")
+    mo.md("""### Welcome to the `lsproxy` tutorial! We'll be showing you how you can use `lsproxy` to easily navigate and search another codebase using python. Let's get started!\n> We will be using an open-source repo to demonstrate `lsproxy`. We chose [Trieve](https://github.com/devflowinc/trieve), a rust-based infrastructure solution for search, recommendations and RAG. They have rust for their backend, and typescript to run multiple frontend interfaces. We love their product and their team, check them out!""")
     return
 
 
@@ -84,7 +84,7 @@ def __(mo):
 def __(file_symbol_dict, mo):
     mo.stop(not file_symbol_dict)
 
-    mo.md("""### `Example 1: Exploring symbols and their references in a file`\nYou'll see how easy it is to:\n\n- Get symbol definitions from a file.\n- Read the source code for any symbol.\n- Find references to the symbol across the codebase\n---\n""")
+    mo.md("""### `Example 1: Exploring symbols and their references in a file`\nYou'll see how easy it is to:\n\n- Get symbol definitions from a file.\n- Read the source code for any symbol.\n- Find references to the symbol across the codebase\n\n<p>Also note that we are only showing typescript and rust in this example, but we also support python!</p>\n---\n""")
     return
 
 
@@ -152,9 +152,8 @@ def __(mo, symbols_ex1):
 @app.cell
 def __(mo, symbol_table_ex1, symbols_ex1):
     mo.stop(not symbol_table_ex1.value)
-    viewed_symbol = True
     selected_symbol_ex1 = symbols_ex1[symbol_table_ex1.value[0].get("index")]
-    return selected_symbol_ex1, viewed_symbol
+    return (selected_symbol_ex1,)
 
 
 @app.cell
@@ -178,12 +177,14 @@ def __(
         include_code_context_lines=2,
     )
     reference_results_ex1 = api_client.find_references(reference_request_ex1)
+    viewed_symbol = True
     mo.show_code()
     return (
         file_range_ex1,
         reference_request_ex1,
         reference_results_ex1,
         source_code_ex1,
+        viewed_symbol,
     )
 
 
@@ -232,7 +233,7 @@ def __(mo):
 def __(example_2, mo, selections_2):
     mo.stop(not example_2.value)
     mo.vstack([
-    mo.md("""### Example 2: Exploring connections between files\nThe examples above are similar to the kind of functionality you can find in your IDE, but having everything accessible with easy python functions means that you can compose these operations to be much more powerful.\n\nIn this example, we show how you can find all the files that reference a given file by repeatedly looking for references to all the symbols defined within the file\n\n---"""),
+    mo.md("""### Example 2: Exploring connections between files\nThe examples above are similar to the kind of functionality you can find in your IDE, but having everything accessible with easy python functions means that you can compose these operations to be much more powerful.\n\nIn this example, we show:\n\n- Finding all the files that reference a given file\n- Tagging each file with the symbols it references\n\n---"""),
     selections_2,
     ])
     return
@@ -287,15 +288,33 @@ def __(
 
 
 @app.cell
+def __(file_dropdown_2, mo):
+    mo.stop(not file_dropdown_2.value)
+
+    mo.md("From this information we can build a simple graph showing how a file's symbols are referenced by other files in the codebase.")
+    return
+
+
+@app.cell
 def __(generate_reference_diagram, mo, referenced_symbols_in_file_dict):
-    mermaid_diagram = generate_reference_diagram(referenced_symbols_in_file_dict)
+    if not referenced_symbols_in_file_dict:
+        mermaid_diagram = generate_reference_diagram("No external references found")
+    else:
+        mermaid_diagram = generate_reference_diagram(referenced_symbols_in_file_dict)
     mo.mermaid(mermaid_diagram)
     return (mermaid_diagram,)
 
 
 @app.cell
 def __(mo):
-    mo.md("""Thanks for trying `lsproxy`! Feel free to plug it in to your own repo. Or if you want to play with the code in this example, you can use `./run --edit`""")
+    mo.md("""<div style="height: 100px;"></div>""")
+    return
+
+
+@app.cell
+def __(file_dropdown_2, mo):
+    mo.stop(not file_dropdown_2.value)
+    mo.md("""Thanks for trying `lsproxy`! Feel free to plug it in to your own repo. Or if you want to play with the code in this example, you can use ```./examples/run --edit```""")
     return
 
 
@@ -314,19 +333,18 @@ def __():
 @app.cell
 def __(create_dropdowns, create_selector_dict, file_symbol_dict, mo):
     # UI Elements for the first example
-    py_dropdown_1, js_dropdown_1, rs_dropdown_1 = create_dropdowns(
+    js_dropdown_1, rs_dropdown_1 = create_dropdowns(
         file_symbol_dict
     )
     selector_dict_1 = create_selector_dict(
-        py_dropdown_1, js_dropdown_1, rs_dropdown_1
+        js_dropdown_1, rs_dropdown_1
     )
     code_language_select_ex1 = mo.ui.radio(
-        options=["python", "typescript", "rust"], value="rust"
+        options=["typescript", "rust"], value="rust"
     )
     return (
         code_language_select_ex1,
         js_dropdown_1,
-        py_dropdown_1,
         rs_dropdown_1,
         selector_dict_1,
     )
@@ -347,20 +365,19 @@ def __(code_language_select_ex1, mo, selector_dict_1):
 @app.cell
 def __(create_dropdowns, create_selector_dict, file_symbol_dict, mo):
     # UI Elements for the second example
-    py_dropdown_2, js_dropdown_2, rs_dropdown_2 = create_dropdowns(
+    js_dropdown_2, rs_dropdown_2 = create_dropdowns(
         file_symbol_dict
     )
     selector_dict_2 = create_selector_dict(
-        py_dropdown_2, js_dropdown_2, rs_dropdown_2
+        js_dropdown_2, rs_dropdown_2
     )
     submit_button_2 = mo.ui.run_button(label="Find referenced files")
-    lang_select_2 = mo.ui.radio(
-        options=["python", "typescript", "rust"], value="rust"
+    code_language_select_ex2 = mo.ui.radio(
+        options=["typescript", "rust"], value="rust"
     )
     return (
+        code_language_select_ex2,
         js_dropdown_2,
-        lang_select_2,
-        py_dropdown_2,
         rs_dropdown_2,
         selector_dict_2,
         submit_button_2,
@@ -368,13 +385,13 @@ def __(create_dropdowns, create_selector_dict, file_symbol_dict, mo):
 
 
 @app.cell
-def __(lang_select_2, mo, selector_dict_2):
+def __(code_language_select_ex2, mo, selector_dict_2):
     # Combining UI selections for the second example
-    file_dropdown_2 = selector_dict_2[lang_select_2.value]
+    file_dropdown_2 = selector_dict_2[code_language_select_ex2.value]
     selections_2 = mo.hstack(
         [
             file_dropdown_2,
-            lang_select_2,
+            code_language_select_ex2,
         ],
         gap=2,
         justify="end",
@@ -413,9 +430,6 @@ def __(create_lang_dropdown):
         file_with_symbol_count = sorted(
             file_with_symbol_count, key=lambda item: -item[1]
         )
-        py_dropdown = create_lang_dropdown(
-            file_with_symbol_count, ["py"], "Select a python file ->"
-        )
         js_dropdown = create_lang_dropdown(
             file_with_symbol_count,
             ["ts", "tsx", "js", "jsx"],
@@ -424,7 +438,7 @@ def __(create_lang_dropdown):
         rs_dropdown = create_lang_dropdown(
             file_with_symbol_count, ["rs"], "Select a rust file ->"
         )
-        return py_dropdown, js_dropdown, rs_dropdown
+        return js_dropdown, rs_dropdown
     return (create_dropdowns,)
 
 
@@ -442,9 +456,8 @@ def __(mo):
 
 @app.cell
 def __():
-    def create_selector_dict(py_dropdown, js_dropdown, rs_dropdown):
+    def create_selector_dict(js_dropdown, rs_dropdown):
         return {
-            "python": py_dropdown,
             "typescript": js_dropdown,
             "rust": rs_dropdown,
         }
@@ -521,11 +534,10 @@ def __():
 
         # Handle case where dependencies is just a root file string
         if isinstance(dependencies, str):
-            clean_name = get_display_name(dependencies).replace('"', "&quot;")
             return f"""graph LR
-        root["{clean_name}"]
-        classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px;
-        classDef source fill:#e1f5fe,stroke:#0277bd,stroke-width:2px;
+        root["{dependencies}"]
+        classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000;
+        classDef source fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,color:#000;
         class root source;"""
 
         if not dependencies:
