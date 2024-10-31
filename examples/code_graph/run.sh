@@ -225,6 +225,7 @@ setup_git_repo
 
 trap 'cleanup_docker' SIGINT SIGTERM EXIT
 echo "Starting docker container..."
+docker pull agenticlabs/lsproxy:0.1.0a1
 docker run --rm -d -p 4444:4444 -v "$REPO_DIR":/mnt/workspace --name lsproxy agenticlabs/lsproxy:0.1.0a1
 
 docker logs -f lsproxy &
