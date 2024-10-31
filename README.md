@@ -44,7 +44,7 @@ lsp.list_files()
 
 ## Get symbols in a file
 ```python
-lsp.get_definitions_in_file(path="path/to/file.py")
+lsp.definitions_in_file(path="path/to/file.py")
 ```
 
 ## Get references to a symbol
