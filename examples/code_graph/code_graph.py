@@ -495,14 +495,26 @@ def __():
             # Split the code into it's lines and combine with the line number
             code = context.source_code.split("\n")
             line_nums = range(context.range.start.line, context.range.end.line + 1)
-            code_with_line_nums = zip(line_nums, code)
+            before_reference = filter(
+                lambda num_code: num_code[0] < ref.position.line + 1,
+                zip(line_nums, code),
+            )
+            after_reference = filter(
+                lambda num_code: num_code[0] > ref.position.line,
+                zip(line_nums, code),
+            )
+            code_with_line_nums = (
+                list(before_reference)
+                + [("", "_" * ref.position.character + "^")]
+                + list(after_reference)
+            )
 
             # Extend the list for the file with the new the (line_num, code) plus a separator
             file = ref.path
             refs.setdefault(file, []).extend(code_with_line_nums)
             refs[file].append(("@@@@@", "-----"))
 
-        # For each file 
+        # For each file
         for ref_file, ref_lines in refs.items():
             ref_text.append(f"**{ref_file}**\n\n```{code_language}")
             ref_text.extend([f"{num:5}: {line}" for num, line in ref_lines])
