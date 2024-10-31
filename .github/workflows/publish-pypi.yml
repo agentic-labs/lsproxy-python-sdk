@@ -1,31 +1,40 @@
-# This workflow is triggered when a GitHub release is created.
-# It can also be run manually to re-publish to PyPI in case it failed for some reason.
-# You can run this workflow by navigating to https://www.github.com/agentic-labs/lsproxy-python-sdk/actions/workflows/publish-pypi.yml
-name: Publish PyPI
+name: Publish Python Package
 on:
-  workflow_dispatch:
-
-  release:
-    types: [published]
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+*'  # Matches PEP 440 versions like 0.1.0a1
 
 jobs:
-  publish:
-    name: publish
+  pypi-publish:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Install Rye
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Extract version from tag
+        id: get_version
         run: |
-          curl -sSf https://rye.astral.sh/get | bash
-          echo "$HOME/.rye/shims" >> $GITHUB_PATH
-        env:
-          RYE_VERSION: '0.35.0'
-          RYE_INSTALL_OPTION: '--yes'
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build package
+        run: python -m build
+
+      - name: Check distribution
+        run: twine check dist/*
 
       - name: Publish to PyPI
-        run: |
-          bash ./bin/publish-pypi
         env:
-          PYPI_TOKEN: ${{ secrets.LSPROXY_PYPI_TOKEN || secrets.PYPI_TOKEN }}
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.LSPROXY_PYPI_TOKEN }}
+        run: twine upload dist/*
