@@ -1,3 +1,0 @@
-marimo
-requests
--e ../../

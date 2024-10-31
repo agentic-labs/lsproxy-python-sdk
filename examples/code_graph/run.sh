@@ -7,7 +7,8 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 VENV_DIR="$SCRIPT_DIR/venv"
 REPO_DIR="$SCRIPT_DIR/trieve"
-COMMIT_HASH="3f38fa456b113c57bea70c3812b38cfe4f0d621c"
+#COMMIT_HASH="3f38fa456b113c57bea70c3812b38cfe4f0d621c"
+COMMIT_HASH="e65889a13715e8833e7cccfe0168b57c1fc966cc"
 
 # Function to display basic usage message
 show_usage() {
