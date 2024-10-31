@@ -338,7 +338,7 @@ def __(diagram_shown, mo):
 def __(example_3, mo):
     mo.stop(not example_3.value)
     mo.md(
-        """### Example 3 (Advanced): Analyzing a change diff with call hierarchy.\n We can compose definitions and references to quickly identify the full code paths that are affected by a particular change, and uncover ripple effects through the codebase.\n\n---"""
+        """### Example 3 (Advanced): Analyzing a change diff with call hierarchy.\n We can compose definitions and references to identify the full code paths that are affected by a particular change, and uncover ripple effects through the codebase.\n\n---"""
     )
     return
 
@@ -350,7 +350,7 @@ def __(mo):
 
 
 @app.cell
-def __():
+def __(mo):
     import subprocess
 
     current_commit = (
@@ -362,6 +362,7 @@ def __():
     diff_cmd = ["git", "diff", parent_commit, current_commit]
     diff_text = subprocess.check_output(diff_cmd, cwd="./trieve").decode("utf-8")
     print(f"Diff has {len(diff_text.splitlines())} lines")
+    mo.show_code()
     return current_commit, diff_cmd, diff_text, parent_commit, subprocess
 
 
@@ -399,12 +400,12 @@ def __(Dict, List, Tuple, diff_text):
 
 @app.cell
 def __(mo):
-    mo.md("""Now we define logic to \n\n 1. Find symbol definitions containing affected lines\n\n 2. Find references to these symbols.\n\n 3. Repeat with lines containing references, until we reach the end.\n\nWe also save the symbols that are direct parents of affected lines, so we can distinguish them from the symbols indirectly affected by the change.""")
+    mo.md("""Then we define logic to \n\n 1. Find symbol definitions containing affected lines\n\n 2. Find references to these symbols.\n\n 3. Repeat with lines containing references, until we reach the end.\n\nWe also save the symbols that are direct parents of affected lines, so we can distinguish them from the symbols indirectly affected by the change.""")
     return
 
 
 @app.cell
-def __(GetReferencesRequest, List, Lsproxy, Set, Tuple, logging):
+def __(GetReferencesRequest, List, Lsproxy, Set, Tuple, logging, mo):
     from pydantic import BaseModel
     from lsproxy import FilePosition
 
@@ -435,8 +436,11 @@ def __(GetReferencesRequest, List, Lsproxy, Set, Tuple, logging):
         if file_path not in workspace_files:
             logging.error(f"File {file_path} not found in workspace")
             return []
-
-        symbols = client.definitions_in_file(file_path)
+        
+        #######################
+        ### Get definitions ###
+        #######################
+        symbols = client.definitions_in_file(file_path) 
         symbols_containing_position = {
             HierarchyItem(
                 name=symbol.name,
@@ -472,8 +476,10 @@ def __(GetReferencesRequest, List, Lsproxy, Set, Tuple, logging):
             if symbol in nodes:
                 continue
             nodes.add(symbol)
-
-            # Find all references to this symbol across codebase
+            
+            #######################
+            ### Find references ###
+            #######################
             references = client.find_references(
                 GetReferencesRequest(
                     identifier_position=symbol.defined_at, include_declaration=False
@@ -499,6 +505,7 @@ def __(GetReferencesRequest, List, Lsproxy, Set, Tuple, logging):
                     stack.append(related_symbol)
 
         return nodes, edges, initial_symbols
+    mo.show_code()
     return (
         BaseModel,
         FilePosition,
@@ -515,6 +522,7 @@ def __(
     affected_lines,
     api_client,
     get_hierarchy_incoming,
+    mo,
 ):
     affected_files = list(affected_lines.keys())
     lsp_files = api_client.list_files()
@@ -532,6 +540,7 @@ def __(
         all_nodes.update(nodes)
         all_edges.update(edges)
         symbols_changed_directly.update(initial)
+    mo.show_code()
     return (
         affected_files,
         all_edges,
