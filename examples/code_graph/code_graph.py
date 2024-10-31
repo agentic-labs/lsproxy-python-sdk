@@ -230,8 +230,15 @@ def __(mo):
 
 
 @app.cell
-def __(example_2, mo, selections_2):
+def __(example_2, mo):
     mo.stop(not example_2.value)
+    ex2_unlocked = True
+    return (ex2_unlocked,)
+
+
+@app.cell
+def __(ex2_unlocked, mo, selections_2):
+    mo.stop(not ex2_unlocked)
     mo.vstack([
     mo.md("""### Example 2: Exploring connections between files\nThe examples above are similar to the kind of functionality you can find in your IDE, but having everything accessible with easy python functions means that you can compose these operations to be much more powerful.\n\nIn this example, we show:\n\n- Finding all the files that reference a given file\n- Tagging each file with the symbols it references\n\n---"""),
     selections_2,
@@ -314,7 +321,7 @@ def __(mo):
 @app.cell
 def __(file_dropdown_2, mo):
     mo.stop(not file_dropdown_2.value)
-    mo.md("""Thanks for trying `lsproxy`! Feel free to plug it in to your own repo. Or if you want to play with the code in this example, you can use ```./examples/run --edit```""")
+    mo.md("""Thanks for trying `lsproxy`! See the README on our [github repo](https://github.com/agentic-labs/lsproxy) to run on your own code. Or if you want to play with the code in this example, you can use:\n\n```./examples/run.sh --edit```""")
     return
 
 
@@ -492,7 +499,7 @@ def __():
         for ref, context in zip(
             reference_results.references, reference_results.context
         ):
-            # Split the code into it's lines and combine with the line number
+            # Split the code into it's lines and add an indicator for where the reference is
             code = context.source_code.split("\n")
             line_nums = range(context.range.start.line, context.range.end.line + 1)
             before_reference = filter(
