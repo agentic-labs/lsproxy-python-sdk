@@ -1,6 +1,5 @@
 import json
 import httpx
-import logging
 from typing import List
 from .models import (
     DefinitionResponse,
@@ -80,6 +79,7 @@ class Lsproxy:
         response = self._request("GET", "/workspace/list-files")
         files = response.json()
         return files
+
 
     def read_source_code(self, request: FileRange) -> ReadSourceCodeResponse:
         """Read source code from a specified file range."""

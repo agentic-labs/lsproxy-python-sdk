@@ -14,7 +14,6 @@ def __():
     from lsproxy import GetReferencesRequest, FileRange, Position
 
     import marimo as mo
-    from dataclasses import dataclass
     return (
         Any,
         Dict,
@@ -23,7 +22,6 @@ def __():
         List,
         Optional,
         Position,
-        dataclass,
         json,
         mo,
         requests,
@@ -84,7 +82,9 @@ def __(mo):
 def __(file_symbol_dict, mo):
     mo.stop(not file_symbol_dict)
 
-    mo.md("""### `Example 1: Exploring symbols and their references in a file`\nYou'll see how easy it is to:\n\n- Get symbol definitions from a file.\n- Read the source code for any symbol.\n- Find references to the symbol across the codebase\n\n<p>Also note that we are only showing typescript and rust in this example, but we also support python!</p>\n---\n""")
+    mo.md(
+        """### `Example 1: Exploring symbols and their references in a file`\nYou'll see how easy it is to:\n\n- Get symbol definitions from a file.\n- Read the source code for any symbol.\n- Find references to the symbol across the codebase\n\n<p>Also note that we are only showing typescript and rust in this example, but we also support python!</p>\n---\n"""
+    )
     return
 
 
@@ -109,7 +109,9 @@ def __(code_language_ex1, mo, selected_file_first_time):
     # This is just for controlling the flow of this tutorial
     mo.stop(not selected_file_first_time)
 
-    mo.md(f"Note that you selected a file in {code_language_ex1}, but `lsproxy` wraps language servers for all the supported languages, and routes your request to the right one, so you don't have to worry about configuring servers for each language. Go ahead and try a different language!")
+    mo.md(
+        f"Note that you selected a file in {code_language_ex1}, but `lsproxy` wraps language servers for all the supported languages, and routes your request to the right one, so you don't have to worry about configuring servers for each language. Go ahead and try a different language!"
+    )
     return
 
 
@@ -167,7 +169,9 @@ def __(
 ):
     # Read the source code for a particular range in a file by just asking for it!
     file_range_ex1 = FileRange(
-        path=selected_file_ex1, start=selected_symbol_ex1.range.start, end=selected_symbol_ex1.range.end
+        path=selected_file_ex1,
+        start=selected_symbol_ex1.range.start,
+        end=selected_symbol_ex1.range.end,
     )
     source_code_ex1 = api_client.read_source_code(file_range_ex1).source_code
 
@@ -203,7 +207,7 @@ def __(
         reference_results_ex1, code_language_ex1
     )
 
-    # Display the code and reference text 
+    # Display the code and reference text
     mo.callout(
         mo.vstack(
             [
@@ -218,7 +222,7 @@ def __(
 @app.cell
 def __(mo, viewed_symbol):
     mo.stop(not viewed_symbol)
-    example_2 = mo.ui.run_button(label="Click to move on to example 2", full_width=True)
+    example_2 = mo.ui.run_button(label="Click to move on to example 2: Exploring connections between files", full_width=True)
     example_2
     return (example_2,)
 
@@ -272,9 +276,11 @@ def __(
 ):
     # But now we can repeatedly look for references on EVERY symbol in the file and build up a graph of the references
     referenced_symbols_in_file_dict = {}
-    for symbol in mo.status.progress_bar(symbols_ex2, title="Symbols processed", remove_on_exit=True):
+    for symbol in mo.status.progress_bar(
+        symbols_ex2, title="Symbols processed", remove_on_exit=True
+    ):
         reference_request_ex2 = GetReferencesRequest(
-            identifier_position=symbol.identifier_position, 
+            identifier_position=symbol.identifier_position,
         )
         references_ex2 = api_client.find_references(reference_request_ex2).references
 
@@ -282,7 +288,9 @@ def __(
         for ref in references_ex2:
             referencing_file = ref.path
             if referencing_file != selected_file_ex2:
-               referenced_symbols_in_file_dict.setdefault((selected_file_ex2, referencing_file), set()).add(symbol.name)
+                referenced_symbols_in_file_dict.setdefault(
+                    (selected_file_ex2, referencing_file), set()
+                ).add(symbol.name)
     mo.show_code()
     return (
         ref,
@@ -298,7 +306,9 @@ def __(
 def __(file_dropdown_2, mo):
     mo.stop(not file_dropdown_2.value)
 
-    mo.md("From this information we can build a simple graph showing how a file's symbols are referenced by other files in the codebase.")
+    mo.md(
+        "From this information we can build a simple graph showing how a file's symbols are referenced by other files in the codebase."
+    )
     return
 
 
@@ -308,14 +318,354 @@ def __(generate_reference_diagram, mo, referenced_symbols_in_file_dict):
         mermaid_diagram = generate_reference_diagram("No external references found")
     else:
         mermaid_diagram = generate_reference_diagram(referenced_symbols_in_file_dict)
+    diagram_shown = True
     mo.mermaid(mermaid_diagram)
-    return (mermaid_diagram,)
+    return diagram_shown, mermaid_diagram
 
 
 @app.cell
 def __(mo):
     mo.md("""<div style="height: 100px;"></div>""")
     return
+
+
+@app.cell
+def __(diagram_shown, mo):
+    mo.stop(not diagram_shown)
+    example_3 = mo.ui.run_button(label="Click to move on to example 3: Analyzing a change diff with call hierarchy.", full_width=True)
+    example_3
+    return (example_3,)
+
+
+@app.cell
+def __(example_3, mo):
+    mo.stop(not example_3.value)
+    mo.md(
+        """### Example 3 (Advanced): Analyzing a change diff with call hierarchy.\n We can compose definitions and references to identify the full code paths that are affected by a particular change, and uncover ripple effects through the codebase.\n\n---"""
+    )
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("""Let's start with a diff of a change to the deletion logic in Trieve in this [PR](https://github.com/devflowinc/trieve/pull/2649)""")
+    return
+
+
+@app.cell
+def __(mo):
+    import subprocess
+
+    current_commit = (
+        subprocess.check_output(["git", "rev-parse", "HEAD"], cwd="./trieve")
+        .decode("utf-8")
+        .strip()
+    )
+    parent_commit = "1910d6867877bfdd64ca822e266372335392a8be"
+    diff_cmd = ["git", "diff", parent_commit, current_commit]
+    diff_text = subprocess.check_output(diff_cmd, cwd="./trieve").decode("utf-8")
+    print(f"Diff has {len(diff_text.splitlines())} lines")
+    mo.show_code()
+    return current_commit, diff_cmd, diff_text, parent_commit, subprocess
+
+
+@app.cell
+def __(mo):
+    mo.md("""First, we extract affected lines from the diff text.""")
+    return
+
+
+@app.cell
+def __(Dict, List, Tuple, diff_text):
+    from unidiff import PatchSet
+    import io
+
+    def parse_diff(diff_text) -> Tuple[Dict[str, List[int]], str]:
+        patch = PatchSet(io.StringIO(diff_text))
+        affected_lines = {}
+        for patched_file in patch:
+            for hunk in patched_file:
+                for line in hunk:
+                    if line.is_added:
+                        affected_lines[patched_file.path] = affected_lines.get(
+                            patched_file.path, set()
+                        ) | {line.target_line_no}
+                    elif line.is_removed:
+                        affected_lines[patched_file.path] = affected_lines.get(
+                            patched_file.path, set()
+                        ) | {line.source_line_no}
+        return affected_lines
+
+    affected_lines = parse_diff(diff_text)
+    print("Diff contains", sum([len(lines) for lines in affected_lines.values()]), "changed lines in", len(affected_lines), "files.")
+    return PatchSet, affected_lines, io, parse_diff
+
+
+@app.cell
+def __(mo):
+    mo.md("""Then we define logic to \n\n 1. Find symbol definitions containing affected lines\n\n 2. Find references to these symbols.\n\n 3. Repeat with lines containing references, until we reach the end.\n\nWe also save the symbols that are direct parents of affected lines, so we can distinguish them from the symbols indirectly affected by the change.""")
+    return
+
+
+@app.cell
+def __(GetReferencesRequest, List, Lsproxy, Set, Tuple, logging, mo):
+    from pydantic import BaseModel
+    from lsproxy import FilePosition
+
+    class HierarchyItem(BaseModel):
+        name: str
+        kind: str
+        defined_at: FilePosition
+        source_code: str
+
+        def __hash__(self) -> int:
+            return hash(
+                (
+                    self.defined_at.path,
+                    self.defined_at.position.line,
+                    self.defined_at.position.character,
+                )
+            )
+
+    def get_symbols_containing_positions(
+        client: Lsproxy,
+        target_positions: List[FilePosition],
+        workspace_files: List[str],
+    ) -> List[HierarchyItem]:
+        assert all(
+            pos.path == target_positions[0].path for pos in target_positions
+        ), "All positions must be in the same file"
+        file_path = target_positions[0].path
+        if file_path not in workspace_files:
+            logging.error(f"File {file_path} not found in workspace")
+            return []
+        
+        #######################
+        ### Get definitions ###
+        #######################
+        symbols = client.definitions_in_file(file_path) 
+        symbols_containing_position = {
+            HierarchyItem(
+                name=symbol.name,
+                kind=symbol.kind,
+                defined_at=symbol.identifier_position,
+                source_code=client.read_source_code(symbol.range).source_code,
+            )
+            for symbol in symbols
+            for target_position in target_positions
+            if symbol.range.contains(target_position)
+        }
+        return symbols_containing_position
+
+    def get_hierarchy_incoming(
+        client: Lsproxy, starting_positions: List[FilePosition]
+    ) -> Tuple[
+        Set[HierarchyItem], Set[Tuple[HierarchyItem, HierarchyItem]], Set[HierarchyItem]
+    ]:
+        """
+        Compute the chain of code symbols that touch the code at the starting positions.
+        """
+        nodes: Set[HierarchyItem] = set()
+        edges: Set[Tuple[HierarchyItem, HierarchyItem]] = set()
+        workspace_files = client.list_files()
+        # Initialize with symbols that contain the starting positions
+        initial_symbols = get_symbols_containing_positions(
+            client, starting_positions, workspace_files
+        )
+        stack = list(initial_symbols)
+
+        while stack:
+            symbol = stack.pop()
+            if symbol in nodes:
+                continue
+            nodes.add(symbol)
+            
+            #######################
+            ### Find references ###
+            #######################
+            references = client.find_references(
+                GetReferencesRequest(
+                    identifier_position=symbol.defined_at, include_declaration=False
+                )
+            ).references
+
+            references_by_file = {}
+            for ref in references:
+                references_by_file.setdefault(ref.path, []).append(ref)
+
+            # Find symbols that contain the references, we will process these next
+            related_symbols = [
+                sym
+                for refs in references_by_file.values()
+                for sym in get_symbols_containing_positions(
+                    client, refs, workspace_files
+                )
+            ]
+
+            for related_symbol in related_symbols:
+                if related_symbol != symbol:
+                    edges.add((symbol, related_symbol))
+                    stack.append(related_symbol)
+
+        return nodes, edges, initial_symbols
+    mo.show_code()
+    return (
+        BaseModel,
+        FilePosition,
+        HierarchyItem,
+        get_hierarchy_incoming,
+        get_symbols_containing_positions,
+    )
+
+
+@app.cell
+def __(
+    FilePosition,
+    Position,
+    affected_lines,
+    api_client,
+    get_hierarchy_incoming,
+    mo,
+):
+    affected_files = list(affected_lines.keys())
+    lsp_files = api_client.list_files()
+    affected_files = [file for file in affected_files if file in lsp_files]
+
+    all_nodes = set()
+    all_edges = set()
+    symbols_changed_directly = set()
+    for file in affected_files:
+        starting_positions = [
+            FilePosition(path=file, position=Position(line=line, character=0))
+            for line in affected_lines[file]
+        ]
+        nodes, edges, initial = get_hierarchy_incoming(api_client, starting_positions)
+        all_nodes.update(nodes)
+        all_edges.update(edges)
+        symbols_changed_directly.update(initial)
+    mo.show_code()
+    return (
+        affected_files,
+        all_edges,
+        all_nodes,
+        edges,
+        file,
+        initial,
+        lsp_files,
+        nodes,
+        starting_positions,
+        symbols_changed_directly,
+    )
+
+
+@app.cell
+def __(HierarchyItem, Set, Tuple):
+    def hierarchy_to_mermaid(
+        nodes: Set[HierarchyItem],
+        edges: Set[Tuple[HierarchyItem, HierarchyItem]],
+        symbols_changed_directly: Set[HierarchyItem],
+    ) -> str:
+        """
+        Convert hierarchy nodes and edges to a Mermaid diagram string with subgraphs by file.
+        Uses hash codes as node identifiers. Nodes that were changed directly are colored red.
+
+        Args:
+            nodes: Set of HierarchyItem objects representing code symbols
+            edges: Set of tuples containing (from_symbol, to_symbol) relationships
+            symbols_changed_directly: Set of HierarchyItem objects that were changed directly
+
+        Returns:
+            str: Mermaid diagram representation of the hierarchy with file-based subgraphs
+        """
+        mermaid_lines = [
+            "%%{",
+            "  init: {",
+            "    'flowchart': {",
+            "      'rankSpacing': 100,",  # Increase vertical space between ranks
+            "      'nodeSpacing': 50,",  # Increase horizontal space between nodes
+            "      'padding': 20",  # Add padding around the entire diagram
+            "    }",
+            "  }",
+            "}%%",
+            "graph TD",
+        ]
+
+        # Track nodes that need red styling
+        direct_node_ids = set()
+        indirect_node_ids = set()
+
+        # Group nodes by file
+        nodes_by_file = {}
+        for node in nodes:
+            file_path = node.defined_at.path
+            if file_path not in nodes_by_file:
+                nodes_by_file[file_path] = []
+            nodes_by_file[file_path].append(node)
+
+            # Track node IDs that need to be colored red
+            if node in symbols_changed_directly:
+                direct_node_ids.add(f"node{abs(hash(node))}")
+            else:
+                indirect_node_ids.add(f"node{abs(hash(node))}")
+
+        # Create subgraphs for each file
+        for file_idx, (file_path, file_nodes) in enumerate(nodes_by_file.items()):
+            # Create subgraph with unique ID
+            subgraph_id = f"subgraph_{file_idx}"
+            mermaid_lines.append(f"    subgraph {subgraph_id}[{file_path}]")
+
+            # Add nodes for this file
+            for node in file_nodes:
+                # Escape quotes and special characters in names
+                escaped_name = node.name.replace('"', '\\"')
+                # Add kind as a suffix in italics
+                label = f'"{escaped_name}<br><i>{node.kind}</i>"'
+                # Use absolute value of hash to ensure positive ID
+                node_id = f"node{abs(hash(node))}"
+                mermaid_lines.append(f"        {node_id}[{label}]")
+
+            # Close subgraph
+            mermaid_lines.append("    end")
+
+        # Add edges using hash IDs (outside subgraphs)
+        for from_node, to_node in edges:
+            from_id = f"node{abs(hash(from_node))}"
+            to_id = f"node{abs(hash(to_node))}"
+            mermaid_lines.append(f"    {from_id} --> {to_id}")
+
+        # Add styling for red nodes
+        for node_id in indirect_node_ids:
+            mermaid_lines.append(f"    style {node_id} fill:#ffcccc")
+        for node_id in direct_node_ids:
+            mermaid_lines.append(f"    style {node_id} fill:#ffffff")
+
+        return "\n".join(mermaid_lines)
+    return (hierarchy_to_mermaid,)
+
+
+@app.cell
+def __(
+    all_edges,
+    all_nodes,
+    hierarchy_to_mermaid,
+    mo,
+    symbols_changed_directly,
+):
+    mm = hierarchy_to_mermaid(all_nodes, all_edges, symbols_changed_directly)
+    mo.vstack([
+        mo.md("## Call graph of the code affected by the change.\n ### The white nodes are present in the diff, while the red ones are affected indirectly."),
+        mo.mermaid(mm)
+    ])
+    return (mm,)
+
+
+@app.cell
+def __(affected_lines, all_nodes, mo):
+    diff_files = set(affected_lines.keys())
+    call_hierarchy_files = set([n.defined_at.path for n in all_nodes])
+    affected_files_not_in_diff = call_hierarchy_files - diff_files
+    mo.md(f"We now see code paths crossing {len(affected_files_not_in_diff)} files that are not in the diff:\n\n{'\n'.join([f'{i+1}. {f}' for i, f in enumerate(affected_files_not_in_diff)])}")
+    return affected_files_not_in_diff, call_hierarchy_files, diff_files
 
 
 @app.cell
@@ -340,15 +690,9 @@ def __():
 @app.cell
 def __(create_dropdowns, create_selector_dict, file_symbol_dict, mo):
     # UI Elements for the first example
-    js_dropdown_1, rs_dropdown_1 = create_dropdowns(
-        file_symbol_dict
-    )
-    selector_dict_1 = create_selector_dict(
-        js_dropdown_1, rs_dropdown_1
-    )
-    code_language_select_ex1 = mo.ui.radio(
-        options=["typescript", "rust"], value="rust"
-    )
+    js_dropdown_1, rs_dropdown_1 = create_dropdowns(file_symbol_dict)
+    selector_dict_1 = create_selector_dict(js_dropdown_1, rs_dropdown_1)
+    code_language_select_ex1 = mo.ui.radio(options=["typescript", "rust"], value="rust")
     return (
         code_language_select_ex1,
         js_dropdown_1,
@@ -372,16 +716,10 @@ def __(code_language_select_ex1, mo, selector_dict_1):
 @app.cell
 def __(create_dropdowns, create_selector_dict, file_symbol_dict, mo):
     # UI Elements for the second example
-    js_dropdown_2, rs_dropdown_2 = create_dropdowns(
-        file_symbol_dict
-    )
-    selector_dict_2 = create_selector_dict(
-        js_dropdown_2, rs_dropdown_2
-    )
+    js_dropdown_2, rs_dropdown_2 = create_dropdowns(file_symbol_dict)
+    selector_dict_2 = create_selector_dict(js_dropdown_2, rs_dropdown_2)
     submit_button_2 = mo.ui.run_button(label="Find referenced files")
-    code_language_select_ex2 = mo.ui.radio(
-        options=["typescript", "rust"], value="rust"
-    )
+    code_language_select_ex2 = mo.ui.radio(options=["typescript", "rust"], value="rust")
     return (
         code_language_select_ex2,
         js_dropdown_2,
@@ -480,9 +818,7 @@ def __():
 @app.cell
 def __():
     def pretty_format_code_result(code_result, code_language):
-        return (
-            f"""### `Code`\n---\n```{code_language}\n\n{code_result}\n```\n"""
-        )
+        return f"""### `Code`\n---\n```{code_language}\n\n{code_result}\n```\n"""
     return (pretty_format_code_result,)
 
 
@@ -532,9 +868,7 @@ def __():
 
 @app.cell
 def __():
-    def generate_reference_diagram(
-        dependencies: dict, max_chars: int = 28
-    ) -> str:
+    def generate_reference_diagram(dependencies: dict, max_chars: int = 28) -> str:
         """
         Convert a dictionary of file dependencies and their referenced symbols into a Mermaid diagram string.
         Arrows point from referenced file back to source file through reference nodes.
@@ -545,11 +879,12 @@ def __():
         Returns:
             String containing the Mermaid diagram definition
         """
+
         def get_display_name(file_path: str) -> str:
             """Get display name for a file, truncating from left if needed."""
             if len(file_path) <= max_chars:
                 return file_path
-            return "..." + file_path[-(max_chars - 3):]
+            return "..." + file_path[-(max_chars - 3) :]
 
         # Handle case where dependencies is just a root file string
         if isinstance(dependencies, str):
@@ -564,12 +899,14 @@ def __():
 
         mermaid_lines = ["graph LR"]
         # Add styling with reduced padding
-        mermaid_lines.extend([
-            "    %% Styling",
-            "    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000,max-width:none,text-overflow:clip,padding:0px;",
-            "    classDef source fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,color:#000,max-width:none,text-overflow:clip,padding:0px;",
-            "    classDef reference fill:#e8e7ff,stroke:#6b69d6,stroke-width:2px,color:#000,max-width:none,text-overflow:clip,padding:0px;",
-        ])
+        mermaid_lines.extend(
+            [
+                "    %% Styling",
+                "    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000,max-width:none,text-overflow:clip,padding:0px;",
+                "    classDef source fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,color:#000,max-width:none,text-overflow:clip,padding:0px;",
+                "    classDef reference fill:#e8e7ff,stroke:#6b69d6,stroke-width:2px,color:#000,max-width:none,text-overflow:clip,padding:0px;",
+            ]
+        )
 
         # Collect all unique files and create nodes
         unique_files = set()
@@ -587,7 +924,9 @@ def __():
             mermaid_lines.append(f'    {node_name}["{clean_name}"]')
 
         # Create reference nodes and connections
-        for idx, ((defined_file, referenced_file), symbols) in enumerate(dependencies.items()):
+        for idx, ((defined_file, referenced_file), symbols) in enumerate(
+            dependencies.items()
+        ):
             from_node = node_names[defined_file]
             to_node = node_names[referenced_file]
             ref_node = f"ref{idx}"
@@ -606,7 +945,9 @@ def __():
             # Create symbol display with limited number of examples
             symbols_display = "<br/>" + "<br/>".join(cleaned_symbols)
             if len(cleaned_symbols) > 5:
-                symbols_display = "<br/>" + "<br/>".join(cleaned_symbols[:5]) + "<br/>..."
+                symbols_display = (
+                    "<br/>" + "<br/>".join(cleaned_symbols[:5]) + "<br/>..."
+                )
 
             # Add reference node and connections
             ref_node_def = f'    {ref_node}["{len(symbols)} refs{symbols_display}"]'
@@ -614,9 +955,11 @@ def __():
             mermaid_lines.append(f"    {to_node} --> {ref_node} --> {from_node}")
             mermaid_lines.append(f"    class {ref_node} reference")
 
-        mermaid_lines.extend([
-            f"    class {node_names[next(iter(dependencies))[0]]} source;",
-        ])
+        mermaid_lines.extend(
+            [
+                f"    class {node_names[next(iter(dependencies))[0]]} source;",
+            ]
+        )
 
         return "\n".join(mermaid_lines)
     return (generate_reference_diagram,)

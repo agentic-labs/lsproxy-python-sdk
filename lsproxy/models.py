@@ -1,4 +1,3 @@
-import logging
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from enum import Enum
@@ -221,7 +220,6 @@ class ErrorResponse(BaseModel):
     """Response representing an error."""
 
     error: str = Field(..., description="The error message.")
-
 
 
 class ReadSourceCodeResponse(BaseModel):
