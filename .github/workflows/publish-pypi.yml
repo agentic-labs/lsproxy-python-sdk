@@ -16,11 +16,20 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Extract version from tag
-        id: get_version
+      - name: Install toml parser
+        run: pip install toml
+
+      - name: Verify tag matches pyproject.toml version
+        id: verify_version
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          TOML_VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['project']['version'])")
+          echo "Checking tag version ($VERSION) against pyproject.toml version ($TOML_VERSION)"
+          if [ "$VERSION" != "$TOML_VERSION" ]; then
+            echo "Error: Git tag ($VERSION) does not match version in pyproject.toml ($TOML_VERSION)"
+            exit 1
+          fi
+          echo "VERSION=$TOML_VERSION" >> $GITHUB_OUTPUT
 
       - name: Install build dependencies
         run: |
