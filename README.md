@@ -10,6 +10,13 @@ A Python SDK for interacting with the LSProxy container, providing language-serv
 - Built-in retry logic and error handling
 - Pydantic models for type safety
 
+## Try it out!
+If you just want to get a feel for `lsproxy` try out the tutorial. Just clone the repo and run:
+
+```
+./examples/tutorial/run.sh
+```
+
 ## Installation
 
 ```bash
