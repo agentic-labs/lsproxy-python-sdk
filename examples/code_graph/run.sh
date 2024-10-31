@@ -6,53 +6,54 @@ set -e
 # Global variables
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 VENV_DIR="$SCRIPT_DIR/venv"
+REPO_DIR="$SCRIPT_DIR/trieve"
+COMMIT_HASH="3f38fa456b113c57bea70c3812b38cfe4f0d621c"
 
 # Function to display basic usage message
 show_usage() {
-    echo "Usage: $(basename "$0") /absolute/path/to/code [--edit]"
+    echo "Usage: $(basename "$0") [--edit]"
     echo "Use -h or --help for more detailed information"
 }
 
 # Function to display detailed help message
 show_help() {
     cat << EOF
-Usage: $(basename "$0") /absolute/path/to/code [--edit] [--help]
+Usage: $(basename "$0") [--edit] [--help]
 
-A script to analyze code using marimo and lsproxy in a Docker container.
-
-Arguments:
-    /absolute/path/to/code   Absolute path to the code directory to analyze
-                             This directory will be mounted in the Docker container
+A script to analyze the Trieve codebase using marimo and lsproxy in a Docker container.
 
 Options:
     --edit                   Launch marimo in edit mode instead of run mode
     -h, --help               Display this help message and exit
 
 Description:
-    This script sets up a Python virtual environment, launches an lsproxy Docker
-    container, and runs a marimo code analysis graph. It handles:
+    This script sets up a Python virtual environment, clones a specific version of 
+    the Trieve repository, launches an lsproxy Docker container, and runs a marimo 
+    code analysis graph. It handles:
     
     1. Virtual Environment Setup:
        - Creates a Python virtual environment if it doesn't exist
        - Installs required dependencies from requirements.txt
     
-    2. Docker Container Management:
-       - Launches an lsproxy container with the specified code mounted
+    2. Git Repository Setup:
+       - Clones the Trieve repository at commit $COMMIT_HASH if not present
+    
+    3. Docker Container Management:
+       - Launches an lsproxy container with the Trieve code mounted
        - Monitors container logs
        - Performs cleanup on exit
     
-    3. Code Analysis:
+    4. Code Analysis:
        - Waits for the lsproxy server to be ready
        - Runs the code graph analysis using marimo
        - Supports both view-only (run) and interactive (edit) modes
 
 Examples:
-    $(basename "$0") /home/user/myproject          # Run in view mode
-    $(basename "$0") /home/user/myproject --edit   # Run in edit mode
-    $(basename "$0") --edit /home/user/myproject   # Same as above
+    $(basename "$0")          # Run in view mode
+    $(basename "$0") --edit   # Run in edit mode
 
 Note:
-    The script requires Python 3, Docker, and curl to be installed on the system.
+    The script requires Python 3, Docker, Git, and curl to be installed on the system.
     It will automatically clean up resources (Docker container, processes) on exit.
 EOF
 }
@@ -81,6 +82,42 @@ cleanup_venv() {
         echo "Virtual environment cleanup completed"
     fi
     exit 1
+}
+
+# Function to cleanup git repository on failure
+cleanup_repo() {
+    trap "" SIGINT SIGTERM  # Prevent recursive triggers
+    if [ -n "$REPO_DIR" ] && [ -d "$REPO_DIR" ]; then
+        echo "Cleaning up repository..."
+        rm -rf "$REPO_DIR"
+        echo "Repository cleanup completed"
+    fi
+    exit 1
+}
+
+# Function to handle git repository setup
+setup_git_repo() {
+    if ! command -v git &> /dev/null; then
+        echo "Git is required but not installed. Please install Git first."
+        exit 1
+    fi
+
+    if [ ! -d "$REPO_DIR" ]; then
+        echo "Cloning Trieve repository at commit $COMMIT_HASH..."
+        if ! git clone https://github.com/devflowinc/trieve "$REPO_DIR"; then
+            echo "Failed to clone Trieve repository"
+            cleanup_repo
+        fi
+        cd "$REPO_DIR"
+        if ! git checkout "$COMMIT_HASH"; then
+            echo "Failed to checkout specific commit"
+            cleanup_repo
+        fi
+        cd "$SCRIPT_DIR"
+        echo "Repository setup completed!"
+    else
+        echo "Using existing Trieve repository..."
+    fi
 }
 
 # Function to check if server is ready
@@ -160,7 +197,6 @@ setup_venv() {
 
 # Parse command line arguments
 EDIT_MODE=false
-CODE_PATH=""
 
 # Process all arguments
 for arg in "$@"; do
@@ -172,48 +208,24 @@ for arg in "$@"; do
             show_help
             exit 0
             ;;
-        --*)
+        *)
             echo "Unknown option: $arg"
             show_usage
             exit 1
             ;;
-        *)
-            if [ -z "$CODE_PATH" ]; then
-                CODE_PATH="$arg"
-            else
-                echo "Error: Multiple paths specified"
-                show_usage
-                exit 1
-            fi
-            ;;
     esac
 done
-
-# Validate input
-if [ $# -eq 0 ]; then
-    show_usage
-    exit 1
-fi
-
-if [ -z "$CODE_PATH" ]; then
-    echo "Error: No path specified"
-    show_usage
-    exit 1
-fi
-
-if [[ "$CODE_PATH" != /* ]]; then
-    echo "Error: Please provide an absolute path"
-    show_usage
-    exit 1
-fi
 
 # Main execution
 trap 'cleanup_venv' SIGINT SIGTERM EXIT
 setup_venv
 
+trap 'cleanup_repo' SIGINT SIGTERM EXIT
+setup_git_repo
+
 trap 'cleanup_docker' SIGINT SIGTERM EXIT
 echo "Starting docker container..."
-docker run --rm -d -p 4444:4444 -v "$CODE_PATH":/mnt/workspace --name lsproxy agenticlabs/lsproxy:0.1.0a1
+docker run --rm -d -p 4444:4444 -v "$REPO_DIR":/mnt/workspace --name lsproxy agenticlabs/lsproxy:0.1.0a1
 
 docker logs -f lsproxy &
 wait_for_server

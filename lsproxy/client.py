@@ -88,6 +88,11 @@ class Lsproxy:
         return ReadSourceCodeResponse.model_validate_json(response.text)
 
 
+    def read_source_code(self, request: FileRange) -> ReadSourceCodeResponse:
+        """Read source code from a specified file range."""
+        response = self._request("POST", "/workspace/read-source-code", json=request.model_dump())
+        return ReadSourceCodeResponse.model_validate_json(response.text)
+
     def close(self):
         """Close the HTTP client."""
         self.client.close()
