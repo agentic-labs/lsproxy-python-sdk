@@ -251,8 +251,8 @@ def __(ex2_unlocked, mo, selections_2):
 
 
 @app.cell
-def __(file_dropdown_2, mo):
-    mo.stop(not file_dropdown_2.value)
+def __(ex2_unlocked, file_dropdown_2, mo):
+    mo.stop(not ex2_unlocked)
     # Pull the symbols inside a file
     selected_file_ex2 = file_dropdown_2.value
     return (selected_file_ex2,)
@@ -303,8 +303,8 @@ def __(
 
 
 @app.cell
-def __(file_dropdown_2, mo):
-    mo.stop(not file_dropdown_2.value)
+def __(ex2_unlocked, mo):
+    mo.stop(not ex2_unlocked)
 
     mo.md(
         "From this information we can build a simple graph showing how a file's symbols are referenced by other files in the codebase."
@@ -347,38 +347,38 @@ def __(example_3, mo):
 
 
 @app.cell
-def __(mo):
-    mo.md("""Let's start with a diff of a change to the deletion logic in Trieve in this [PR](https://github.com/devflowinc/trieve/pull/2649)""")
-    return
-
-
-@app.cell
-def __(mo):
+def __(example_3, mo):
+    mo.stop(not example_3.value)
     import subprocess
-
-    current_commit = (
-        subprocess.check_output(["git", "rev-parse", "HEAD"], cwd="./trieve")
-        .decode("utf-8")
-        .strip()
-    )
-    parent_commit = "1910d6867877bfdd64ca822e266372335392a8be"
-    diff_cmd = ["git", "diff", parent_commit, current_commit]
-    diff_text = subprocess.check_output(diff_cmd, cwd="./trieve").decode("utf-8")
-    print(f"Diff has {len(diff_text.splitlines())} lines")
-    mo.show_code()
-    return current_commit, diff_cmd, diff_text, parent_commit, subprocess
+    import io
+    from pydantic import BaseModel
+    mo.md("""Let's start with a diff of a change to the deletion logic in Trieve in this [PR](https://github.com/devflowinc/trieve/pull/2649)""")
+    return BaseModel, io, subprocess
 
 
 @app.cell
-def __(mo):
+def __(mo, subprocess):
+    parent_commit = "1910d6867877bfdd64ca822e266372335392a8be"
+
+    # Load in the diff
+    diff_text = subprocess.check_output(
+        ["git", "diff", parent_commit], cwd="./trieve"
+    ).decode("utf-8")
+
+    mo.show_code(f"Output: Diff has {len(diff_text.splitlines())} lines")
+    return diff_text, parent_commit
+
+
+@app.cell
+def __(example_3, mo):
+    mo.stop(not example_3.value)
     mo.md("""First, we extract affected lines from the diff text.""")
     return
 
 
 @app.cell
-def __(Dict, List, Tuple, diff_text):
+def __(Dict, List, Tuple, diff_text, io, mo):
     from unidiff import PatchSet
-    import io
 
     def parse_diff(diff_text) -> Tuple[Dict[str, List[int]], str]:
         patch = PatchSet(io.StringIO(diff_text))
@@ -387,30 +387,35 @@ def __(Dict, List, Tuple, diff_text):
             for hunk in patched_file:
                 for line in hunk:
                     if line.is_added:
-                        affected_lines[patched_file.path] = affected_lines.get(
-                            patched_file.path, set()
-                        ) | {line.target_line_no}
+                        affected_lines.setdefault(patched_file.path, set()).add(
+                            line.target_line_no
+                        )
                     elif line.is_removed:
-                        affected_lines[patched_file.path] = affected_lines.get(
-                            patched_file.path, set()
-                        ) | {line.source_line_no}
+                        affected_lines.setdefault(patched_file.path, set()).add(
+                            line.source_line_no
+                        )
         return affected_lines
 
+
     affected_lines = parse_diff(diff_text)
-    print("Diff contains", sum([len(lines) for lines in affected_lines.values()]), "changed lines in", len(affected_lines), "files.")
-    return PatchSet, affected_lines, io, parse_diff
+
+    mo.show_code(
+        f"Output: Diff contains {sum([len(lines) for lines in affected_lines.values()])} changed lines in {len(affected_lines)} files."
+    )
+    return PatchSet, affected_lines, parse_diff
 
 
 @app.cell
-def __(mo):
+def __(example_3, mo):
+    mo.stop(not example_3.value)
     mo.md("""Then we define logic to \n\n 1. Find symbol definitions containing affected lines\n\n 2. Find references to these symbols.\n\n 3. Repeat with lines containing references, until we reach the end.\n\nWe also save the symbols that are direct parents of affected lines, so we can distinguish them from the symbols indirectly affected by the change.""")
     return
 
 
 @app.cell
-def __(GetReferencesRequest, List, Lsproxy, Set, Tuple, logging, mo):
-    from pydantic import BaseModel
+def __(BaseModel, GetReferencesRequest, List, Set, Tuple, api_client, mo):
     from lsproxy import FilePosition
+
 
     class HierarchyItem(BaseModel):
         name: str
@@ -427,29 +432,22 @@ def __(GetReferencesRequest, List, Lsproxy, Set, Tuple, logging, mo):
                 )
             )
 
+
     def get_symbols_containing_positions(
-        client: Lsproxy,
         target_positions: List[FilePosition],
-        workspace_files: List[str],
     ) -> List[HierarchyItem]:
-        assert all(
-            pos.path == target_positions[0].path for pos in target_positions
-        ), "All positions must be in the same file"
         file_path = target_positions[0].path
-        if file_path not in workspace_files:
-            logging.error(f"File {file_path} not found in workspace")
-            return []
-        
+
         #######################
         ### Get definitions ###
         #######################
-        symbols = client.definitions_in_file(file_path) 
+        symbols = api_client.definitions_in_file(file_path)
         symbols_containing_position = {
             HierarchyItem(
                 name=symbol.name,
                 kind=symbol.kind,
                 defined_at=symbol.identifier_position,
-                source_code=client.read_source_code(symbol.range).source_code,
+                source_code=api_client.read_source_code(symbol.range).source_code,
             )
             for symbol in symbols
             for target_position in target_positions
@@ -457,49 +455,43 @@ def __(GetReferencesRequest, List, Lsproxy, Set, Tuple, logging, mo):
         }
         return symbols_containing_position
 
-    def get_hierarchy_incoming(
-        client: Lsproxy, starting_positions: List[FilePosition]
-    ) -> Tuple[
-        Set[HierarchyItem], Set[Tuple[HierarchyItem, HierarchyItem]], Set[HierarchyItem]
-    ]:
+
+    def propagate_changes_through_codebase(symbols_changed_directly: List[FilePosition]):
         """
         Compute the chain of code symbols that touch the code at the starting positions.
         """
         nodes: Set[HierarchyItem] = set()
         edges: Set[Tuple[HierarchyItem, HierarchyItem]] = set()
-        workspace_files = client.list_files()
+
         # Initialize with symbols that contain the starting positions
-        initial_symbols = get_symbols_containing_positions(
-            client, starting_positions, workspace_files
-        )
-        stack = list(initial_symbols)
+        stack = list(symbols_changed_directly)
 
         while stack:
             symbol = stack.pop()
+
+            # If we've already processesed this symbol skip it
             if symbol in nodes:
                 continue
             nodes.add(symbol)
-            
-            #######################
-            ### Find references ###
-            #######################
-            references = client.find_references(
+
+            # For each symbol we find all its references
+            references = api_client.find_references(
                 GetReferencesRequest(
-                    identifier_position=symbol.defined_at, include_declaration=False
+                    identifier_position=symbol.defined_at,
+                    include_declaration=False,
                 )
             ).references
 
+            # Group them by file
             references_by_file = {}
             for ref in references:
                 references_by_file.setdefault(ref.path, []).append(ref)
 
-            # Find symbols that contain the references, we will process these next
+            # And then find symbols that contain the references so we can keep processing
             related_symbols = [
                 sym
                 for refs in references_by_file.values()
-                for sym in get_symbols_containing_positions(
-                    client, refs, workspace_files
-                )
+                for sym in get_symbols_containing_positions(refs)
             ]
 
             for related_symbol in related_symbols:
@@ -507,14 +499,15 @@ def __(GetReferencesRequest, List, Lsproxy, Set, Tuple, logging, mo):
                     edges.add((symbol, related_symbol))
                     stack.append(related_symbol)
 
-        return nodes, edges, initial_symbols
+        return nodes, edges
+
+
     mo.show_code()
     return (
-        BaseModel,
         FilePosition,
         HierarchyItem,
-        get_hierarchy_incoming,
         get_symbols_containing_positions,
+        propagate_changes_through_codebase,
     )
 
 
@@ -524,38 +517,53 @@ def __(
     Position,
     affected_lines,
     api_client,
-    get_hierarchy_incoming,
+    get_symbols_containing_positions,
     mo,
+    propagate_changes_through_codebase,
 ):
     affected_files = list(affected_lines.keys())
     lsp_files = api_client.list_files()
-    affected_files = [file for file in affected_files if file in lsp_files]
+    affected_code_files = filter(lambda file: file in lsp_files, affected_files)
 
-    all_nodes = set()
-    all_edges = set()
     symbols_changed_directly = set()
-    for file in affected_files:
-        starting_positions = [
+    for file in affected_code_files:
+        # For all the affected lines, we figure out what symbol they belong to
+        affected_positions = [
             FilePosition(path=file, position=Position(line=line, character=0))
             for line in affected_lines[file]
         ]
-        nodes, edges, initial = get_hierarchy_incoming(api_client, starting_positions)
-        all_nodes.update(nodes)
-        all_edges.update(edges)
-        symbols_changed_directly.update(initial)
+        symbols_changed_directly.update(get_symbols_containing_positions(affected_positions))
+
+    # And then recursively follow the affected symbol through the codebase by following references
+    all_nodes, all_edges = propagate_changes_through_codebase(symbols_changed_directly)
+
     mo.show_code()
     return (
+        affected_code_files,
         affected_files,
+        affected_positions,
         all_edges,
         all_nodes,
-        edges,
         file,
-        initial,
         lsp_files,
-        nodes,
-        starting_positions,
         symbols_changed_directly,
     )
+
+
+@app.cell
+def __(
+    all_edges,
+    all_nodes,
+    hierarchy_to_mermaid,
+    mo,
+    symbols_changed_directly,
+):
+    mm = hierarchy_to_mermaid(all_nodes, all_edges, symbols_changed_directly)
+    mo.vstack([
+        mo.md("### Call graph of the code affected by the change.\n #### The white nodes are present in the diff, while the red ones are affected indirectly."),
+        mo.mermaid(mm)
+    ])
+    return (mm,)
 
 
 @app.cell
@@ -635,28 +643,12 @@ def __(HierarchyItem, Set, Tuple):
 
         # Add styling for red nodes
         for node_id in indirect_node_ids:
-            mermaid_lines.append(f"    style {node_id} fill:#ffcccc")
+            mermaid_lines.append(f"    style {node_id} fill:#ffcccc,color:#000")
         for node_id in direct_node_ids:
-            mermaid_lines.append(f"    style {node_id} fill:#ffffff")
+            mermaid_lines.append(f"    style {node_id} fill:#ffffff,color:#000")
 
         return "\n".join(mermaid_lines)
     return (hierarchy_to_mermaid,)
-
-
-@app.cell
-def __(
-    all_edges,
-    all_nodes,
-    hierarchy_to_mermaid,
-    mo,
-    symbols_changed_directly,
-):
-    mm = hierarchy_to_mermaid(all_nodes, all_edges, symbols_changed_directly)
-    mo.vstack([
-        mo.md("## Call graph of the code affected by the change.\n ### The white nodes are present in the diff, while the red ones are affected indirectly."),
-        mo.mermaid(mm)
-    ])
-    return (mm,)
 
 
 @app.cell
@@ -664,20 +656,25 @@ def __(affected_lines, all_nodes, mo):
     diff_files = set(affected_lines.keys())
     call_hierarchy_files = set([n.defined_at.path for n in all_nodes])
     affected_files_not_in_diff = call_hierarchy_files - diff_files
-    mo.md(f"We now see code paths crossing {len(affected_files_not_in_diff)} files that are not in the diff:\n\n{'\n'.join([f'{i+1}. {f}' for i, f in enumerate(affected_files_not_in_diff)])}")
-    return affected_files_not_in_diff, call_hierarchy_files, diff_files
-
-
-@app.cell
-def __(file_dropdown_2, mo):
-    mo.stop(not file_dropdown_2.value)
-    mo.md("""Thanks for trying `lsproxy`! See the README on our [github repo](https://github.com/agentic-labs/lsproxy) to run on your own code. Or if you want to play with the code in this example, you can use:\n\n```./examples/run.sh --edit```""")
-    return
+    affected_files_not_in_diff_str = '\n'.join([f'{i+1}. {f}' for i, f in enumerate(affected_files_not_in_diff)])
+    mo.md(f"We now see code paths crossing {len(affected_files_not_in_diff)} files that are not in the diff:\n\n{affected_files_not_in_diff_str}")
+    return (
+        affected_files_not_in_diff,
+        affected_files_not_in_diff_str,
+        call_hierarchy_files,
+        diff_files,
+    )
 
 
 @app.cell
 def __(mo):
     mo.md("""<div style="height: 400px;"></div>""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("""Thanks for trying `lsproxy`! See the README on our [github repo](https://github.com/agentic-labs/lsproxy) to run on your own code. Or if you want to play with the code in this example, you can use:\n\n```./examples/run.sh --edit```""")
     return
 
 
@@ -690,7 +687,7 @@ def __():
 @app.cell
 def __(create_dropdowns, create_selector_dict, file_symbol_dict, mo):
     # UI Elements for the first example
-    js_dropdown_1, rs_dropdown_1 = create_dropdowns(file_symbol_dict)
+    js_dropdown_1, rs_dropdown_1 = create_dropdowns(file_symbol_dict, "server/src/handlers/chunk_handler.rs: (65 symbols)")
     selector_dict_1 = create_selector_dict(js_dropdown_1, rs_dropdown_1)
     code_language_select_ex1 = mo.ui.radio(options=["typescript", "rust"], value="rust")
     return (
@@ -716,7 +713,7 @@ def __(code_language_select_ex1, mo, selector_dict_1):
 @app.cell
 def __(create_dropdowns, create_selector_dict, file_symbol_dict, mo):
     # UI Elements for the second example
-    js_dropdown_2, rs_dropdown_2 = create_dropdowns(file_symbol_dict)
+    js_dropdown_2, rs_dropdown_2 = create_dropdowns(file_symbol_dict, "server/src/handlers/analytics_handler.rs: (15 symbols)")
     selector_dict_2 = create_selector_dict(js_dropdown_2, rs_dropdown_2)
     submit_button_2 = mo.ui.run_button(label="Find referenced files")
     code_language_select_ex2 = mo.ui.radio(options=["typescript", "rust"], value="rust")
@@ -766,7 +763,7 @@ def __(api_client, mo):
 
 @app.cell
 def __(create_lang_dropdown):
-    def create_dropdowns(file_dict):
+    def create_dropdowns(file_dict, value = None):
         file_with_symbol_count = [
             (file, len(symbols))
             for file, symbols in file_dict.items()
@@ -778,10 +775,10 @@ def __(create_lang_dropdown):
         js_dropdown = create_lang_dropdown(
             file_with_symbol_count,
             ["ts", "tsx", "js", "jsx"],
-            "Select a typescript/javascript file ->",
+            "Select a typescript/javascript file ->", None
         )
         rs_dropdown = create_lang_dropdown(
-            file_with_symbol_count, ["rs"], "Select a rust file ->"
+            file_with_symbol_count, ["rs"], "Select a rust file ->", value
         )
         return js_dropdown, rs_dropdown
     return (create_dropdowns,)
@@ -789,13 +786,16 @@ def __(create_lang_dropdown):
 
 @app.cell
 def __(mo):
-    def create_lang_dropdown(file_symbol_dict, endings, label):
+    def create_lang_dropdown(file_symbol_dict, endings, label, value):
         file_options = {
             f"{file}: ({symbols} symbols)": file
             for file, symbols in file_symbol_dict
             if file.split(".")[-1] in endings
         }
-        return mo.ui.dropdown(options=file_options, label=label)
+        if value:
+            return mo.ui.dropdown(options=file_options, label=label, value=value)
+        else:
+            return mo.ui.dropdown(options=file_options, label=label)
     return (create_lang_dropdown,)
 
 

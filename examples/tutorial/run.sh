@@ -233,7 +233,7 @@ wait_for_server
 
 echo "Running example..."
 if [ "$EDIT_MODE" = true ]; then
-    marimo edit $SCRIPT_DIR/code_graph.py
+    marimo edit $SCRIPT_DIR/tutorial.py
 else
-    marimo run $SCRIPT_DIR/code_graph.py
+    marimo run $SCRIPT_DIR/tutorial.py
 fi
