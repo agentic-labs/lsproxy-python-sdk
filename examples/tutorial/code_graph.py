@@ -380,7 +380,6 @@ def __(example_3, mo):
 def __(Dict, List, Tuple, diff_text, io, mo):
     from unidiff import PatchSet
 
-
     def parse_diff(diff_text) -> Tuple[Dict[str, List[int]], str]:
         patch = PatchSet(io.StringIO(diff_text))
         affected_lines = {}
@@ -414,16 +413,7 @@ def __(example_3, mo):
 
 
 @app.cell
-def __(
-    BaseModel,
-    GetReferencesRequest,
-    List,
-    Lsproxy,
-    Set,
-    Tuple,
-    logging,
-    mo,
-):
+def __(BaseModel, GetReferencesRequest, List, Set, Tuple, api_client, mo):
     from lsproxy import FilePosition
 
 
@@ -444,28 +434,20 @@ def __(
 
 
     def get_symbols_containing_positions(
-        client: Lsproxy,
         target_positions: List[FilePosition],
-        workspace_files: List[str],
     ) -> List[HierarchyItem]:
-        assert all(
-            pos.path == target_positions[0].path for pos in target_positions
-        ), "All positions must be in the same file"
         file_path = target_positions[0].path
-        if file_path not in workspace_files:
-            logging.error(f"File {file_path} not found in workspace")
-            return []
 
         #######################
         ### Get definitions ###
         #######################
-        symbols = client.definitions_in_file(file_path)
+        symbols = api_client.definitions_in_file(file_path)
         symbols_containing_position = {
             HierarchyItem(
                 name=symbol.name,
                 kind=symbol.kind,
                 defined_at=symbol.identifier_position,
-                source_code=client.read_source_code(symbol.range).source_code,
+                source_code=api_client.read_source_code(symbol.range).source_code,
             )
             for symbol in symbols
             for target_position in target_positions
@@ -474,23 +456,15 @@ def __(
         return symbols_containing_position
 
 
-    def get_hierarchy_incoming(
-        client: Lsproxy, starting_positions: List[FilePosition]
-    ) -> Tuple[
-        Set[HierarchyItem],
-        Set[Tuple[HierarchyItem, HierarchyItem]],
-        Set[HierarchyItem],
-    ]:
+    def get_hierarchy_incoming(starting_positions: List[FilePosition]):
         """
         Compute the chain of code symbols that touch the code at the starting positions.
         """
         nodes: Set[HierarchyItem] = set()
         edges: Set[Tuple[HierarchyItem, HierarchyItem]] = set()
-        workspace_files = client.list_files()
+
         # Initialize with symbols that contain the starting positions
-        initial_symbols = get_symbols_containing_positions(
-            client, starting_positions, workspace_files
-        )
+        initial_symbols = get_symbols_containing_positions(starting_positions)
         stack = list(initial_symbols)
 
         while stack:
@@ -502,7 +476,7 @@ def __(
             #######################
             ### Find references ###
             #######################
-            references = client.find_references(
+            references = api_client.find_references(
                 GetReferencesRequest(
                     identifier_position=symbol.defined_at,
                     include_declaration=False,
@@ -517,9 +491,7 @@ def __(
             related_symbols = [
                 sym
                 for refs in references_by_file.values()
-                for sym in get_symbols_containing_positions(
-                    client, refs, workspace_files
-                )
+                for sym in get_symbols_containing_positions(refs)
             ]
 
             for related_symbol in related_symbols:
@@ -560,7 +532,7 @@ def __(
             FilePosition(path=file, position=Position(line=line, character=0))
             for line in affected_lines[file]
         ]
-        nodes, edges, initial = get_hierarchy_incoming(api_client, starting_positions)
+        nodes, edges, initial = get_hierarchy_incoming(starting_positions)
         all_nodes.update(nodes)
         all_edges.update(edges)
         symbols_changed_directly.update(initial)
