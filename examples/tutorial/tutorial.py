@@ -380,7 +380,6 @@ def __(example_3, mo):
 def __(Dict, List, Tuple, diff_text, io, mo):
     from unidiff import PatchSet
 
-
     def parse_diff(diff_text) -> Tuple[Dict[str, List[int]], str]:
         patch = PatchSet(io.StringIO(diff_text))
         affected_lines = {}
@@ -414,16 +413,7 @@ def __(example_3, mo):
 
 
 @app.cell
-def __(
-    BaseModel,
-    GetReferencesRequest,
-    List,
-    Lsproxy,
-    Set,
-    Tuple,
-    logging,
-    mo,
-):
+def __(BaseModel, GetReferencesRequest, List, Set, Tuple, api_client, mo):
     from lsproxy import FilePosition
 
 
@@ -444,28 +434,20 @@ def __(
 
 
     def get_symbols_containing_positions(
-        client: Lsproxy,
         target_positions: List[FilePosition],
-        workspace_files: List[str],
     ) -> List[HierarchyItem]:
-        assert all(
-            pos.path == target_positions[0].path for pos in target_positions
-        ), "All positions must be in the same file"
         file_path = target_positions[0].path
-        if file_path not in workspace_files:
-            logging.error(f"File {file_path} not found in workspace")
-            return []
 
         #######################
         ### Get definitions ###
         #######################
-        symbols = client.definitions_in_file(file_path)
+        symbols = api_client.definitions_in_file(file_path)
         symbols_containing_position = {
             HierarchyItem(
                 name=symbol.name,
                 kind=symbol.kind,
                 defined_at=symbol.identifier_position,
-                source_code=client.read_source_code(symbol.range).source_code,
+                source_code=api_client.read_source_code(symbol.range).source_code,
             )
             for symbol in symbols
             for target_position in target_positions
@@ -474,52 +456,42 @@ def __(
         return symbols_containing_position
 
 
-    def get_hierarchy_incoming(
-        client: Lsproxy, starting_positions: List[FilePosition]
-    ) -> Tuple[
-        Set[HierarchyItem],
-        Set[Tuple[HierarchyItem, HierarchyItem]],
-        Set[HierarchyItem],
-    ]:
+    def propagate_changes_through_codebase(symbols_changed_directly: List[FilePosition]):
         """
         Compute the chain of code symbols that touch the code at the starting positions.
         """
         nodes: Set[HierarchyItem] = set()
         edges: Set[Tuple[HierarchyItem, HierarchyItem]] = set()
-        workspace_files = client.list_files()
+
         # Initialize with symbols that contain the starting positions
-        initial_symbols = get_symbols_containing_positions(
-            client, starting_positions, workspace_files
-        )
-        stack = list(initial_symbols)
+        stack = list(symbols_changed_directly)
 
         while stack:
             symbol = stack.pop()
+
+            # If we've already processesed this symbol skip it
             if symbol in nodes:
                 continue
             nodes.add(symbol)
 
-            #######################
-            ### Find references ###
-            #######################
-            references = client.find_references(
+            # For each symbol we find all its references
+            references = api_client.find_references(
                 GetReferencesRequest(
                     identifier_position=symbol.defined_at,
                     include_declaration=False,
                 )
             ).references
 
+            # Group them by file
             references_by_file = {}
             for ref in references:
                 references_by_file.setdefault(ref.path, []).append(ref)
 
-            # Find symbols that contain the references, we will process these next
+            # And then find symbols that contain the references so we can keep processing
             related_symbols = [
                 sym
                 for refs in references_by_file.values()
-                for sym in get_symbols_containing_positions(
-                    client, refs, workspace_files
-                )
+                for sym in get_symbols_containing_positions(refs)
             ]
 
             for related_symbol in related_symbols:
@@ -527,15 +499,15 @@ def __(
                     edges.add((symbol, related_symbol))
                     stack.append(related_symbol)
 
-        return nodes, edges, initial_symbols
+        return nodes, edges
 
 
     mo.show_code()
     return (
         FilePosition,
         HierarchyItem,
-        get_hierarchy_incoming,
         get_symbols_containing_positions,
+        propagate_changes_through_codebase,
     )
 
 
@@ -545,38 +517,53 @@ def __(
     Position,
     affected_lines,
     api_client,
-    get_hierarchy_incoming,
+    get_symbols_containing_positions,
     mo,
+    propagate_changes_through_codebase,
 ):
     affected_files = list(affected_lines.keys())
     lsp_files = api_client.list_files()
-    affected_files = [file for file in affected_files if file in lsp_files]
+    affected_code_files = filter(lambda file: file in lsp_files, affected_files)
 
-    all_nodes = set()
-    all_edges = set()
     symbols_changed_directly = set()
-    for file in affected_files:
-        starting_positions = [
+    for file in affected_code_files:
+        # For all the affected lines, we figure out what symbol they belong to
+        affected_positions = [
             FilePosition(path=file, position=Position(line=line, character=0))
             for line in affected_lines[file]
         ]
-        nodes, edges, initial = get_hierarchy_incoming(api_client, starting_positions)
-        all_nodes.update(nodes)
-        all_edges.update(edges)
-        symbols_changed_directly.update(initial)
+        symbols_changed_directly.update(get_symbols_containing_positions(affected_positions))
+
+    # And then recursively follow the affected symbol through the codebase by following references
+    all_nodes, all_edges = propagate_changes_through_codebase(symbols_changed_directly)
+
     mo.show_code()
     return (
+        affected_code_files,
         affected_files,
+        affected_positions,
         all_edges,
         all_nodes,
-        edges,
         file,
-        initial,
         lsp_files,
-        nodes,
-        starting_positions,
         symbols_changed_directly,
     )
+
+
+@app.cell
+def __(
+    all_edges,
+    all_nodes,
+    hierarchy_to_mermaid,
+    mo,
+    symbols_changed_directly,
+):
+    mm = hierarchy_to_mermaid(all_nodes, all_edges, symbols_changed_directly)
+    mo.vstack([
+        mo.md("### Call graph of the code affected by the change.\n #### The white nodes are present in the diff, while the red ones are affected indirectly."),
+        mo.mermaid(mm)
+    ])
+    return (mm,)
 
 
 @app.cell
@@ -662,22 +649,6 @@ def __(HierarchyItem, Set, Tuple):
 
         return "\n".join(mermaid_lines)
     return (hierarchy_to_mermaid,)
-
-
-@app.cell
-def __(
-    all_edges,
-    all_nodes,
-    hierarchy_to_mermaid,
-    mo,
-    symbols_changed_directly,
-):
-    mm = hierarchy_to_mermaid(all_nodes, all_edges, symbols_changed_directly)
-    mo.vstack([
-        mo.md("### Call graph of the code affected by the change.\n #### The white nodes are present in the diff, while the red ones are affected indirectly."),
-        mo.mermaid(mm)
-    ])
-    return (mm,)
 
 
 @app.cell
