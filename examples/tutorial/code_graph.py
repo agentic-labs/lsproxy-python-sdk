@@ -456,7 +456,7 @@ def __(BaseModel, GetReferencesRequest, List, Set, Tuple, api_client, mo):
         return symbols_containing_position
 
 
-    def get_hierarchy_incoming(symbols_changed_directly: List[FilePosition]):
+    def propagate_changes_through_codebase(symbols_changed_directly: List[FilePosition]):
         """
         Compute the chain of code symbols that touch the code at the starting positions.
         """
@@ -468,13 +468,13 @@ def __(BaseModel, GetReferencesRequest, List, Set, Tuple, api_client, mo):
 
         while stack:
             symbol = stack.pop()
+
+            # If we've already processesed this symbol skip it
             if symbol in nodes:
                 continue
             nodes.add(symbol)
 
-            #######################
-            ### Find references ###
-            #######################
+            # For each symbol we find all its references
             references = api_client.find_references(
                 GetReferencesRequest(
                     identifier_position=symbol.defined_at,
@@ -482,11 +482,12 @@ def __(BaseModel, GetReferencesRequest, List, Set, Tuple, api_client, mo):
                 )
             ).references
 
+            # Group them by file
             references_by_file = {}
             for ref in references:
                 references_by_file.setdefault(ref.path, []).append(ref)
 
-            # Find symbols that contain the references, we will process these next
+            # And then find symbols that contain the references so we can keep processing
             related_symbols = [
                 sym
                 for refs in references_by_file.values()
@@ -505,8 +506,8 @@ def __(BaseModel, GetReferencesRequest, List, Set, Tuple, api_client, mo):
     return (
         FilePosition,
         HierarchyItem,
-        get_hierarchy_incoming,
         get_symbols_containing_positions,
+        propagate_changes_through_codebase,
     )
 
 
@@ -516,26 +517,29 @@ def __(
     Position,
     affected_lines,
     api_client,
-    get_hierarchy_incoming,
     get_symbols_containing_positions,
     mo,
+    propagate_changes_through_codebase,
 ):
     affected_files = list(affected_lines.keys())
     lsp_files = api_client.list_files()
-    affected_files = [file for file in affected_files if file in lsp_files]
+    affected_code_files = filter(lambda file: file in lsp_files, affected_files)
 
     symbols_changed_directly = set()
-    for file in affected_files:
+    for file in affected_code_files:
+        # For all the affected lines, we figure out what symbol they belong to
         affected_positions = [
             FilePosition(path=file, position=Position(line=line, character=0))
             for line in affected_lines[file]
         ]
         symbols_changed_directly.update(get_symbols_containing_positions(affected_positions))
 
-    all_nodes, all_edges = get_hierarchy_incoming(symbols_changed_directly)
+    # And then recursively follow the affected symbol through the codebase by following references
+    all_nodes, all_edges = propagate_changes_through_codebase(symbols_changed_directly)
 
     mo.show_code()
     return (
+        affected_code_files,
         affected_files,
         affected_positions,
         all_edges,
