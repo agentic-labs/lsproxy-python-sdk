@@ -657,13 +657,65 @@ def __(affected_lines, all_nodes, mo):
     call_hierarchy_files = set([n.defined_at.path for n in all_nodes])
     affected_files_not_in_diff = call_hierarchy_files - diff_files
     affected_files_not_in_diff_str = '\n'.join([f'{i+1}. {f}' for i, f in enumerate(affected_files_not_in_diff)])
+    ready_to_summarize=True
     mo.md(f"We now see code paths crossing {len(affected_files_not_in_diff)} files that are not in the diff:\n\n{affected_files_not_in_diff_str}")
     return (
         affected_files_not_in_diff,
         affected_files_not_in_diff_str,
         call_hierarchy_files,
         diff_files,
+        ready_to_summarize,
     )
+
+
+@app.cell
+def __(
+    affected_files_not_in_diff,
+    affected_files_not_in_diff_str,
+    all_nodes,
+    diff_text,
+    mo,
+    ready_to_summarize,
+):
+    from openai import OpenAI
+    mo.stop(not ready_to_summarize)
+    openai_api_key_input = mo.ui.text("", label="openai api key")
+    system = f"You are a precise and meticulous code reviewer. Explain clearly and concisely how the changed code flows through the related code in {affected_files_not_in_diff_str}"
+    related_code_not_in_the_diff = [f"{n.defined_at.path}\n```\n{n.source_code}\n```" for n in all_nodes if n.defined_at.path in affected_files_not_in_diff]
+    related_code_not_in_the_diff_str = "\n".join(related_code_not_in_the_diff)
+
+    message = f"# Diff:\n\n ```\n{diff_text}\n``` \n\n# Related code:\n\n{related_code_not_in_the_diff_str}"
+    mo.vstack([
+        mo.md("Let's use gpt-4o to summarize how other parts of the codebase are affected by our change."),
+        openai_api_key_input,
+        mo.show_code()
+    ])
+    return (
+        OpenAI,
+        message,
+        openai_api_key_input,
+        related_code_not_in_the_diff,
+        related_code_not_in_the_diff_str,
+        system,
+    )
+
+
+@app.cell
+def __(OpenAI, message, mo, openai_api_key_input, system):
+    mo.stop(not openai_api_key_input.value)
+    client = OpenAI(api_key=openai_api_key_input.value)
+    completion = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": message, }
+        ]
+    )
+    mo.vstack([
+        mo.show_code(),
+        mo.md(completion.choices[0].message.content)
+    ])
+    return client, completion
 
 
 @app.cell
