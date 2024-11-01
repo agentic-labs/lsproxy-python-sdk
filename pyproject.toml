@@ -1,6 +1,6 @@
 [project]
 name = "lsproxy-sdk"
-version = "0.1.0"
+version = "0.1.1"
 description = "SDK for interacting with lsproxy container"
 readme = "README.md"
 requires-python = ">=3.10"
