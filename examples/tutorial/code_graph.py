@@ -456,7 +456,7 @@ def __(BaseModel, GetReferencesRequest, List, Set, Tuple, api_client, mo):
         return symbols_containing_position
 
 
-    def get_hierarchy_incoming(starting_positions: List[FilePosition]):
+    def get_hierarchy_incoming(symbols_changed_directly: List[FilePosition]):
         """
         Compute the chain of code symbols that touch the code at the starting positions.
         """
@@ -464,8 +464,7 @@ def __(BaseModel, GetReferencesRequest, List, Set, Tuple, api_client, mo):
         edges: Set[Tuple[HierarchyItem, HierarchyItem]] = set()
 
         # Initialize with symbols that contain the starting positions
-        initial_symbols = get_symbols_containing_positions(starting_positions)
-        stack = list(initial_symbols)
+        stack = list(symbols_changed_directly)
 
         while stack:
             symbol = stack.pop()
@@ -499,7 +498,7 @@ def __(BaseModel, GetReferencesRequest, List, Set, Tuple, api_client, mo):
                     edges.add((symbol, related_symbol))
                     stack.append(related_symbol)
 
-        return nodes, edges, initial_symbols
+        return nodes, edges
 
 
     mo.show_code()
@@ -518,37 +517,49 @@ def __(
     affected_lines,
     api_client,
     get_hierarchy_incoming,
+    get_symbols_containing_positions,
     mo,
 ):
     affected_files = list(affected_lines.keys())
     lsp_files = api_client.list_files()
     affected_files = [file for file in affected_files if file in lsp_files]
 
-    all_nodes = set()
-    all_edges = set()
     symbols_changed_directly = set()
     for file in affected_files:
-        starting_positions = [
+        affected_positions = [
             FilePosition(path=file, position=Position(line=line, character=0))
             for line in affected_lines[file]
         ]
-        nodes, edges, initial = get_hierarchy_incoming(starting_positions)
-        all_nodes.update(nodes)
-        all_edges.update(edges)
-        symbols_changed_directly.update(initial)
+        symbols_changed_directly.update(get_symbols_containing_positions(affected_positions))
+
+    all_nodes, all_edges = get_hierarchy_incoming(symbols_changed_directly)
+
     mo.show_code()
     return (
         affected_files,
+        affected_positions,
         all_edges,
         all_nodes,
-        edges,
         file,
-        initial,
         lsp_files,
-        nodes,
-        starting_positions,
         symbols_changed_directly,
     )
+
+
+@app.cell
+def __(
+    all_edges,
+    all_nodes,
+    hierarchy_to_mermaid,
+    mo,
+    symbols_changed_directly,
+):
+    mm = hierarchy_to_mermaid(all_nodes, all_edges, symbols_changed_directly)
+    mo.vstack([
+        mo.md("### Call graph of the code affected by the change.\n #### The white nodes are present in the diff, while the red ones are affected indirectly."),
+        mo.mermaid(mm)
+    ])
+    return (mm,)
 
 
 @app.cell
@@ -634,22 +645,6 @@ def __(HierarchyItem, Set, Tuple):
 
         return "\n".join(mermaid_lines)
     return (hierarchy_to_mermaid,)
-
-
-@app.cell
-def __(
-    all_edges,
-    all_nodes,
-    hierarchy_to_mermaid,
-    mo,
-    symbols_changed_directly,
-):
-    mm = hierarchy_to_mermaid(all_nodes, all_edges, symbols_changed_directly)
-    mo.vstack([
-        mo.md("### Call graph of the code affected by the change.\n #### The white nodes are present in the diff, while the red ones are affected indirectly."),
-        mo.mermaid(mm)
-    ])
-    return (mm,)
 
 
 @app.cell
