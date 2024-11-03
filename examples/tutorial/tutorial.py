@@ -679,7 +679,7 @@ def __(
 ):
     from openai import OpenAI
     mo.stop(not ready_to_summarize)
-    openai_api_key_input = mo.ui.text("", label="openai api key")
+    openai_api_key_input = mo.ui.text("", label="openai api key", kind="password")
     system = f"You are a precise and meticulous code reviewer. Explain clearly and concisely how the changed code flows through the related code in {affected_files_not_in_diff_str}"
     related_code_not_in_the_diff = [f"{n.defined_at.path}\n```\n{n.source_code}\n```" for n in all_nodes if n.defined_at.path in affected_files_not_in_diff]
     related_code_not_in_the_diff_str = "\n".join(related_code_not_in_the_diff)
@@ -713,6 +713,7 @@ def __(OpenAI, message, mo, openai_api_key_input, system):
     )
     mo.vstack([
         mo.show_code(),
+        mo.md("## AI summary of change blast radius:"),
         mo.md(completion.choices[0].message.content)
     ])
     return client, completion
