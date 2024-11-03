@@ -53,38 +53,13 @@ def __(mo):
 
 @app.cell
 def __(mo):
-    mo.md("""Other than starting the `lsproxy` docker container, no initialization is required to use `lsproxy`. Here, our "initialization" is just reading in the files to make the tutorial easier to navigate! Please click the button below to get started.""")
-    return
-
-
-@app.cell
-def __(mo):
-    start_button = mo.ui.run_button(label="Click to initialize")
-    start_button
-    return (start_button,)
-
-
-@app.cell
-def __(get_files, mo, start_button):
-    # Reads all the files in the repo on initialization
-    mo.stop(not start_button.value)
-    file_symbol_dict = get_files()
-    return (file_symbol_dict,)
-
-
-@app.cell
-def __(mo):
     mo.md("""<div style="height: 100px;"></div>""")
     return
 
 
 @app.cell
-def __(file_symbol_dict, mo):
-    mo.stop(not file_symbol_dict)
-
-    mo.md(
-        """### `Example 1: Exploring symbols and their references in a file`\nYou'll see how easy it is to:\n\n- Get symbol definitions from a file.\n- Read the source code for any symbol.\n- Find references to the symbol across the codebase\n\n<p>Also note that we are only showing typescript and rust in this example, but we also support python!</p>\n---\n"""
-    )
+def __(mo):
+    mo.md("""### `Example 1: Exploring symbols and their references in a file`\nYou'll see how easy it is to:\n\n- Get symbol definitions from a file.\n- Read the source code for any symbol.\n- Find references to the symbol across the codebase\n\n<p>Also note that we are only showing typescript and rust in this example, but we also support python!</p>\n---\n""")
     return
 
 
@@ -738,9 +713,9 @@ def __():
 
 
 @app.cell
-def __(create_dropdowns, create_selector_dict, file_symbol_dict, mo):
+def __(create_dropdowns, create_selector_dict, mo):
     # UI Elements for the first example
-    js_dropdown_1, rs_dropdown_1 = create_dropdowns(file_symbol_dict, "server/src/handlers/chunk_handler.rs: (65 symbols)")
+    js_dropdown_1, rs_dropdown_1 = create_dropdowns("server/src/handlers/chunk_handler.rs: (65 symbols)")
     selector_dict_1 = create_selector_dict(js_dropdown_1, rs_dropdown_1)
     code_language_select_ex1 = mo.ui.radio(options=["typescript", "rust"], value="rust")
     return (
@@ -764,9 +739,9 @@ def __(code_language_select_ex1, mo, selector_dict_1):
 
 
 @app.cell
-def __(create_dropdowns, create_selector_dict, file_symbol_dict, mo):
+def __(create_dropdowns, create_selector_dict, mo):
     # UI Elements for the second example
-    js_dropdown_2, rs_dropdown_2 = create_dropdowns(file_symbol_dict, "server/src/handlers/analytics_handler.rs: (15 symbols)")
+    js_dropdown_2, rs_dropdown_2 = create_dropdowns("server/src/handlers/analytics_handler.rs: (15 symbols)")
     selector_dict_2 = create_selector_dict(js_dropdown_2, rs_dropdown_2)
     submit_button_2 = mo.ui.run_button(label="Find referenced files")
     code_language_select_ex2 = mo.ui.radio(options=["typescript", "rust"], value="rust")
@@ -815,16 +790,10 @@ def __(api_client, mo):
 
 
 @app.cell
-def __(create_lang_dropdown):
-    def create_dropdowns(file_dict, value = None):
-        file_with_symbol_count = [
-            (file, len(symbols))
-            for file, symbols in file_dict.items()
-            if len(symbols) > 0
-        ]
-        file_with_symbol_count = sorted(
-            file_with_symbol_count, key=lambda item: -item[1]
-        )
+def __(create_lang_dropdown, json):
+    def create_dropdowns(value = None):
+        with open("file_options.json", "r") as f:
+            file_with_symbol_count = json.load(f)
         js_dropdown = create_lang_dropdown(
             file_with_symbol_count,
             ["ts", "tsx", "js", "jsx"],
