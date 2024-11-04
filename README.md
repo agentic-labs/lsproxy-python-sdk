@@ -11,11 +11,7 @@ A Python SDK for interacting with the LSProxy container, providing language-serv
 - Pydantic models for type safety
 
 ## Try it out!
-If you just want to get a feel for `lsproxy` try out the tutorial. Just clone the repo and run:
-
-```
-./examples/tutorial/run.sh
-```
+If you just want to get a feel for `lsproxy` try out the tutorial at [demo.lsproxy.dev](https://demo.lsproxy.dev)
 
 ## Installation
 
