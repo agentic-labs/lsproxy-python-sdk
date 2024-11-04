@@ -1,4 +1,4 @@
-# LSProxy SDK
+# lsproxy SDK
 
 A Python SDK for interacting with the LSProxy container, providing language-server protocol functionality for code analysis across multiple languages.
 
