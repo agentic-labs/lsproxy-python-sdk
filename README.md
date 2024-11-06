@@ -1,6 +1,6 @@
 # lsproxy SDK
 
-A Python SDK for interacting with the LSProxy container, providing language-server protocol functionality for code analysis across multiple languages.
+A Python SDK for interacting with the [lsproxy](https://github.com/agentic-labs/lsproxy) container, providing language-server protocol functionality for code analysis across multiple languages.
 
 ## Features
 
