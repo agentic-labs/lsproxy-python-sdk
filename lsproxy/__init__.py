@@ -12,7 +12,7 @@ from .models import (
     SupportedLanguages,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.1.2"
 
 __all__ = [
     "Lsproxy",
