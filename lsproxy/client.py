@@ -10,7 +10,6 @@ from .models import (
     GetReferencesRequest,
     Symbol,
 )
-from tenacity import retry, stop_after_attempt, wait_exponential
 
 
 class Lsproxy:
@@ -29,12 +28,7 @@ class Lsproxy:
     ):
         self._client.base_url = base_url
         self._client.timeout = timeout
-
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=4, max=10),
-        reraise=True,
-    )
+        
     def _request(self, method: str, endpoint: str, **kwargs) -> httpx.Response:
         """Make HTTP request with retry logic and better error handling."""
         try:
