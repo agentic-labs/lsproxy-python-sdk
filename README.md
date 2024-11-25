@@ -7,7 +7,6 @@ A Python SDK for interacting with the [lsproxy](https://github.com/agentic-labs/
 - Symbol definition lookup
 - Reference lookup across files
 - Support for analyzing Python, TypeScript/JavaScript, and Rust
-- Built-in retry logic and error handling
 - Pydantic models for type safety
 
 ## Try it out!
