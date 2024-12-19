@@ -1,6 +1,12 @@
 import json
 import httpx
-from typing import List
+import time
+from typing import List, TYPE_CHECKING
+
+# Only import type hints for Modal if type checking
+if TYPE_CHECKING:
+    import modal
+
 from .models import (
     DefinitionResponse,
     FileRange,
@@ -80,6 +86,64 @@ class Lsproxy:
         response = self._request("POST", "/workspace/read-source-code", json=request.model_dump())
         return ReadSourceCodeResponse.model_validate_json(response.text)
 
+    @classmethod
+    def initialize_with_modal(cls, repo_url: str, wait_time: float = 5.0) -> "Lsproxy":
+        """
+        Initialize lsproxy by starting a Modal sandbox with the server and connecting to it.
+        
+        Args:
+            repo_url: Git repository URL to clone and analyze
+            wait_time: Time to wait for server startup in seconds
+        
+        Returns:
+            Configured Lsproxy client instance
+            
+        Raises:
+            ImportError: If Modal is not installed
+        """
+        try:
+            import modal
+        except ImportError:
+            raise ImportError(
+                "Modal is required for this feature. "
+                "Install it with: pip install 'lsproxy-sdk[modal]'"
+            )
+
+        app = modal.App.lookup("my-app", create_if_missing=True)
+        lsproxy_image = modal.Image.from_registry("agenticlabs/lsproxy-modal:latest").env({"USE_AUTH": "false"})
+
+        with modal.enable_output():
+            sandbox = modal.Sandbox.create(
+                image=lsproxy_image,
+                app=app,
+                encrypted_ports=[4444],
+            )
+        
+        tunnel_url = sandbox.tunnels()[4444].url
+        
+        # Clone repository
+        p = sandbox.exec("git", "clone", repo_url, "/mnt/workspace")
+        for line in p.stderr:
+            print(line, end="")
+        
+        # Start lsproxy
+        p = sandbox.exec("lsproxy")
+
+        print(f"Waiting {wait_time} seconds for startup")
+        
+        # Wait for server to start
+        time.sleep(wait_time)
+        
+        # Create client instance connected to tunnel
+        client = cls(base_url=f"{tunnel_url}/v1")
+        
+        # Store sandbox reference for cleanup
+        client._sandbox = sandbox
+        
+        return client
+
     def close(self):
-        """Close the HTTP client."""
-        self.client.close()
+        """Close the HTTP client and cleanup Modal resources if present."""
+        self._client.close()
+        if hasattr(self, '_sandbox'):
+            self._sandbox.terminate()
