@@ -93,17 +93,16 @@ class Lsproxy:
 
     @classmethod
     def initialize_with_modal(
-        cls, 
-        repo_url: str, 
-        wait_time: float = 5.0,
+        cls,
+        repo_url: str,
         timeout: Optional[int] = None
     ) -> "Lsproxy":
         """
         Initialize lsproxy by starting a Modal sandbox with the server and connecting to it.
+        Waits up to 30 seconds for the server to be ready.
         
         Args:
             repo_url: Git repository URL to clone and analyze
-            wait_time: Time to wait for server startup in seconds
             timeout: Sandbox timeout in seconds (defaults to Modal's 6-hour timeout if None)
         
         Returns:
@@ -164,11 +163,25 @@ class Lsproxy:
         # Start lsproxy
         p = sandbox.exec("lsproxy")
 
-        print(f"Waiting {wait_time} seconds for startup")
+        # Wait for server to be ready
+        import socket
+        from urllib.parse import urlparse
         
-        # Wait for server to start
-        time.sleep(wait_time)
+        # Parse the tunnel URL to get host and port
+        parsed_url = urlparse(tunnel_url)
+        host = parsed_url.hostname
+        port = parsed_url.port or 4444
         
+        # Try connecting for 30 seconds
+        for _ in range(30):
+            try:
+                with socket.create_connection((host, port), timeout=1):
+                    break  # Connection successful
+            except (socket.timeout, socket.error):
+                time.sleep(1)
+        else:  # No break occurred - server never started
+            raise TimeoutError("Server did not respond within 30 seconds")
+            
         # Create client instance connected to tunnel
         client = cls(base_url=f"{tunnel_url}/v1", auth_token=token)
         
