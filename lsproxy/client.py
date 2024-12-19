@@ -121,9 +121,13 @@ class Lsproxy:
         # Generate a secure random secret
         jwt_secret = secrets.token_urlsafe(32)
         
-        # Create JWT token
+        # Create JWT token with 24-hour expiration
         token = jwt.encode(
-            {"sub": "lsproxy-client", "iat": int(time.time())},
+            {
+                "sub": "lsproxy-client",
+                "iat": int(time.time()),
+                "exp": int(time.time()) + 86400  # 24 hour expiration
+            },
             jwt_secret,
             algorithm="HS256"
         )
