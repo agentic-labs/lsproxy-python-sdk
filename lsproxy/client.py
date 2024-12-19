@@ -92,14 +92,19 @@ class Lsproxy:
         return ReadSourceCodeResponse.model_validate_json(response.text)
 
     @classmethod
-    def initialize_with_modal(cls, repo_url: str, wait_time: float = 5.0) -> "Lsproxy":
+    def initialize_with_modal(
+        cls, 
+        repo_url: str, 
+        wait_time: float = 5.0,
+        timeout: Optional[int] = None
+    ) -> "Lsproxy":
         """
         Initialize lsproxy by starting a Modal sandbox with the server and connecting to it.
-        The sandbox will use Modal's default timeout of 6 hours.
         
         Args:
             repo_url: Git repository URL to clone and analyze
             wait_time: Time to wait for server startup in seconds
+            timeout: Sandbox timeout in seconds (defaults to Modal's 6-hour timeout if None)
         
         Returns:
             Configured Lsproxy client instance
@@ -138,11 +143,16 @@ class Lsproxy:
         })
 
         with modal.enable_output():
-            sandbox = modal.Sandbox.create(
-                image=lsproxy_image,
-                app=app,
-                encrypted_ports=[4444],
-            )
+            sandbox_config = {
+                "image": lsproxy_image,
+                "app": app,
+                "encrypted_ports": [4444],
+            }
+            
+            if timeout is not None:
+                sandbox_config["timeout"] = timeout
+                
+            sandbox = modal.Sandbox.create(**sandbox_config)
         
         tunnel_url = sandbox.tunnels()[4444].url
         
