@@ -1,7 +1,7 @@
 import json
 import httpx
 import time
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional
 
 # Only import type hints for Modal if type checking
 if TYPE_CHECKING:
@@ -30,10 +30,15 @@ class Lsproxy:
     )
 
     def __init__(
-        self, base_url: str = "http://localhost:4444/v1", timeout: float = 10.0
+        self, base_url: str = "http://localhost:4444/v1", timeout: float = 10.0,
+        auth_token: Optional[str] = None
     ):
         self._client.base_url = base_url
         self._client.timeout = timeout
+        headers = {"Content-Type": "application/json"}
+        if auth_token:
+            headers["Authorization"] = f"Bearer {auth_token}"
+        self._client.headers = headers
         
     def _request(self, method: str, endpoint: str, **kwargs) -> httpx.Response:
         """Make HTTP request with retry logic and better error handling."""
@@ -103,14 +108,29 @@ class Lsproxy:
         """
         try:
             import modal
+            import jwt
+            import secrets
         except ImportError:
             raise ImportError(
-                "Modal is required for this feature. "
-                "Install it with: pip install 'lsproxy-sdk[modal]'"
+                "Modal and PyJWT are required for this feature. "
+                "Install them with: pip install 'lsproxy-sdk[modal]'"
             )
 
         app = modal.App.lookup("my-app", create_if_missing=True)
-        lsproxy_image = modal.Image.from_registry("agenticlabs/lsproxy-modal:latest").env({"USE_AUTH": "false"})
+
+        # Generate a secure random secret
+        jwt_secret = secrets.token_urlsafe(32)
+        
+        # Create JWT token
+        token = jwt.encode(
+            {"sub": "lsproxy-client", "iat": int(time.time())},
+            jwt_secret,
+            algorithm="HS256"
+        )
+
+        lsproxy_image = modal.Image.from_registry("agenticlabs/lsproxy-modal:latest").env({
+            "JWT_SECRET": jwt_secret
+        })
 
         with modal.enable_output():
             sandbox = modal.Sandbox.create(
@@ -135,7 +155,7 @@ class Lsproxy:
         time.sleep(wait_time)
         
         # Create client instance connected to tunnel
-        client = cls(base_url=f"{tunnel_url}/v1")
+        client = cls(base_url=f"{tunnel_url}/v1", auth_token=token)
         
         # Store sandbox reference for cleanup
         client._sandbox = sandbox

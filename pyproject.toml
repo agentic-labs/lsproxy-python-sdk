@@ -30,3 +30,7 @@ include = ["lsproxy*"]
 dev = [
     "ruff>=0.3.7",
 ]
+modal = [
+    "modal>=0.56.4",
+    "pyjwt>=2.8.0"
+]
