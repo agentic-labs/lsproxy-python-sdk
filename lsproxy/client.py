@@ -172,15 +172,19 @@ class Lsproxy:
         host = parsed_url.hostname
         port = parsed_url.port or 4444
         
+        print(f"Attempting TCP connection to {host}:{port}")
         # Try connecting for 30 seconds
-        for _ in range(30):
+        for attempt in range(30):
             try:
                 with socket.create_connection((host, port), timeout=1):
+                    print(f"TCP connection successful on attempt {attempt + 1}")
                     break  # Connection successful
-            except (socket.timeout, socket.error):
+            except (socket.timeout, socket.error) as e:
+                print(f"Connection attempt {attempt + 1} failed: {str(e)}")
                 time.sleep(1)
         else:  # No break occurred - server never started
             raise TimeoutError("Server did not respond within 30 seconds")
+        print("Server is ready to accept connections")
             
         # Create client instance connected to tunnel
         client = cls(base_url=f"{tunnel_url}/v1", auth_token=token)
