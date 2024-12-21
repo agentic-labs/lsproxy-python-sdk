@@ -95,7 +95,7 @@ class Lsproxy:
     def initialize_with_modal(
         cls,
         repo_url: str,
-        git_token: Optional[str] = None
+        git_token: Optional[str] = None,
         timeout: Optional[int] = None,
     ) -> "Lsproxy":
         """
@@ -140,7 +140,7 @@ class Lsproxy:
             algorithm="HS256"
         )
 
-        lsproxy_image = modal.Image.from_registry("agenticlabs/lsproxy-modal:0.1.2").env({
+        lsproxy_image = modal.Image.from_registry("agenticlabs/lsproxy:0.2.1").env({
             "JWT_SECRET": jwt_secret
         })
 
@@ -153,6 +153,7 @@ class Lsproxy:
         if timeout is not None:
             sandbox_config["timeout"] = timeout
             
+        print(f"Starting sandbox...")
         sandbox = modal.Sandbox.create(**sandbox_config)
         
         tunnel_url = sandbox.tunnels()[4444].url
