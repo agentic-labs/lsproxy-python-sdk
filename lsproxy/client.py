@@ -95,8 +95,8 @@ class Lsproxy:
     def initialize_with_modal(
         cls,
         repo_url: str,
-        timeout: Optional[int] = None,
         git_token: Optional[str] = None
+        timeout: Optional[int] = None,
     ) -> "Lsproxy":
         """
         Initialize lsproxy by starting a Modal sandbox with the server and connecting to it.
@@ -104,8 +104,8 @@ class Lsproxy:
         
         Args:
             repo_url: Git repository URL to clone and analyze
-            timeout: Sandbox timeout in seconds (defaults to Modal's 5-minute timeout if None)
             git_token: Optional Git personal access token for private repositories
+            timeout: Sandbox timeout in seconds (defaults to Modal's 5-minute timeout if None)
         
         Returns:
             Configured Lsproxy client instance
