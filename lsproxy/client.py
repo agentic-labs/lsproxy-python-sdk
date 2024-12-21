@@ -164,7 +164,7 @@ class Lsproxy:
             url_parts = repo_url.split("://")
             if len(url_parts) != 2:
                 raise ValueError("Invalid repository URL format")
-            auth_url = f"{url_parts[0]}://{git_token}@{url_parts[1]}"
+            auth_url = f"{url_parts[0]}://x-access-token:{git_token}@{url_parts[1]}"
             clone_url = auth_url
         else:
             clone_url = repo_url
