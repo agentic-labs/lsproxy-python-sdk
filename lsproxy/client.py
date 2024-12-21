@@ -17,6 +17,8 @@ from .models import (
     Symbol,
 )
 
+from .auth import create_jwt
+
 
 class Lsproxy:
     """Client for interacting with the lsproxy API."""
@@ -96,6 +98,7 @@ class Lsproxy:
         cls,
         repo_url: str,
         git_token: Optional[str] = None,
+        sha: Optional[str] = None,
         timeout: Optional[int] = None,
     ) -> "Lsproxy":
         """
@@ -105,6 +108,7 @@ class Lsproxy:
         Args:
             repo_url: Git repository URL to clone and analyze
             git_token: Optional Git personal access token for private repositories
+            sha: Optional commit to checkout in the repo
             timeout: Sandbox timeout in seconds (defaults to Modal's 5-minute timeout if None)
         
         Returns:
@@ -116,7 +120,6 @@ class Lsproxy:
         """
         try:
             import modal
-            import jwt
             import secrets
         except ImportError:
             raise ImportError(
@@ -130,15 +133,12 @@ class Lsproxy:
         jwt_secret = secrets.token_urlsafe(32)
         
         # Create JWT token with 24-hour expiration
-        token = jwt.encode(
-            {
-                "sub": "lsproxy-client",
-                "iat": int(time.time()),
-                "exp": int(time.time()) + 86400  # 24 hour expiration
-            },
-            jwt_secret,
-            algorithm="HS256"
-        )
+        payload = {
+            "sub": "lsproxy-client",
+            "iat": int(time.time()),
+            "exp": int(time.time()) + 86400  # 24 hour expiration
+        }
+        token = create_jwt(payload, jwt_secret)
 
         lsproxy_image = modal.Image.from_registry("agenticlabs/lsproxy:0.2.1").env({
             "JWT_SECRET": jwt_secret
@@ -171,7 +171,10 @@ class Lsproxy:
             clone_url = repo_url
 
         try:
-            p = sandbox.exec("git", "clone", clone_url, "/mnt/workspace")
+            p = sandbox.exec("git", "config", "--global", "--add", "safe.directory", "/mnt/workspace")
+            p.wait()
+
+            p = sandbox.exec("git", "clone", clone_url, "--depth", "1", "/mnt/workspace")
             exit_code = p.wait()
             if exit_code != 0:
                 raise ValueError(
@@ -180,6 +183,16 @@ class Lsproxy:
                     f"- You have access to the repository\n"
                     f"- If it's a private repository, you've provided a valid git token"
                 )
+            if sha is not None:
+                # Checkout the specific commit
+                p = sandbox.exec("bash", "-c", f"cd /mnt/workspace && git fetch origin {sha}")
+                exit_code = p.wait()
+                if exit_code != 0:
+                    raise ValueError(f"Failed to fetch SHA ({sha}). Please check it is valid")
+
+                p = sandbox.exec("bash", "-c", f"cd /mnt/workspace && git checkout {sha}")
+                p.wait()
+
         except Exception as e:
             sandbox.terminate()
             raise ValueError(f"Repository cloning failed: {str(e)}")
