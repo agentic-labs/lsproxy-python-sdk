@@ -170,7 +170,7 @@ class Lsproxy:
         # Parse the tunnel URL to get host and port
         parsed_url = urlparse(tunnel_url)
         host = parsed_url.hostname
-        port = parsed_url.port or 4444
+        port = parsed_url.port
         
         print(f"Attempting TCP connection to {host}:{port}")
         # Try connecting for 30 seconds
