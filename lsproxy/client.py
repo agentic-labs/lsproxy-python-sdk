@@ -95,7 +95,8 @@ class Lsproxy:
     def initialize_with_modal(
         cls,
         repo_url: str,
-        timeout: Optional[int] = None
+        timeout: Optional[int] = None,
+        git_token: Optional[str] = None
     ) -> "Lsproxy":
         """
         Initialize lsproxy by starting a Modal sandbox with the server and connecting to it.
@@ -104,12 +105,14 @@ class Lsproxy:
         Args:
             repo_url: Git repository URL to clone and analyze
             timeout: Sandbox timeout in seconds (defaults to Modal's 5-minute timeout if None)
+            git_token: Optional Git personal access token for private repositories
         
         Returns:
             Configured Lsproxy client instance
             
         Raises:
             ImportError: If Modal or PyJWT are not installed
+            ValueError: If repository cloning fails
         """
         try:
             import modal
@@ -154,10 +157,31 @@ class Lsproxy:
         
         tunnel_url = sandbox.tunnels()[4444].url
         
-        # Clone repository
-        p = sandbox.exec("git", "clone", repo_url, "/mnt/workspace")
+        # Clone repository with token if provided
         print(f"Cloning {repo_url}...")
-        p.wait()
+        if git_token:
+            # Insert token into URL for private repo access
+            url_parts = repo_url.split("://")
+            if len(url_parts) != 2:
+                raise ValueError("Invalid repository URL format")
+            auth_url = f"{url_parts[0]}://{git_token}@{url_parts[1]}"
+            clone_url = auth_url
+        else:
+            clone_url = repo_url
+
+        try:
+            p = sandbox.exec("git", "clone", clone_url, "/mnt/workspace")
+            exit_code = p.wait()
+            if exit_code != 0:
+                raise ValueError(
+                    f"Failed to clone repository. Please check:\n"
+                    f"- The repository URL is correct\n"
+                    f"- You have access to the repository\n"
+                    f"- If it's a private repository, you've provided a valid git token"
+                )
+        except Exception as e:
+            sandbox.terminate()
+            raise ValueError(f"Repository cloning failed: {str(e)}")
         
         # Start lsproxy
         p = sandbox.exec("lsproxy")
