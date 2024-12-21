@@ -103,7 +103,7 @@ class Lsproxy:
         
         Args:
             repo_url: Git repository URL to clone and analyze
-            timeout: Sandbox timeout in seconds (defaults to Modal's 6-hour timeout if None)
+            timeout: Sandbox timeout in seconds (defaults to Modal's 5-minute timeout if None)
         
         Returns:
             Configured Lsproxy client instance
@@ -137,28 +137,27 @@ class Lsproxy:
             algorithm="HS256"
         )
 
-        lsproxy_image = modal.Image.from_registry("agenticlabs/lsproxy-modal:latest").env({
+        lsproxy_image = modal.Image.from_registry("agenticlabs/lsproxy-modal:0.1.2").env({
             "JWT_SECRET": jwt_secret
         })
 
-        with modal.enable_output():
-            sandbox_config = {
-                "image": lsproxy_image,
-                "app": app,
-                "encrypted_ports": [4444],
-            }
+        sandbox_config = {
+            "image": lsproxy_image,
+            "app": app,
+            "encrypted_ports": [4444],
+        }
+
+        if timeout is not None:
+            sandbox_config["timeout"] = timeout
             
-            if timeout is not None:
-                sandbox_config["timeout"] = timeout
-                
-            sandbox = modal.Sandbox.create(**sandbox_config)
+        sandbox = modal.Sandbox.create(**sandbox_config)
         
         tunnel_url = sandbox.tunnels()[4444].url
         
         # Clone repository
         p = sandbox.exec("git", "clone", repo_url, "/mnt/workspace")
-        for line in p.stderr:
-            print(line, end="")
+        print(f"Cloning {repo_url}...")
+        p.wait()
         
         # Start lsproxy
         p = sandbox.exec("lsproxy")
@@ -166,12 +165,10 @@ class Lsproxy:
         # Wait for server to be ready
         client = cls(base_url=f"{tunnel_url}/v1", auth_token=token)
         
-        print("Waiting for server to be healthy...")
+        print("Waiting for server start up (make take a minute)...")
         for attempt in range(30):
             if client.check_health():
-                print(f"Server is healthy on attempt {attempt + 1}")
                 break
-            print(f"Health check attempt {attempt + 1} failed")
             time.sleep(1)
         else:  # No break occurred - server never became healthy
             raise TimeoutError("Server did not become healthy within 30 seconds")
