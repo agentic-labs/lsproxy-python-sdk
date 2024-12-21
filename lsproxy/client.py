@@ -99,7 +99,7 @@ class Lsproxy:
     ) -> "Lsproxy":
         """
         Initialize lsproxy by starting a Modal sandbox with the server and connecting to it.
-        Waits up to 30 seconds for the server to be ready.
+        Waits up to 3 minutes for the server to be ready.
         
         Args:
             repo_url: Git repository URL to clone and analyze
@@ -109,7 +109,7 @@ class Lsproxy:
             Configured Lsproxy client instance
             
         Raises:
-            ImportError: If Modal is not installed
+            ImportError: If Modal or PyJWT are not installed
         """
         try:
             import modal
@@ -166,12 +166,12 @@ class Lsproxy:
         client = cls(base_url=f"{tunnel_url}/v1", auth_token=token)
         
         print("Waiting for server start up (make take a minute)...")
-        for attempt in range(30):
+        for attempt in range(180):
             if client.check_health():
                 break
             time.sleep(1)
         else:  # No break occurred - server never became healthy
-            raise TimeoutError("Server did not become healthy within 30 seconds")
+            raise TimeoutError("Server did not start up within 3 minutes")
         
         print("Server is ready to accept connections")
         
