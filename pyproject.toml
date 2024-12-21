@@ -1,6 +1,6 @@
 [project]
 name = "lsproxy-sdk"
-version = "0.1.2"
+version = "0.1.3"
 description = "SDK for interacting with lsproxy container"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -29,4 +29,8 @@ include = ["lsproxy*"]
 [project.optional-dependencies]
 dev = [
     "ruff>=0.3.7",
+]
+modal = [
+    "modal>=0.56.4",
+    "pyjwt>=2.8.0"
 ]

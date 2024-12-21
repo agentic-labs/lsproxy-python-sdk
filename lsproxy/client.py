@@ -1,6 +1,12 @@
 import json
 import httpx
-from typing import List
+import time
+from typing import List, TYPE_CHECKING, Optional
+
+# Only import type hints for Modal if type checking
+if TYPE_CHECKING:
+    import modal
+
 from .models import (
     DefinitionResponse,
     FileRange,
@@ -24,10 +30,15 @@ class Lsproxy:
     )
 
     def __init__(
-        self, base_url: str = "http://localhost:4444/v1", timeout: float = 10.0
+        self, base_url: str = "http://localhost:4444/v1", timeout: float = 10.0,
+        auth_token: Optional[str] = None
     ):
         self._client.base_url = base_url
         self._client.timeout = timeout
+        headers = {"Content-Type": "application/json"}
+        if auth_token:
+            headers["Authorization"] = f"Bearer {auth_token}"
+        self._client.headers = headers
         
     def _request(self, method: str, endpoint: str, **kwargs) -> httpx.Response:
         """Make HTTP request with retry logic and better error handling."""
@@ -80,6 +91,131 @@ class Lsproxy:
         response = self._request("POST", "/workspace/read-source-code", json=request.model_dump())
         return ReadSourceCodeResponse.model_validate_json(response.text)
 
+    @classmethod
+    def initialize_with_modal(
+        cls,
+        repo_url: str,
+        git_token: Optional[str] = None,
+        timeout: Optional[int] = None,
+    ) -> "Lsproxy":
+        """
+        Initialize lsproxy by starting a Modal sandbox with the server and connecting to it.
+        Waits up to 3 minutes for the server to be ready.
+        
+        Args:
+            repo_url: Git repository URL to clone and analyze
+            git_token: Optional Git personal access token for private repositories
+            timeout: Sandbox timeout in seconds (defaults to Modal's 5-minute timeout if None)
+        
+        Returns:
+            Configured Lsproxy client instance
+            
+        Raises:
+            ImportError: If Modal or PyJWT are not installed
+            ValueError: If repository cloning fails
+        """
+        try:
+            import modal
+            import jwt
+            import secrets
+        except ImportError:
+            raise ImportError(
+                "Modal and PyJWT are required for this feature. "
+                "Install them with: pip install 'lsproxy-sdk[modal]'"
+            )
+
+        app = modal.App.lookup("my-app", create_if_missing=True)
+
+        # Generate a secure random secret
+        jwt_secret = secrets.token_urlsafe(32)
+        
+        # Create JWT token with 24-hour expiration
+        token = jwt.encode(
+            {
+                "sub": "lsproxy-client",
+                "iat": int(time.time()),
+                "exp": int(time.time()) + 86400  # 24 hour expiration
+            },
+            jwt_secret,
+            algorithm="HS256"
+        )
+
+        lsproxy_image = modal.Image.from_registry("agenticlabs/lsproxy:0.2.1").env({
+            "JWT_SECRET": jwt_secret
+        })
+
+        sandbox_config = {
+            "image": lsproxy_image,
+            "app": app,
+            "encrypted_ports": [4444],
+        }
+
+        if timeout is not None:
+            sandbox_config["timeout"] = timeout
+            
+        print(f"Starting sandbox...")
+        sandbox = modal.Sandbox.create(**sandbox_config)
+        
+        tunnel_url = sandbox.tunnels()[4444].url
+        
+        # Clone repository with token if provided
+        print(f"Cloning {repo_url}...")
+        if git_token:
+            # Insert token into URL for private repo access
+            url_parts = repo_url.split("://")
+            if len(url_parts) != 2:
+                raise ValueError("Invalid repository URL format")
+            auth_url = f"{url_parts[0]}://x-access-token:{git_token}@{url_parts[1]}"
+            clone_url = auth_url
+        else:
+            clone_url = repo_url
+
+        try:
+            p = sandbox.exec("git", "clone", clone_url, "/mnt/workspace")
+            exit_code = p.wait()
+            if exit_code != 0:
+                raise ValueError(
+                    f"Failed to clone repository. Please check:\n"
+                    f"- The repository URL is correct\n"
+                    f"- You have access to the repository\n"
+                    f"- If it's a private repository, you've provided a valid git token"
+                )
+        except Exception as e:
+            sandbox.terminate()
+            raise ValueError(f"Repository cloning failed: {str(e)}")
+        
+        # Start lsproxy
+        p = sandbox.exec("lsproxy")
+
+        # Wait for server to be ready
+        client = cls(base_url=f"{tunnel_url}/v1", auth_token=token)
+        
+        print("Waiting for server start up (make take a minute)...")
+        for attempt in range(180):
+            if client.check_health():
+                break
+            time.sleep(1)
+        else:  # No break occurred - server never became healthy
+            raise TimeoutError("Server did not start up within 3 minutes")
+        
+        print("Server is ready to accept connections")
+        
+        # Store sandbox reference for cleanup
+        client._sandbox = sandbox
+        
+        return client
+
+    def check_health(self) -> bool:
+        """Check if the server is healthy and ready."""
+        try:
+            response = self._request("GET", "/system/health")
+            health_data = response.json()
+            return health_data.get("status") == "ok"
+        except Exception:
+            return False
+
     def close(self):
-        """Close the HTTP client."""
-        self.client.close()
+        """Close the HTTP client and cleanup Modal resources if present."""
+        self._client.close()
+        if hasattr(self, '_sandbox'):
+            self._sandbox.terminate()
