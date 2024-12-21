@@ -164,35 +164,33 @@ class Lsproxy:
         p = sandbox.exec("lsproxy")
 
         # Wait for server to be ready
-        import socket
-        from urllib.parse import urlparse
-        
-        # Parse the tunnel URL to get host and port
-        parsed_url = urlparse(tunnel_url)
-        host = parsed_url.hostname
-        port = parsed_url.port
-        
-        print(f"Attempting TCP connection to {host}:{port}")
-        # Try connecting for 30 seconds
-        for attempt in range(30):
-            try:
-                with socket.create_connection((host, port), timeout=1):
-                    print(f"TCP connection successful on attempt {attempt + 1}")
-                    break  # Connection successful
-            except (socket.timeout, socket.error) as e:
-                print(f"Connection attempt {attempt + 1} failed: {str(e)}")
-                time.sleep(1)
-        else:  # No break occurred - server never started
-            raise TimeoutError("Server did not respond within 30 seconds")
-        print("Server is ready to accept connections")
-            
-        # Create client instance connected to tunnel
         client = cls(base_url=f"{tunnel_url}/v1", auth_token=token)
+        
+        print("Waiting for server to be healthy...")
+        for attempt in range(30):
+            if client.check_health():
+                print(f"Server is healthy on attempt {attempt + 1}")
+                break
+            print(f"Health check attempt {attempt + 1} failed")
+            time.sleep(1)
+        else:  # No break occurred - server never became healthy
+            raise TimeoutError("Server did not become healthy within 30 seconds")
+        
+        print("Server is ready to accept connections")
         
         # Store sandbox reference for cleanup
         client._sandbox = sandbox
         
         return client
+
+    def check_health(self) -> bool:
+        """Check if the server is healthy and ready."""
+        try:
+            response = self._request("GET", "/system/health")
+            health_data = response.json()
+            return health_data.get("status") == "ok"
+        except Exception:
+            return False
 
     def close(self):
         """Close the HTTP client and cleanup Modal resources if present."""
