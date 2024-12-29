@@ -1,0 +1,7 @@
+- [x] definitions_in_file
+- [x] find_definition
+- [x] find_references
+- [x] list_files
+- [x] read_source_code
+- [x] check_health
+- [x] initialize_with_modal
