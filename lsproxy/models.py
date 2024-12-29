@@ -1,12 +1,5 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from enum import Enum
-
-
-class SupportedLanguages(str, Enum):
-    python = "python"
-    typescript_javascript = "typescript_javascript"
-    rust = "rust"
 
 
 class Position(BaseModel):
@@ -73,6 +66,9 @@ class FilePosition(BaseModel):
     def __ge__(self, other: "FilePosition") -> bool:
         """Greater than or equal comparison."""
         return not (self < other)
+    
+    def __hash__(self) -> int:
+        return hash((self.path, self.position.line, self.position.character))
 
 
 class FileRange(BaseModel):
@@ -115,6 +111,9 @@ class FileRange(BaseModel):
     def __ge__(self, other: "FileRange") -> bool:
         """Greater than or equal comparison."""
         return not (self < other)
+    
+    def __hash__(self) -> int:
+        return hash((self.path, self.start.line, self.start.character, self.end.line, self.end.character))
 
 
 class CodeContext(BaseModel):
@@ -140,6 +139,9 @@ class Symbol(BaseModel):
     )
     range: FileRange = Field(..., description="The full range of the symbol.")
 
+    def __hash__(self) -> int:
+        return hash((self.kind, self.name, self.identifier_position, self.range))
+
 
 class DefinitionResponse(BaseModel):
     """Response containing definition locations of a symbol."""
@@ -147,7 +149,7 @@ class DefinitionResponse(BaseModel):
     definitions: List[FilePosition] = Field(
         ..., description="List of definition locations for the symbol."
     )
-    raw_response: Optional[dict] = Field(
+    raw_response: Optional[dict | list] = Field(
         None,
         description=(
             "The raw response from the language server.\n\n"
@@ -185,7 +187,7 @@ class ReferencesResponse(BaseModel):
     context: Optional[List[CodeContext]] = Field(
         None, description="Source code contexts around the references."
     )
-    raw_response: Optional[dict] = Field(
+    raw_response: Optional[dict | list] = Field(
         None,
         description=(
             "The raw response from the language server.\n\n"

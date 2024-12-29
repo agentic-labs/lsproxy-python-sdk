@@ -67,6 +67,8 @@ class Lsproxy:
 
     def find_definition(self, request: GetDefinitionRequest) -> DefinitionResponse:
         """Get the definition of a symbol at a specific position in a file."""
+        if not isinstance(request, GetDefinitionRequest):
+            raise TypeError(f"Expected GetDefinitionRequest, got {type(request).__name__}. Please use GetDefinitionRequest model to construct the request.")
         response = self._request(
             "POST", "/symbol/find-definition", json=request.model_dump()
         )
@@ -75,6 +77,8 @@ class Lsproxy:
 
     def find_references(self, request: GetReferencesRequest) -> ReferencesResponse:
         """Find all references to a symbol."""
+        if not isinstance(request, GetReferencesRequest):
+            raise TypeError(f"Expected GetReferencesRequest, got {type(request).__name__}. Please use GetReferencesRequest model to construct the request.")
         response = self._request(
             "POST", "/symbol/find-references", json=request.model_dump()
         )
@@ -87,9 +91,10 @@ class Lsproxy:
         files = response.json()
         return files
 
-
     def read_source_code(self, request: FileRange) -> ReadSourceCodeResponse:
         """Read source code from a specified file range."""
+        if not isinstance(request, FileRange):
+            raise TypeError(f"Expected FileRange, got {type(request).__name__}. Please use FileRange model to construct the request.")
         response = self._request("POST", "/workspace/read-source-code", json=request.model_dump())
         return ReadSourceCodeResponse.model_validate_json(response.text)
 
@@ -153,7 +158,7 @@ class Lsproxy:
         if timeout is not None:
             sandbox_config["timeout"] = timeout
             
-        print(f"Starting sandbox...")
+        print("Starting sandbox...")
         sandbox = modal.Sandbox.create(**sandbox_config)
         
         tunnel_url = sandbox.tunnels()[4444].url
@@ -178,10 +183,10 @@ class Lsproxy:
             exit_code = p.wait()
             if exit_code != 0:
                 raise ValueError(
-                    f"Failed to clone repository. Please check:\n"
-                    f"- The repository URL is correct\n"
-                    f"- You have access to the repository\n"
-                    f"- If it's a private repository, you've provided a valid git token"
+                    "Failed to clone repository. Please check:\n"
+                    "- The repository URL is correct\n"
+                    "- You have access to the repository\n"
+                    "- If it's a private repository, you've provided a valid git token"
                 )
             if sha is not None:
                 # Checkout the specific commit

@@ -2,8 +2,6 @@ import base64
 import hmac
 import hashlib
 import json
-import time
-import secrets
 
 def base64url_encode(data):
     if isinstance(data, str):
