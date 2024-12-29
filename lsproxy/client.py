@@ -5,7 +5,7 @@ from typing import List, TYPE_CHECKING, Optional
 
 # Only import type hints for Modal if type checking
 if TYPE_CHECKING:
-    import modal
+    import modal  # noqa: F401
 
 from .models import (
     DefinitionResponse,

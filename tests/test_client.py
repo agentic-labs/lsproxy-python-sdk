@@ -1,13 +1,12 @@
 """Unit tests for the lsproxy client."""
 import pytest
-from unittest.mock import ANY, Mock, patch
+from unittest.mock import ANY, patch
 
 from lsproxy.client import Lsproxy
 from lsproxy.models import (
     Position,
     FilePosition,
     FileRange,
-    CodeContext,
     Symbol,
     DefinitionResponse,
     GetDefinitionRequest,
