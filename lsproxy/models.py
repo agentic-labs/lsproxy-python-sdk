@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic import BaseModel, Field
 
 
@@ -66,7 +66,7 @@ class FilePosition(BaseModel):
     def __ge__(self, other: "FilePosition") -> bool:
         """Greater than or equal comparison."""
         return not (self < other)
-    
+
     def __hash__(self) -> int:
         return hash((self.path, self.position.line, self.position.character))
 
@@ -111,9 +111,17 @@ class FileRange(BaseModel):
     def __ge__(self, other: "FileRange") -> bool:
         """Greater than or equal comparison."""
         return not (self < other)
-    
+
     def __hash__(self) -> int:
-        return hash((self.path, self.start.line, self.start.character, self.end.line, self.end.character))
+        return hash(
+            (
+                self.path,
+                self.start.line,
+                self.start.character,
+                self.end.line,
+                self.end.character,
+            )
+        )
 
 
 class CodeContext(BaseModel):
@@ -149,7 +157,7 @@ class DefinitionResponse(BaseModel):
     definitions: List[FilePosition] = Field(
         ..., description="List of definition locations for the symbol."
     )
-    raw_response: Optional[dict | list] = Field(
+    raw_response: Optional[Union[dict, list]] = Field(
         None,
         description=(
             "The raw response from the language server.\n\n"
@@ -187,7 +195,7 @@ class ReferencesResponse(BaseModel):
     context: Optional[List[CodeContext]] = Field(
         None, description="Source code contexts around the references."
     )
-    raw_response: Optional[dict | list] = Field(
+    raw_response: Optional[Union[dict, list]] = Field(
         None,
         description=(
             "The raw response from the language server.\n\n"
@@ -227,4 +235,6 @@ class ErrorResponse(BaseModel):
 class ReadSourceCodeResponse(BaseModel):
     """Response containing source code for a file range."""
 
-    source_code: str = Field(..., description="The source code for the specified range.")
+    source_code: str = Field(
+        ..., description="The source code for the specified range."
+    )
