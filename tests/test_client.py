@@ -5,13 +5,8 @@ import httpx
 from unittest.mock import patch, MagicMock
 from lsproxy.client import Lsproxy
 from lsproxy.models import (
-    DefinitionResponse,
-    FileRange,
-    ReadSourceCodeResponse,
-    ReferencesResponse,
     GetDefinitionRequest,
     GetReferencesRequest,
-    Symbol,
     Position,
     FilePosition,
 )

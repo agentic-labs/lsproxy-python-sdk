@@ -1,4 +1,6 @@
 """Unit tests for the authentication utilities."""
+import base64
+import json
 import pytest
 from lsproxy.auth import create_jwt, base64url_encode
 
@@ -52,13 +54,16 @@ def test_create_jwt_payload(sample_payload, sample_secret):
     # Create token
     token = create_jwt(sample_payload, sample_secret)
     
-    # Get payload part (second segment)
-    payload_part = token.split(".")[1]
-    
     # Verify payload encoding
-    assert "sub" in sample_payload
-    assert "iat" in sample_payload
-    assert "exp" in sample_payload
+    payload_part = token.split(".")[1]
+    # Add padding for base64 decoding
+    padding = "=" * ((4 - len(payload_part) % 4) % 4)
+    decoded_payload = json.loads(base64.urlsafe_b64decode(payload_part + padding))
+    
+    # Verify decoded payload matches input
+    assert decoded_payload["sub"] == sample_payload["sub"]
+    assert decoded_payload["iat"] == sample_payload["iat"]
+    assert decoded_payload["exp"] == sample_payload["exp"]
 
 
 def test_create_jwt_invalid_payload():
