@@ -32,8 +32,10 @@ class Lsproxy:
     )
 
     def __init__(
-        self, base_url: str = "http://localhost:4444/v1", timeout: float = 10.0,
-        auth_token: Optional[str] = None
+        self,
+        base_url: str = "http://localhost:4444/v1",
+        timeout: float = 10.0,
+        auth_token: Optional[str] = None,
     ):
         self._client.base_url = base_url
         self._client.timeout = timeout
@@ -41,7 +43,7 @@ class Lsproxy:
         if auth_token:
             headers["Authorization"] = f"Bearer {auth_token}"
         self._client.headers = headers
-        
+
     def _request(self, method: str, endpoint: str, **kwargs) -> httpx.Response:
         """Make HTTP request with retry logic and better error handling."""
         try:
@@ -67,6 +69,10 @@ class Lsproxy:
 
     def find_definition(self, request: GetDefinitionRequest) -> DefinitionResponse:
         """Get the definition of a symbol at a specific position in a file."""
+        if not isinstance(request, GetDefinitionRequest):
+            raise TypeError(
+                f"Expected GetDefinitionRequest, got {type(request).__name__}. Please use GetDefinitionRequest model to construct the request."
+            )
         response = self._request(
             "POST", "/symbol/find-definition", json=request.model_dump()
         )
@@ -75,6 +81,10 @@ class Lsproxy:
 
     def find_references(self, request: GetReferencesRequest) -> ReferencesResponse:
         """Find all references to a symbol."""
+        if not isinstance(request, GetReferencesRequest):
+            raise TypeError(
+                f"Expected GetReferencesRequest, got {type(request).__name__}. Please use GetReferencesRequest model to construct the request."
+            )
         response = self._request(
             "POST", "/symbol/find-references", json=request.model_dump()
         )
@@ -87,10 +97,15 @@ class Lsproxy:
         files = response.json()
         return files
 
-
     def read_source_code(self, request: FileRange) -> ReadSourceCodeResponse:
         """Read source code from a specified file range."""
-        response = self._request("POST", "/workspace/read-source-code", json=request.model_dump())
+        if not isinstance(request, FileRange):
+            raise TypeError(
+                f"Expected FileRange, got {type(request).__name__}. Please use FileRange model to construct the request."
+            )
+        response = self._request(
+            "POST", "/workspace/read-source-code", json=request.model_dump()
+        )
         return ReadSourceCodeResponse.model_validate_json(response.text)
 
     @classmethod
@@ -104,16 +119,16 @@ class Lsproxy:
         """
         Initialize lsproxy by starting a Modal sandbox with the server and connecting to it.
         Waits up to 3 minutes for the server to be ready.
-        
+
         Args:
             repo_url: Git repository URL to clone and analyze
             git_token: Optional Git personal access token for private repositories
             sha: Optional commit to checkout in the repo
             timeout: Sandbox timeout in seconds (defaults to Modal's 5-minute timeout if None)
-        
+
         Returns:
             Configured Lsproxy client instance
-            
+
         Raises:
             ImportError: If Modal or PyJWT are not installed
             ValueError: If repository cloning fails
@@ -131,18 +146,18 @@ class Lsproxy:
 
         # Generate a secure random secret
         jwt_secret = secrets.token_urlsafe(32)
-        
+
         # Create JWT token with 24-hour expiration
         payload = {
             "sub": "lsproxy-client",
             "iat": int(time.time()),
-            "exp": int(time.time()) + 86400  # 24 hour expiration
+            "exp": int(time.time()) + 86400,  # 24 hour expiration
         }
         token = create_jwt(payload, jwt_secret)
 
-        lsproxy_image = modal.Image.from_registry("agenticlabs/lsproxy:0.2.1").env({
-            "JWT_SECRET": jwt_secret
-        })
+        lsproxy_image = modal.Image.from_registry("agenticlabs/lsproxy:0.2.1").env(
+            {"JWT_SECRET": jwt_secret}
+        )
 
         sandbox_config = {
             "image": lsproxy_image,
@@ -152,12 +167,12 @@ class Lsproxy:
 
         if timeout is not None:
             sandbox_config["timeout"] = timeout
-            
-        print(f"Starting sandbox...")
+
+        print("Starting sandbox...")
         sandbox = modal.Sandbox.create(**sandbox_config)
-        
+
         tunnel_url = sandbox.tunnels()[4444].url
-        
+
         # Clone repository with token if provided
         print(f"Cloning {repo_url}...")
         if git_token:
@@ -171,38 +186,48 @@ class Lsproxy:
             clone_url = repo_url
 
         try:
-            p = sandbox.exec("git", "config", "--global", "--add", "safe.directory", "/mnt/workspace")
+            p = sandbox.exec(
+                "git", "config", "--global", "--add", "safe.directory", "/mnt/workspace"
+            )
             p.wait()
 
-            p = sandbox.exec("git", "clone", clone_url, "--depth", "1", "/mnt/workspace")
+            p = sandbox.exec(
+                "git", "clone", clone_url, "--depth", "1", "/mnt/workspace"
+            )
             exit_code = p.wait()
             if exit_code != 0:
                 raise ValueError(
-                    f"Failed to clone repository. Please check:\n"
-                    f"- The repository URL is correct\n"
-                    f"- You have access to the repository\n"
-                    f"- If it's a private repository, you've provided a valid git token"
+                    "Failed to clone repository. Please check:\n"
+                    "- The repository URL is correct\n"
+                    "- You have access to the repository\n"
+                    "- If it's a private repository, you've provided a valid git token"
                 )
             if sha is not None:
                 # Checkout the specific commit
-                p = sandbox.exec("bash", "-c", f"cd /mnt/workspace && git fetch origin {sha}")
+                p = sandbox.exec(
+                    "bash", "-c", f"cd /mnt/workspace && git fetch origin {sha}"
+                )
                 exit_code = p.wait()
                 if exit_code != 0:
-                    raise ValueError(f"Failed to fetch SHA ({sha}). Please check it is valid")
+                    raise ValueError(
+                        f"Failed to fetch SHA ({sha}). Please check it is valid"
+                    )
 
-                p = sandbox.exec("bash", "-c", f"cd /mnt/workspace && git checkout {sha}")
+                p = sandbox.exec(
+                    "bash", "-c", f"cd /mnt/workspace && git checkout {sha}"
+                )
                 p.wait()
 
         except Exception as e:
             sandbox.terminate()
             raise ValueError(f"Repository cloning failed: {str(e)}")
-        
+
         # Start lsproxy
         p = sandbox.exec("lsproxy")
 
         # Wait for server to be ready
         client = cls(base_url=f"{tunnel_url}/v1", auth_token=token)
-        
+
         print("Waiting for server start up (make take a minute)...")
         for attempt in range(180):
             if client.check_health():
@@ -210,12 +235,12 @@ class Lsproxy:
             time.sleep(1)
         else:  # No break occurred - server never became healthy
             raise TimeoutError("Server did not start up within 3 minutes")
-        
+
         print("Server is ready to accept connections")
-        
+
         # Store sandbox reference for cleanup
         client._sandbox = sandbox
-        
+
         return client
 
     def check_health(self) -> bool:
@@ -230,5 +255,5 @@ class Lsproxy:
     def close(self):
         """Close the HTTP client and cleanup Modal resources if present."""
         self._client.close()
-        if hasattr(self, '_sandbox'):
+        if hasattr(self, "_sandbox"):
             self._sandbox.terminate()

@@ -9,10 +9,9 @@ from .models import (
     GetDefinitionRequest,
     ReferencesResponse,
     GetReferencesRequest,
-    SupportedLanguages,
 )
 
-__version__ = "0.1.2"
+__version__ = "0.1.5"
 
 __all__ = [
     "Lsproxy",
@@ -25,5 +24,4 @@ __all__ = [
     "GetDefinitionRequest",
     "ReferencesResponse",
     "GetReferencesRequest",
-    "SupportedLanguages",
 ]

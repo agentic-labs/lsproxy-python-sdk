@@ -1,12 +1,5 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic import BaseModel, Field
-from enum import Enum
-
-
-class SupportedLanguages(str, Enum):
-    python = "python"
-    typescript_javascript = "typescript_javascript"
-    rust = "rust"
 
 
 class Position(BaseModel):
@@ -74,6 +67,9 @@ class FilePosition(BaseModel):
         """Greater than or equal comparison."""
         return not (self < other)
 
+    def __hash__(self) -> int:
+        return hash((self.path, self.position.line, self.position.character))
+
 
 class FileRange(BaseModel):
     """Range within a file, defined by start and end positions."""
@@ -116,6 +112,17 @@ class FileRange(BaseModel):
         """Greater than or equal comparison."""
         return not (self < other)
 
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.path,
+                self.start.line,
+                self.start.character,
+                self.end.line,
+                self.end.character,
+            )
+        )
+
 
 class CodeContext(BaseModel):
     """Contextual information of the source code around a symbol or reference."""
@@ -140,6 +147,9 @@ class Symbol(BaseModel):
     )
     range: FileRange = Field(..., description="The full range of the symbol.")
 
+    def __hash__(self) -> int:
+        return hash((self.kind, self.name, self.identifier_position, self.range))
+
 
 class DefinitionResponse(BaseModel):
     """Response containing definition locations of a symbol."""
@@ -147,7 +157,7 @@ class DefinitionResponse(BaseModel):
     definitions: List[FilePosition] = Field(
         ..., description="List of definition locations for the symbol."
     )
-    raw_response: Optional[dict] = Field(
+    raw_response: Optional[Union[dict, list]] = Field(
         None,
         description=(
             "The raw response from the language server.\n\n"
@@ -185,7 +195,7 @@ class ReferencesResponse(BaseModel):
     context: Optional[List[CodeContext]] = Field(
         None, description="Source code contexts around the references."
     )
-    raw_response: Optional[dict] = Field(
+    raw_response: Optional[Union[dict, list]] = Field(
         None,
         description=(
             "The raw response from the language server.\n\n"
@@ -225,4 +235,6 @@ class ErrorResponse(BaseModel):
 class ReadSourceCodeResponse(BaseModel):
     """Response containing source code for a file range."""
 
-    source_code: str = Field(..., description="The source code for the specified range.")
+    source_code: str = Field(
+        ..., description="The source code for the specified range."
+    )
