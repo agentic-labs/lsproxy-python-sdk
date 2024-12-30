@@ -294,7 +294,8 @@ def test_check_health(client, mock_request):
     assert args[1] == "/health"
     headers = kwargs["headers"]
     assert headers["content-type"].lower() == "application/json"
-    assert headers["authorization"] == "***"
+    assert "authorization" in headers
+    assert headers["authorization"].lower() == "bearer test_token"
 
 
 def test_error_responses(client, mock_request):
@@ -327,7 +328,8 @@ def test_authentication_headers(client, mock_request):
     
     mock_request.assert_called_once()
     headers = mock_request.call_args.kwargs["headers"]
-    assert headers["authorization"] == "***"
+    assert "authorization" in headers
+    assert headers["authorization"].lower() == "bearer test_token"
 
 
 def test_missing_token():
