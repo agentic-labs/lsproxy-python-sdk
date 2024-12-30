@@ -16,6 +16,16 @@ def base64url_encode(data):
 
 
 def create_jwt(payload, secret):
+    # Validate inputs
+    if not isinstance(payload, dict):
+        raise TypeError("Payload must be a dictionary")
+    if not payload:
+        raise ValueError("Payload cannot be empty")
+    if not isinstance(secret, str):
+        raise TypeError("Secret must be a string")
+    if not secret:
+        raise ValueError("Secret cannot be empty")
+
     # Create JWT header
     header = {"typ": "JWT", "alg": "HS256"}
 
