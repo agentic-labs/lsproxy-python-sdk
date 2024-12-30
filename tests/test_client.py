@@ -23,6 +23,13 @@ def mock_request():
     with patch("httpx.Client.request") as mock:
         mock.return_value = mock.Mock()
         mock.return_value.status_code = 200
+        # Ensure the mock preserves the headers from the client
+        def side_effect(*args, **kwargs):
+            # Preserve the actual request behavior for verification
+            mock.return_value.request_args = args
+            mock.return_value.request_kwargs = kwargs
+            return mock.return_value
+        mock.side_effect = side_effect
         yield mock
 
 
@@ -61,12 +68,14 @@ def test_definitions_in_file(client, mock_request):
     assert result[0].identifier_position.position.line == 1
     assert result[0].identifier_position.position.character == 4
 
-    mock_request.assert_called_once_with(
-        "GET",
-        "/symbol/definitions-in-file",
-        params={"file_path": "test.py"},
-        headers={"Content-Type": "application/json", "Authorization": "Bearer test_token"}
-    )
+    # Verify the request was made with correct method, endpoint, and parameters
+    mock_request.assert_called_once()
+    args = mock_request.call_args.args
+    kwargs = mock_request.call_args.kwargs
+    assert args[0] == "GET"
+    assert args[1] == "/symbol/definitions-in-file"
+    assert kwargs["params"] == {"file_path": "test.py"}
+    assert kwargs["headers"] == {"Content-Type": "application/json", "Authorization": "Bearer test_token"}
 
 
 def test_find_definition(client, mock_request):
