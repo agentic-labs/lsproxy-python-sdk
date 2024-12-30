@@ -1,7 +1,7 @@
 """Unit tests for the lsproxy client."""
 import json
 import pytest
-from unittest.mock import ANY, patch
+from unittest.mock import patch
 
 from lsproxy.client import Lsproxy
 from lsproxy.models import (
@@ -83,7 +83,9 @@ def test_definitions_in_file(client, mock_request):
     assert args[1] == "/symbol/definitions-in-file"
     assert kwargs["params"] == {"file_path": "test.py"}
     headers = kwargs["headers"]
+    assert "content-type" in headers
     assert headers["content-type"].lower() == "application/json"
+    assert "authorization" in headers
     assert headers["authorization"].lower() == "bearer test_token"
 
 
