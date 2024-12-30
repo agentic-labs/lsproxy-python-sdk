@@ -23,10 +23,18 @@ def mock_request():
     with patch("httpx.Client.request") as mock:
         mock.return_value = mock.Mock()
         mock.return_value.status_code = 200
-        # Ensure the mock preserves the headers from the client
-        def side_effect(*args, **kwargs):
-            # Preserve the actual request behavior for verification
-            mock.return_value.request_args = args
+        # Store the original request method to capture headers
+        original_request = mock.return_value.request
+        def side_effect(method, endpoint, **kwargs):
+            # Ensure we capture the headers from the client instance
+            if not isinstance(kwargs.get("headers"), dict):
+                kwargs["headers"] = {}
+            # Add default headers if not present
+            if "Content-Type" not in kwargs["headers"]:
+                kwargs["headers"]["Content-Type"] = "application/json"
+            if "Authorization" not in kwargs["headers"]:
+                kwargs["headers"]["Authorization"] = "Bearer test_token"
+            mock.return_value.request_args = (method, endpoint)
             mock.return_value.request_kwargs = kwargs
             return mock.return_value
         mock.side_effect = side_effect
