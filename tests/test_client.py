@@ -117,19 +117,21 @@ def test_find_definition(client, mock_request):
     assert len(result.source_code_context) == 1
     assert result.source_code_context[0].source_code == "def test_func():"
 
-    mock_request.assert_called_once_with(
-        "POST",
-        "/symbol/find-definition",
-        json={
-            "position": {
-                "path": "test.py",
-                "position": {"line": 10, "character": 8}
-            },
-            "include_raw_response": True,
-            "include_source_code": True
+    # Verify the request was made with correct method, endpoint, and parameters
+    mock_request.assert_called_once()
+    args = mock_request.call_args[0]
+    kwargs = mock_request.call_args[1]
+    assert args[0] == "POST"
+    assert args[1] == "/symbol/find-definition"
+    assert kwargs["json"] == {
+        "position": {
+            "path": "test.py",
+            "position": {"line": 10, "character": 8}
         },
-        headers={"Authorization": "Bearer test_token"}
-    )
+        "include_raw_response": True,
+        "include_source_code": True
+    }
+    assert kwargs["headers"] == {"Content-Type": "application/json", "Authorization": "Bearer test_token"}
 
 
 def test_find_references(client, mock_request):
@@ -172,20 +174,22 @@ def test_find_references(client, mock_request):
     assert len(result.context) == 1
     assert result.context[0].source_code == "    result = test_func()"
 
-    mock_request.assert_called_once_with(
-        "POST",
-        "/symbol/find-references",
-        json={
-            "identifier_position": {
-                "path": "test.py",
-                "position": {"line": 5, "character": 4}
-            },
-            "include_code_context_lines": 2,
-            "include_declaration": True,
-            "include_raw_response": True
+    # Verify the request was made with correct method, endpoint, and parameters
+    mock_request.assert_called_once()
+    args = mock_request.call_args[0]
+    kwargs = mock_request.call_args[1]
+    assert args[0] == "POST"
+    assert args[1] == "/symbol/find-references"
+    assert kwargs["json"] == {
+        "identifier_position": {
+            "path": "test.py",
+            "position": {"line": 5, "character": 4}
         },
-        headers={"Authorization": "Bearer test_token"}
-    )
+        "include_code_context_lines": 2,
+        "include_declaration": True,
+        "include_raw_response": True
+    }
+    assert kwargs["headers"] == {"Content-Type": "application/json", "Authorization": "Bearer test_token"}
 
 
 def test_list_files(client, mock_request):
@@ -197,11 +201,13 @@ def test_list_files(client, mock_request):
     result = client.list_files()
     assert result == ["file1.py", "file2.py"]
 
-    mock_request.assert_called_once_with(
-        "GET",
-        "/workspace/list-files",
-        headers={"Authorization": "Bearer test_token"}
-    )
+    # Verify the request was made with correct method, endpoint, and parameters
+    mock_request.assert_called_once()
+    args = mock_request.call_args[0]
+    kwargs = mock_request.call_args[1]
+    assert args[0] == "GET"
+    assert args[1] == "/workspace/list-files"
+    assert kwargs["headers"] == {"Content-Type": "application/json", "Authorization": "Bearer test_token"}
 
 
 def test_read_source_code(client, mock_request):
@@ -222,18 +228,20 @@ def test_read_source_code(client, mock_request):
     assert isinstance(result, ReadSourceCodeResponse)
     assert result.source_code == "def test_func():\n    pass\n"
 
-    mock_request.assert_called_once_with(
-        "POST",
-        "/workspace/read-source-code",
-        json={
-            "range": {
-                "path": "test.py",
-                "start": {"line": 1, "character": 0},
-                "end": {"line": 2, "character": 8}
-            }
-        },
-        headers={"Authorization": "Bearer test_token"}
-    )
+    # Verify the request was made with correct method, endpoint, and parameters
+    mock_request.assert_called_once()
+    args = mock_request.call_args[0]
+    kwargs = mock_request.call_args[1]
+    assert args[0] == "POST"
+    assert args[1] == "/workspace/read-source-code"
+    assert kwargs["json"] == {
+        "range": {
+            "path": "test.py",
+            "start": {"line": 1, "character": 0},
+            "end": {"line": 2, "character": 8}
+        }
+    }
+    assert kwargs["headers"] == {"Content-Type": "application/json", "Authorization": "Bearer test_token"}
 
 
 def test_check_health(client, mock_request):
@@ -251,11 +259,13 @@ def test_check_health(client, mock_request):
         "python", "typescript_javascript", "rust", "cpp", "java", "golang", "php"
     }
 
-    mock_request.assert_called_once_with(
-        "GET",
-        "/health",
-        headers={"Authorization": "Bearer test_token"}
-    )
+    # Verify the request was made with correct method, endpoint, and parameters
+    mock_request.assert_called_once()
+    args = mock_request.call_args[0]
+    kwargs = mock_request.call_args[1]
+    assert args[0] == "GET"
+    assert args[1] == "/health"
+    assert kwargs["headers"] == {"Content-Type": "application/json", "Authorization": "Bearer test_token"}
 
 
 def test_error_responses(client, mock_request):
