@@ -3,6 +3,8 @@ on:
   push:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+*'  # Matches PEP 440 versions like 0.1.0a1
+  workflow_dispatch:
+  
 
 jobs:
   pypi-publish:

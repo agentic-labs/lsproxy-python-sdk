@@ -16,7 +16,7 @@ build
 .envrc
 codegen.log
 Brewfile.lock.json
-.*
+
 venv
 __pycache__/
 *.py[cod]
