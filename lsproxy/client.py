@@ -34,7 +34,7 @@ class Lsproxy:
     def __init__(
         self,
         base_url: str = "http://localhost:4444/v1",
-        timeout: float = 10.0,
+        timeout: float = 60.0,
         auth_token: Optional[str] = None,
     ):
         self._client.base_url = base_url
