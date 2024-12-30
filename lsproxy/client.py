@@ -111,6 +111,7 @@ class Lsproxy:
         git_token: Optional[str] = None,
         sha: Optional[str] = None,
         timeout: Optional[int] = None,
+        version: str = "latest",
     ) -> "Lsproxy":
         """
         Initialize lsproxy by starting a Modal sandbox with the server and connecting to it.
@@ -151,7 +152,7 @@ class Lsproxy:
         }
         token = create_jwt(payload, jwt_secret)
 
-        lsproxy_image = modal.Image.from_registry("agenticlabs/lsproxy:0.2.1").env(
+        lsproxy_image = modal.Image.from_registry(f"agenticlabs/lsproxy:{version}").env(
             {"JWT_SECRET": jwt_secret}
         )
 
