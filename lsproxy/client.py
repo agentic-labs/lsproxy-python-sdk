@@ -5,7 +5,7 @@ from typing import List, TYPE_CHECKING, Optional
 
 # Only import type hints for Modal if type checking
 if TYPE_CHECKING:
-    import modal
+    import modal  # noqa: F401
 
 from .models import (
     DefinitionResponse,
@@ -37,16 +37,27 @@ class Lsproxy:
         timeout: float = 10.0,
         auth_token: Optional[str] = None,
     ):
+        if auth_token == "":
+            raise ValueError("Token cannot be empty")
+        if auth_token is None:
+            raise ValueError("Token cannot be None")
+
         self._client.base_url = base_url
         self._client.timeout = timeout
         headers = {"Content-Type": "application/json"}
-        if auth_token:
-            headers["Authorization"] = f"Bearer {auth_token}"
+        headers["Authorization"] = f"Bearer {auth_token}"
         self._client.headers = headers
 
     def _request(self, method: str, endpoint: str, **kwargs) -> httpx.Response:
         """Make HTTP request with retry logic and better error handling."""
         try:
+            # Ensure headers from client are included in the request
+            if "headers" in kwargs:
+                headers = {**self._client.headers, **kwargs["headers"]}
+            else:
+                headers = self._client.headers
+            kwargs["headers"] = headers
+            
             response = self._client.request(method, endpoint, **kwargs)
             response.raise_for_status()
             return response
@@ -104,7 +115,7 @@ class Lsproxy:
                 f"Expected FileRange, got {type(request).__name__}. Please use FileRange model to construct the request."
             )
         response = self._request(
-            "POST", "/workspace/read-source-code", json=request.model_dump()
+            "POST", "/workspace/read-source-code", json={"range": request.model_dump()}
         )
         return ReadSourceCodeResponse.model_validate_json(response.text)
 
@@ -243,14 +254,17 @@ class Lsproxy:
 
         return client
 
-    def check_health(self) -> bool:
-        """Check if the server is healthy and ready."""
+    def check_health(self) -> dict:
+        """Check if the server is healthy and ready.
+        
+        Returns:
+            dict: Health check response containing status and supported languages
+        """
         try:
             response = self._request("GET", "/system/health")
-            health_data = response.json()
-            return health_data.get("status") == "ok"
+            return response.json()
         except Exception:
-            return False
+            return {"status": "error"}
 
     def close(self):
         """Close the HTTP client and cleanup Modal resources if present."""
