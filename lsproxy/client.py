@@ -139,7 +139,7 @@ class Lsproxy:
                 "Install them with: pip install 'lsproxy-sdk[modal]'"
             )
 
-        app = modal.App.lookup("my-app", create_if_missing=True)
+        app = modal.App.lookup("lsproxy-app", create_if_missing=True)
 
         # Generate a secure random secret
         jwt_secret = secrets.token_urlsafe(32)
