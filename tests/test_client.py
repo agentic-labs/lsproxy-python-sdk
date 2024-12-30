@@ -1,4 +1,5 @@
 """Unit tests for the lsproxy client."""
+import json
 import pytest
 from unittest.mock import ANY, patch
 
@@ -31,7 +32,7 @@ def client():
 
 def test_definitions_in_file(client, mock_request):
     """Test getting definitions in a file."""
-    mock_request.return_value.json.return_value = [
+    response_data = [
         {
             "kind": "function",
             "name": "test_func",
@@ -46,6 +47,8 @@ def test_definitions_in_file(client, mock_request):
             }
         }
     ]
+    mock_request.return_value.text = json.dumps(response_data)
+    mock_request.return_value.json.return_value = response_data
 
     result = client.definitions_in_file("test.py")
     assert len(result) == 1
@@ -66,7 +69,7 @@ def test_definitions_in_file(client, mock_request):
 
 def test_find_definition(client, mock_request):
     """Test finding a definition."""
-    mock_request.return_value.json.return_value = {
+    response_data = {
         "definitions": [
             {
                 "path": "test.py",
@@ -85,6 +88,8 @@ def test_find_definition(client, mock_request):
         ],
         "raw_response": {"some": "raw_data"}
     }
+    mock_request.return_value.text = json.dumps(response_data)
+    mock_request.return_value.json.return_value = response_data
 
     request = GetDefinitionRequest(
         position=FilePosition(path="test.py", position=Position(line=10, character=8)),
@@ -118,7 +123,7 @@ def test_find_definition(client, mock_request):
 
 def test_find_references(client, mock_request):
     """Test finding references."""
-    mock_request.return_value.json.return_value = {
+    response_data = {
         "references": [
             {
                 "path": "test.py",
@@ -137,6 +142,8 @@ def test_find_references(client, mock_request):
         ],
         "raw_response": {"some": "raw_data"}
     }
+    mock_request.return_value.text = json.dumps(response_data)
+    mock_request.return_value.json.return_value = response_data
 
     request = GetReferencesRequest(
         identifier_position=FilePosition(path="test.py", position=Position(line=5, character=4)),
@@ -172,7 +179,9 @@ def test_find_references(client, mock_request):
 
 def test_list_files(client, mock_request):
     """Test listing files."""
-    mock_request.return_value.json.return_value = ["file1.py", "file2.py"]
+    response_data = ["file1.py", "file2.py"]
+    mock_request.return_value.text = json.dumps(response_data)
+    mock_request.return_value.json.return_value = response_data
 
     result = client.list_files()
     assert result == ["file1.py", "file2.py"]
@@ -186,9 +195,11 @@ def test_list_files(client, mock_request):
 
 def test_read_source_code(client, mock_request):
     """Test reading source code."""
-    mock_request.return_value.json.return_value = {
+    response_data = {
         "source_code": "def test_func():\n    pass\n"
     }
+    mock_request.return_value.text = json.dumps(response_data)
+    mock_request.return_value.json.return_value = response_data
 
     file_range = FileRange(
         path="test.py",
@@ -216,10 +227,12 @@ def test_read_source_code(client, mock_request):
 
 def test_check_health(client, mock_request):
     """Test health check."""
-    mock_request.return_value.json.return_value = {
+    response_data = {
         "status": "ok",
         "languages": ["python", "typescript_javascript", "rust", "cpp", "java", "golang", "php"]
     }
+    mock_request.return_value.text = json.dumps(response_data)
+    mock_request.return_value.json.return_value = response_data
 
     result = client.check_health()
     assert result["status"] == "ok"
@@ -238,7 +251,9 @@ def test_error_responses(client, mock_request):
     """Test error responses."""
     # Test 400 Bad Request
     mock_request.return_value.status_code = 400
-    mock_request.return_value.json.return_value = {"error": "Invalid request"}
+    response_data = {"error": "Invalid request"}
+    mock_request.return_value.text = json.dumps(response_data)
+    mock_request.return_value.json.return_value = response_data
 
     with pytest.raises(ValueError) as exc_info:
         client.definitions_in_file("test.py")
@@ -246,7 +261,9 @@ def test_error_responses(client, mock_request):
 
     # Test 500 Internal Server Error
     mock_request.return_value.status_code = 500
-    mock_request.return_value.json.return_value = {"error": "Internal server error"}
+    response_data = {"error": "Internal server error"}
+    mock_request.return_value.text = json.dumps(response_data)
+    mock_request.return_value.json.return_value = response_data
 
     with pytest.raises(RuntimeError) as exc_info:
         client.definitions_in_file("test.py")
@@ -280,7 +297,9 @@ def test_missing_token():
 def test_authentication_error(client, mock_request):
     """Test authentication error response."""
     mock_request.return_value.status_code = 401
-    mock_request.return_value.json.return_value = {"error": "Invalid or expired token"}
+    response_data = {"error": "Invalid or expired token"}
+    mock_request.return_value.text = json.dumps(response_data)
+    mock_request.return_value.json.return_value = response_data
 
     with pytest.raises(ValueError) as exc_info:
         client.definitions_in_file("test.py")
