@@ -65,7 +65,7 @@ def test_definitions_in_file(client, mock_request):
         "GET",
         "/symbol/definitions-in-file",
         params={"file_path": "test.py"},
-        headers={"Authorization": "Bearer test_token"}
+        headers={"Content-Type": "application/json", "Authorization": "Bearer test_token"}
     )
 
 
