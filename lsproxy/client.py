@@ -115,7 +115,7 @@ class Lsproxy:
                 f"Expected FileRange, got {type(request).__name__}. Please use FileRange model to construct the request."
             )
         response = self._request(
-            "POST", "/workspace/read-source-code", json=request.model_dump()
+            "POST", "/workspace/read-source-code", json={"range": request.model_dump()}
         )
         return ReadSourceCodeResponse.model_validate_json(response.text)
 
