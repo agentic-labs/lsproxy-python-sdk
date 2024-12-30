@@ -143,8 +143,10 @@ def test_find_definition(client, mock_request):
         "include_source_code": True
     }
     headers = kwargs["headers"]
+    assert "content-type" in headers
     assert headers["content-type"].lower() == "application/json"
-    assert headers["authorization"] == "***"
+    assert "authorization" in headers
+    assert headers["authorization"].lower() == "bearer test_token"
 
 
 def test_find_references(client, mock_request):
@@ -203,8 +205,10 @@ def test_find_references(client, mock_request):
         "include_raw_response": True
     }
     headers = kwargs["headers"]
+    assert "content-type" in headers
     assert headers["content-type"].lower() == "application/json"
-    assert headers["authorization"] == "***"
+    assert "authorization" in headers
+    assert headers["authorization"].lower() == "bearer test_token"
 
 
 def test_list_files(client, mock_request):
@@ -223,8 +227,10 @@ def test_list_files(client, mock_request):
     assert args[0] == "GET"
     assert args[1] == "/workspace/list-files"
     headers = kwargs["headers"]
+    assert "content-type" in headers
     assert headers["content-type"].lower() == "application/json"
-    assert headers["authorization"] == "***"
+    assert "authorization" in headers
+    assert headers["authorization"].lower() == "bearer test_token"
 
 
 def test_read_source_code(client, mock_request):
@@ -259,8 +265,10 @@ def test_read_source_code(client, mock_request):
         }
     }
     headers = kwargs["headers"]
+    assert "content-type" in headers
     assert headers["content-type"].lower() == "application/json"
-    assert headers["authorization"] == "***"
+    assert "authorization" in headers
+    assert headers["authorization"].lower() == "bearer test_token"
 
 
 def test_check_health(client, mock_request):
