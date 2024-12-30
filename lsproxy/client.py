@@ -37,11 +37,15 @@ class Lsproxy:
         timeout: float = 10.0,
         auth_token: Optional[str] = None,
     ):
+        if auth_token == "":
+            raise ValueError("Token cannot be empty")
+        if auth_token is None:
+            raise ValueError("Token cannot be None")
+
         self._client.base_url = base_url
         self._client.timeout = timeout
         headers = {"Content-Type": "application/json"}
-        if auth_token:
-            headers["Authorization"] = f"Bearer {auth_token}"
+        headers["Authorization"] = f"Bearer {auth_token}"
         self._client.headers = headers
 
     def _request(self, method: str, endpoint: str, **kwargs) -> httpx.Response:

@@ -26,7 +26,7 @@ def mock_request():
 @pytest.fixture
 def client():
     """Create a test client."""
-    return Lsproxy(base_url="http://test.url", token="test_token")
+    return Lsproxy(base_url="http://test.url", auth_token="test_token")
 
 
 def test_definitions_in_file(client, mock_request):
@@ -267,13 +267,13 @@ def test_authentication_headers(client, mock_request):
 
 
 def test_missing_token():
-    """Test that missing token raises an error."""
+    """Test that missing auth token raises an error."""
     with pytest.raises(ValueError) as exc_info:
-        Lsproxy(base_url="http://test.url", token="")
+        Lsproxy(base_url="http://test.url", auth_token="")
     assert "token cannot be empty" in str(exc_info.value).lower()
 
     with pytest.raises(ValueError) as exc_info:
-        Lsproxy(base_url="http://test.url", token=None)
+        Lsproxy(base_url="http://test.url", auth_token=None)
     assert "token cannot be none" in str(exc_info.value).lower()
 
 
