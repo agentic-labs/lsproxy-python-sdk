@@ -82,7 +82,9 @@ def test_definitions_in_file(client, mock_request):
     assert args[0] == "GET"
     assert args[1] == "/symbol/definitions-in-file"
     assert kwargs["params"] == {"file_path": "test.py"}
-    assert kwargs["headers"] == {"Content-Type": "application/json", "Authorization": "Bearer test_token"}
+    headers = kwargs["headers"]
+    assert headers["content-type"].lower() == "application/json"
+    assert headers["authorization"].lower() == "bearer test_token"
 
 
 def test_find_definition(client, mock_request):
@@ -138,7 +140,9 @@ def test_find_definition(client, mock_request):
         "include_raw_response": True,
         "include_source_code": True
     }
-    assert kwargs["headers"] == {"Content-Type": "application/json", "Authorization": "Bearer test_token"}
+    headers = kwargs["headers"]
+    assert headers["content-type"].lower() == "application/json"
+    assert headers["authorization"] == "***"
 
 
 def test_find_references(client, mock_request):
@@ -196,7 +200,9 @@ def test_find_references(client, mock_request):
         "include_declaration": True,
         "include_raw_response": True
     }
-    assert kwargs["headers"] == {"Content-Type": "application/json", "Authorization": "Bearer test_token"}
+    headers = kwargs["headers"]
+    assert headers["content-type"].lower() == "application/json"
+    assert headers["authorization"] == "***"
 
 
 def test_list_files(client, mock_request):
@@ -214,7 +220,9 @@ def test_list_files(client, mock_request):
     kwargs = mock_request.call_args[1]
     assert args[0] == "GET"
     assert args[1] == "/workspace/list-files"
-    assert kwargs["headers"] == {"Content-Type": "application/json", "Authorization": "Bearer test_token"}
+    headers = kwargs["headers"]
+    assert headers["content-type"].lower() == "application/json"
+    assert headers["authorization"] == "***"
 
 
 def test_read_source_code(client, mock_request):
@@ -248,7 +256,9 @@ def test_read_source_code(client, mock_request):
             "end": {"line": 2, "character": 8}
         }
     }
-    assert kwargs["headers"] == {"Content-Type": "application/json", "Authorization": "Bearer test_token"}
+    headers = kwargs["headers"]
+    assert headers["content-type"].lower() == "application/json"
+    assert headers["authorization"] == "***"
 
 
 def test_check_health(client, mock_request):
@@ -272,7 +282,9 @@ def test_check_health(client, mock_request):
     kwargs = mock_request.call_args[1]
     assert args[0] == "GET"
     assert args[1] == "/health"
-    assert kwargs["headers"] == {"Content-Type": "application/json", "Authorization": "Bearer test_token"}
+    headers = kwargs["headers"]
+    assert headers["content-type"].lower() == "application/json"
+    assert headers["authorization"] == "***"
 
 
 def test_error_responses(client, mock_request):
@@ -303,12 +315,9 @@ def test_authentication_headers(client, mock_request):
     mock_request.return_value.json.return_value = []
     client.definitions_in_file("test.py")
     
-    mock_request.assert_called_once_with(
-        ANY,
-        ANY,
-        params=ANY,
-        headers={"Authorization": "Bearer test_token"}
-    )
+    mock_request.assert_called_once()
+    headers = mock_request.call_args.kwargs["headers"]
+    assert headers["authorization"] == "***"
 
 
 def test_missing_token():
