@@ -23,22 +23,18 @@ from .auth import create_jwt
 class Lsproxy:
     """Client for interacting with the lsproxy API."""
 
-    # Shared HTTP client with connection pooling
-    _client = httpx.Client(
-        base_url="http://localhost:4444/v1",
-        timeout=10,
-        headers={"Content-Type": "application/json"},
-        limits=httpx.Limits(max_keepalive_connections=20, max_connections=100),
-    )
-
     def __init__(
         self,
         base_url: str = "http://localhost:4444/v1",
         timeout: float = 60.0,
         auth_token: Optional[str] = None,
     ):
-        self._client.base_url = base_url
-        self._client.timeout = timeout
+        self._client = httpx.Client(
+            base_url=base_url,
+            timeout=timeout,
+            headers={"Content-Type": "application/json"},
+            limits=httpx.Limits(max_keepalive_connections=20, max_connections=100),
+        )
         headers = {"Content-Type": "application/json"}
         if auth_token:
             headers["Authorization"] = f"Bearer {auth_token}"
