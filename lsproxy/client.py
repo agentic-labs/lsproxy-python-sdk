@@ -254,14 +254,17 @@ class Lsproxy:
 
         return client
 
-    def check_health(self) -> bool:
-        """Check if the server is healthy and ready."""
+    def check_health(self) -> dict:
+        """Check if the server is healthy and ready.
+        
+        Returns:
+            dict: Health check response containing status and supported languages
+        """
         try:
             response = self._request("GET", "/system/health")
-            health_data = response.json()
-            return health_data.get("status") == "ok"
+            return response.json()
         except Exception:
-            return False
+            return {"status": "error"}
 
     def close(self):
         """Close the HTTP client and cleanup Modal resources if present."""
