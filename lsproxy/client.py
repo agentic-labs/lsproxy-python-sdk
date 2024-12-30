@@ -51,6 +51,13 @@ class Lsproxy:
     def _request(self, method: str, endpoint: str, **kwargs) -> httpx.Response:
         """Make HTTP request with retry logic and better error handling."""
         try:
+            # Ensure headers from client are included in the request
+            if "headers" in kwargs:
+                headers = {**self._client.headers, **kwargs["headers"]}
+            else:
+                headers = self._client.headers
+            kwargs["headers"] = headers
+            
             response = self._client.request(method, endpoint, **kwargs)
             response.raise_for_status()
             return response
