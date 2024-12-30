@@ -21,6 +21,8 @@ from lsproxy.models import (
 def mock_request():
     """Mock the httpx request."""
     with patch("httpx.Client.request") as mock:
+        mock.return_value = mock.Mock()
+        mock.return_value.status_code = 200
         yield mock
 
 
