@@ -91,11 +91,11 @@ class Lsproxy:
 
     def find_identifier(self, request: FindIdentifierRequest) -> IdentifierResponse:
         """Find all occurrences of an identifier by name in a file.
-        
+
         Args:
             request: The request containing the identifier name, file path, and optional position.
                     If position is provided, returns exact match or closest matches.
-                    
+
         Returns:
             Response containing the found identifiers.
         """
