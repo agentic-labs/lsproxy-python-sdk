@@ -15,6 +15,8 @@ from .models import (
     GetDefinitionRequest,
     GetReferencesRequest,
     Symbol,
+    FindIdentifierRequest,
+    IdentifierResponse,
 )
 
 from .auth import create_jwt
@@ -86,6 +88,25 @@ class Lsproxy:
         )
         references = ReferencesResponse.model_validate_json(response.text)
         return references
+
+    def find_identifier(self, request: FindIdentifierRequest) -> IdentifierResponse:
+        """Find all occurrences of an identifier by name in a file.
+        
+        Args:
+            request: The request containing the identifier name, file path, and optional position.
+                    If position is provided, returns exact match or closest matches.
+                    
+        Returns:
+            Response containing the found identifiers.
+        """
+        if not isinstance(request, FindIdentifierRequest):
+            raise TypeError(
+                f"Expected FindIdentifierRequest, got {type(request).__name__}. Please use FindIdentifierRequest model to construct the request."
+            )
+        response = self._request(
+            "POST", "/symbol/find-identifier", json=request.model_dump()
+        )
+        return IdentifierResponse.model_validate_json(response.text)
 
     def list_files(self) -> List[str]:
         """Get a list of all files in the workspace."""
