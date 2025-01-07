@@ -260,6 +260,39 @@ class GetReferencesRequest(BaseModel):
     )
 
 
+class ReferenceWithSymbolDefinition(BaseModel):
+    """Reference with its associated symbol definitions."""
+    
+    reference: Identifier = Field(..., description="The reference to the symbol")
+    symbols: List[Symbol] = Field(..., description="The symbol definitions found")
+
+
+class ReferencedSymbolsResponse(BaseModel):
+    """Response containing categorized referenced symbols."""
+    
+    workspace_symbols: List[ReferenceWithSymbolDefinition] = Field(
+        ..., 
+        description="Symbols found in the workspace with their definitions"
+    )
+    external_symbols: List[Identifier] = Field(
+        ..., 
+        description="Symbols that only have definitions outside the workspace"
+    )
+    not_found: List[Identifier] = Field(
+        ...,
+        description="Symbols where no definitions could be found"
+    )
+
+
+class GetReferencedSymbolsRequest(BaseModel):
+    """Request to get symbols referenced from a specific position."""
+    
+    identifier_position: FilePosition = Field(
+        ...,
+        description="The position of the identifier whose referenced symbols should be found"
+    )
+
+
 class ErrorResponse(BaseModel):
     """Response representing an error."""
 
