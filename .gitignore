@@ -39,4 +39,3 @@ wheels/
 .installed.cfg
 *.egg
 trieve
-.aider*
