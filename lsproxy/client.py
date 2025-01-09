@@ -132,7 +132,7 @@ class Lsproxy:
         git_token: Optional[str] = None,
         sha: Optional[str] = None,
         timeout: Optional[int] = None,
-        version: str = "latest",
+        version: str = "0.3",
     ) -> "Lsproxy":
         """
         Initialize lsproxy by starting a Modal sandbox with the server and connecting to it.
