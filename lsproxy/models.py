@@ -151,11 +151,42 @@ class Symbol(BaseModel):
         return hash((self.kind, self.name, self.identifier_position, self.range))
 
 
+class Identifier(BaseModel):
+    """Representation of an identifier in code."""
+
+    name: str = Field(..., description="The name of the identifier.")
+    range: FileRange = Field(
+        ..., description="The range of the identifier in the file."
+    )
+
+
+class FindIdentifierRequest(BaseModel):
+    """Request to find all occurrences of an identifier by name in a file."""
+
+    name: str = Field(..., description="The name of the identifier to search for.")
+    path: str = Field(
+        ..., description="The path to the file to search for identifiers."
+    )
+    position: Optional[Position] = Field(
+        None,
+        description="The position hint to search for identifiers. If provided, returns exact match or closest matches.",
+    )
+
+
+class IdentifierResponse(BaseModel):
+    """Response containing found identifiers."""
+
+    identifiers: List[Identifier] = Field(..., description="List of found identifiers.")
+
+
 class DefinitionResponse(BaseModel):
     """Response containing definition locations of a symbol."""
 
     definitions: List[FilePosition] = Field(
         ..., description="List of definition locations for the symbol."
+    )
+    selected_identifier: Optional[Identifier] = Field(
+        None, description='The identifier that was "clicked-on" to get the definition.'
     )
     raw_response: Optional[Union[dict, list]] = Field(
         None,
@@ -191,6 +222,9 @@ class ReferencesResponse(BaseModel):
 
     references: List[FilePosition] = Field(
         ..., description="List of reference locations for the symbol."
+    )
+    selected_identifier: Optional[Identifier] = Field(
+        None, description='The identifier that was "clicked-on" to get the references.'
     )
     context: Optional[List[CodeContext]] = Field(
         None, description="Source code contexts around the references."
