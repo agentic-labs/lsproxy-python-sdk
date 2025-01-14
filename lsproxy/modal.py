@@ -92,7 +92,8 @@ class ModalSandbox:
             )
             if sha:
                 lsproxy_image = lsproxy_image.run_commands([
-                        f"cd /mnt/workspace && git fetch origin {sha} && git checkout {sha}"
+                        f"cd /mnt/workspace && git fetch origin {sha}",
+                        f"cd /mnt/workspace && git checkout {sha}"
                     ]
                 )
         else:
@@ -115,8 +116,9 @@ class ModalSandbox:
 
         print("Starting sandbox...")
 
-        self.sandbox = modal.Sandbox.create(**sandbox_config)
-        self.tunnel_url = self.sandbox.tunnels()[4444].url
+        with modal.enable_output():
+            self.sandbox = modal.Sandbox.create(**sandbox_config)
+            self.tunnel_url = self.sandbox.tunnels()[4444].url
 
         # Start lsproxy
         p = self.sandbox.exec(f"lsproxy")
