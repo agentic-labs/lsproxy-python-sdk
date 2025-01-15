@@ -81,20 +81,25 @@ class ModalSandbox:
             )
             url_parts = repo_url.split("://")
             lsproxy_image = modal.Image.from_registry(f"agenticlabs/lsproxy:{version}")
-            lsproxy_image = lsproxy_image.run_commands(
-                [
-                    "git config --global --add safe.directory /mnt/workspace",
-                    f"git clone --depth 1 {url_parts[0]}://x-access-token:$GITHUB_IAT@{url_parts[1]} /mnt/workspace"
-                ],
-                secrets=[
-                    gh_secret
-                ],  # sneaky, cache the layers (for the same sha) even as the token changes!
-            )
             if sha:
-                lsproxy_image = lsproxy_image.run_commands([
-                        f"cd /mnt/workspace && git fetch origin {sha}",
-                        f"cd /mnt/workspace && git checkout {sha}"
-                    ]
+                lsproxy_image = lsproxy_image.run_commands(
+                    [
+                        "git config --global --add safe.directory /mnt/workspace",
+                        f"git clone --depth 1 {url_parts[0]}://x-access-token:$GITHUB_IAT@{url_parts[1]} /mnt/workspace && cd /mnt/workspace && git fetch origin {sha} && git checkout {sha}",
+                    ],
+                    secrets=[
+                        gh_secret
+                    ],  # sneaky, cache the layers (for the same sha) even as the token changes!
+                )
+            else:
+                lsproxy_image = lsproxy_image.run_commands(
+                    [
+                        "git config --global --add safe.directory /mnt/workspace",
+                        f"git clone --depth 1 {url_parts[0]}://x-access-token:$GITHUB_IAT@{url_parts[1]} /mnt/workspace"
+                    ],
+                    secrets=[
+                        gh_secret
+                    ],  # sneaky, cache the layers (for the same sha) even as the token changes!
                 )
         else:
             lsproxy_image = modal.Image.from_registry(f"agenticlabs/lsproxy:{version}").run_commands(
@@ -116,9 +121,8 @@ class ModalSandbox:
 
         print("Starting sandbox...")
 
-        with modal.enable_output():
-            self.sandbox = modal.Sandbox.create(**sandbox_config)
-            self.tunnel_url = self.sandbox.tunnels()[4444].url
+        self.sandbox = modal.Sandbox.create(**sandbox_config)
+        self.tunnel_url = self.sandbox.tunnels()[4444].url
 
         # Start lsproxy
         p = self.sandbox.exec(f"lsproxy")
