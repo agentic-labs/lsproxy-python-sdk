@@ -16,7 +16,7 @@ from .models import (
     IdentifierResponse,
     GetReferencedSymbolsRequest,
     ReferencedSymbolsResponse,
-    ReferenceWithSymbolDefinition,
+    ReferenceWithSymbolDefinitions,
 )
 
 class Lsproxy:
