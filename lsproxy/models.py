@@ -158,6 +158,9 @@ class Identifier(BaseModel):
     range: FileRange = Field(
         ..., description="The range of the identifier in the file."
     )
+    kind: Optional[str] = Field(
+        ..., description="The kind of identifier (e.g., function call or decorator. We have this info when finding referenced symbols"
+    )
 
 
 class FindIdentifierRequest(BaseModel):
@@ -257,6 +260,39 @@ class GetReferencesRequest(BaseModel):
     include_raw_response: Optional[bool] = Field(
         False,
         description="Whether to include the raw response from the language server.",
+    )
+
+
+class ReferenceWithSymbolDefinitions(BaseModel):
+    """Reference with its associated symbol definitions."""
+    
+    reference: Identifier = Field(..., description="The reference to the symbol")
+    definitions: List[Symbol] = Field(..., description="The symbol definitions found")
+
+
+class ReferencedSymbolsResponse(BaseModel):
+    """Response containing categorized referenced symbols."""
+    
+    workspace_symbols: List[ReferenceWithSymbolDefinitions] = Field(
+        ..., 
+        description="Symbols found in the workspace with their definitions"
+    )
+    external_symbols: List[Identifier] = Field(
+        ..., 
+        description="Symbols that only have definitions outside the workspace"
+    )
+    not_found: List[Identifier] = Field(
+        ...,
+        description="Symbols where no definitions could be found"
+    )
+
+
+class GetReferencedSymbolsRequest(BaseModel):
+    """Request to get symbols referenced from a specific position."""
+    
+    identifier_position: FilePosition = Field(
+        ...,
+        description="The position of the identifier whose referenced symbols should be found"
     )
 
 

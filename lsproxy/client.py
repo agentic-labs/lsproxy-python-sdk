@@ -14,6 +14,9 @@ from .models import (
     Symbol,
     FindIdentifierRequest,
     IdentifierResponse,
+    GetReferencedSymbolsRequest,
+    ReferencedSymbolsResponse,
+    ReferenceWithSymbolDefinitions,
 )
 
 class Lsproxy:
@@ -183,6 +186,39 @@ class Lsproxy:
             return health_data.get("status") == "ok"
         except Exception:
             return False
+
+    def find_referenced_symbols(
+        self, request: GetReferencedSymbolsRequest
+    ) -> ReferencedSymbolsResponse:
+        """Find all symbols that are referenced from the symbol at the given position.
+        
+        Args:
+            request: The request containing the position to analyze for referenced symbols.
+            
+        Returns:
+            Response containing the referenced symbols categorized as:
+            - workspace_symbols: Symbols found in the workspace with their definitions
+            - external_symbols: Symbols that only have definitions outside the workspace  
+            - not_found: Symbols where no definitions could be found
+            
+        Raises:
+            TypeError: If the request is not a GetReferencedSymbolsRequest
+            ValueError: If the server returns a 400 error
+            httpx.HTTPError: For other HTTP errors
+        """
+        if not isinstance(request, GetReferencedSymbolsRequest):
+            raise TypeError(
+                f"Expected GetReferencedSymbolsRequest, got {type(request).__name__}. "
+                "Please use GetReferencedSymbolsRequest model to construct the request."
+            )
+        
+        response = self._request(
+            "POST", 
+            "/symbol/find-referenced-symbols", 
+            json=request.model_dump()
+        )
+        
+        return ReferencedSymbolsResponse.model_validate_json(response.text)
 
     def close(self):
         """Close the HTTP client and cleanup Modal resources if present."""
