@@ -26,10 +26,26 @@ docker run --rm -d -p 4444:4444 -v "/path/to/your/code:/mnt/workspace" --name ls
 ```
 
 2. Use the SDK:
+
+### Synchronous Usage
 ```python
 from lsproxy import Lsproxy
 
 lsp = Lsproxy()
+```
+
+### Async Usage
+```python
+from lsproxy import AsyncLsproxy
+import asyncio
+
+async def main():
+    async with AsyncLsproxy() as lsp:
+        # Use async methods
+        files = await lsp.list_files()
+        
+# Run the async code
+asyncio.run(main())
 ```
 
 ## List all files in the workspace
