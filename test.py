@@ -3,7 +3,10 @@ from lsproxy.models import GetReferencesRequest, GetReferencedSymbolsRequest
 from tqdm import tqdm
 import random
 import time
-def main():
+import argparse
+def main(seed=None):
+    if seed is not None:
+        random.seed(seed)
     lsproxy = Lsproxy(timeout=600)
     files = lsproxy.list_files()
     files = [f for f in files if f.endswith(".py")]
@@ -23,4 +26,7 @@ def main():
     end = time.time()
     print(f"Time taken: {end - start}")
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", type=int, help="Random seed for shuffling files")
+    args = parser.parse_args()
+    main(args.seed)
