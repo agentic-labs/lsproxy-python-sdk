@@ -22,7 +22,7 @@ pip install lsproxy-sdk
 
 You can use lsproxy either by running a local server or using Modal cloud infrastructure.
 
-### Using Modal (Recommended)
+### Using Modal
 
 First, install the Modal dependencies:
 ```bash
