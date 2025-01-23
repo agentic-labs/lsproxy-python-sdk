@@ -20,16 +20,68 @@ pip install lsproxy-sdk
 
 ## Usage
 
+You can use lsproxy either by running a local server or using Modal cloud infrastructure.
+
+### Using Modal
+
+First, install the Modal dependencies:
+```bash
+pip install 'lsproxy-sdk[modal]'
+```
+
+Then use the SDK:
+
+```python
+from lsproxy import Lsproxy
+
+# Synchronous usage
+lsp = Lsproxy.initialize_with_modal(
+    repo_url="https://github.com/username/repo",
+    git_token="your-github-token",  # Optional, for private repos
+)
+
+# Async usage
+from lsproxy import AsyncLsproxy
+import asyncio
+
+async def main():
+    lsp = await AsyncLsproxy.initialize_with_modal(
+        repo_url="https://github.com/username/repo"
+    )
+    try:
+        files = await lsp.list_files()
+    finally:
+        await lsp.close()
+
+asyncio.run(main())
+```
+
+### Using Local Server
+
 1. Start the LSProxy container:
 ```bash
 docker run --rm -d -p 4444:4444 -v "/path/to/your/code:/mnt/workspace" --name lsproxy agenticlabs/lsproxy:0.1.0a1
 ```
 
 2. Use the SDK:
+
 ```python
+# Synchronous usage
 from lsproxy import Lsproxy
 
 lsp = Lsproxy()
+
+# Async usage
+from lsproxy import AsyncLsproxy
+import asyncio
+
+async def main():
+    async with AsyncLsproxy() as lsp:
+        # Use async methods
+        files = await lsp.list_files()
+        
+# Run the async code
+asyncio.run(main())
 ```
 
 ## List all files in the workspace
