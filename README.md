@@ -60,7 +60,7 @@ asyncio.run(main())
 
 1. Start the LSProxy container:
 ```bash
-docker run --rm -d -p 4444:4444 -v "/path/to/your/code:/mnt/workspace" --name lsproxy agenticlabs/lsproxy:0.1.0a1
+docker run --rm -d -p 4444:4444 -v "/path/to/your/code:/mnt/workspace" -e USE_AUTH=false --name lsproxy agenticlabs/lsproxy:0.3.5
 ```
 
 2. Use the SDK:
