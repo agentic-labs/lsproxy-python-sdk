@@ -102,11 +102,17 @@ class ModalSandbox:
                     ],  # sneaky, cache the layers (for the same sha) even as the token changes!
                 )
         else:
-            lsproxy_image = modal.Image.from_registry(f"agenticlabs/lsproxy:{version}").run_commands(
-                [
+            lsproxy_image = modal.Image.from_registry(f"agenticlabs/lsproxy:{version}")
+            if sha:
+                lsproxy_image = lsproxy_image.run_commands([
+                    "git config --global --add safe.directory /mnt/workspace", 
+                    f"git clone --depth 1 {repo_url} /mnt/workspace && cd /mnt/workspace && git fetch origin {sha} && git checkout {sha}"
+                ])
+            else:
+                lsproxy_image = lsproxy_image.run_commands([
+                    "git config --global --add safe.directory /mnt/workspace", 
                     f"git clone --depth 1 {repo_url} /mnt/workspace"
-                ]
-            )
+                ])
 
         jwt_secret = modal.Secret.from_dict({"JWT_SECRET": jwt_secret})
         sandbox_config = {
