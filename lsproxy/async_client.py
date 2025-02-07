@@ -120,7 +120,7 @@ class AsyncLsproxy:
         git_token: Optional[str] = None,
         sha: Optional[str] = None,
         timeout: Optional[int] = None,
-        version: str = "0.3.3",
+        version: str = "0.3.5",
     ) -> "AsyncLsproxy":
         """Initialize lsproxy by starting a Modal sandbox with the server and connecting to it."""
         try:
