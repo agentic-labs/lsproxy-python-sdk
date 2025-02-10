@@ -71,33 +71,40 @@ class FilePosition(BaseModel):
         return hash((self.path, self.position.line, self.position.character))
 
 
+class Range(BaseModel):
+    start: Position = Field(..., description="Start position of the range.")
+    end: Position = Field(..., description="End position of the range.")
+
+    def __hash__(self) -> int:
+        return hash((self.start.line, self.start.character, self.end.line, self.end.character))
+
+
 class FileRange(BaseModel):
     """Range within a file, defined by start and end positions."""
 
     path: str = Field(..., description="The path to the file.", example="src/main.py")
-    start: Position = Field(..., description="Start position of the range.")
-    end: Position = Field(..., description="End position of the range.")
+    range: Range = Field(..., description="The range within the file.")
 
     def contains(self, file_position: FilePosition) -> bool:
         """Check if a position is within the range."""
         return (
             self.path == file_position.path
-            and self.start <= file_position.position
-            and file_position.position <= self.end
+            and self.range.start <= file_position.position
+            and file_position.position <= self.range.end
         )
 
     def __lt__(self, other: "FileRange") -> bool:
         """Compare ranges by path first, then start position."""
         if self.path != other.path:
             return self.path < other.path
-        return self.start < other.start
+        return self.range.start < other.range.start
 
     def __eq__(self, other: "FileRange") -> bool:
         """Check if two ranges are equal."""
         return (
             self.path == other.path
-            and self.start == other.start
-            and self.end == other.end
+            and self.range.start == other.range.start
+            and self.range.end == other.range.end
         )
 
     def __le__(self, other: "FileRange") -> bool:
@@ -116,10 +123,10 @@ class FileRange(BaseModel):
         return hash(
             (
                 self.path,
-                self.start.line,
-                self.start.character,
-                self.end.line,
-                self.end.character,
+                self.range.start.line,
+                self.range.start.character,
+                self.range.end.line,
+                self.range.end.character,
             )
         )
 
@@ -145,17 +152,17 @@ class Symbol(BaseModel):
     identifier_position: FilePosition = Field(
         ..., description="The start position of the symbol's identifier."
     )
-    range: FileRange = Field(..., description="The full range of the symbol.")
+    file_range: FileRange = Field(..., description="The full range of the symbol.")
 
     def __hash__(self) -> int:
-        return hash((self.kind, self.name, self.identifier_position, self.range))
+        return hash((self.kind, self.name, self.identifier_position, self.file_range))
 
 
 class Identifier(BaseModel):
     """Representation of an identifier in code."""
 
     name: str = Field(..., description="The name of the identifier.")
-    range: FileRange = Field(
+    file_range: FileRange = Field(
         ..., description="The range of the identifier in the file."
     )
     kind: Optional[str] = Field(
@@ -253,10 +260,6 @@ class GetReferencesRequest(BaseModel):
         description="Number of source code lines to include around each reference.",
         ge=0,
     )
-    include_declaration: Optional[bool] = Field(
-        False,
-        description="Whether to include the declaration of the symbol in the references.",
-    )
     include_raw_response: Optional[bool] = Field(
         False,
         description="Whether to include the raw response from the language server.",
@@ -308,3 +311,9 @@ class ReadSourceCodeResponse(BaseModel):
     source_code: str = Field(
         ..., description="The source code for the specified range."
     )
+
+
+class ReadSourceCodeRequest(BaseModel):
+    """Request to read source code from a file with an optional range."""
+    path: str = Field(..., description="Path to the file, relative to the workspace root")
+    range: Optional[Range] = Field(None, description="Optional range within the file to read")

@@ -40,3 +40,5 @@ wheels/
 *.egg
 trieve
 .aider*
+
+.DS_Store
