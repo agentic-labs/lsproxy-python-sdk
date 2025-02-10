@@ -1,5 +1,4 @@
 import time
-import json
 import hashlib
 import subprocess
 
@@ -131,7 +130,7 @@ class ModalSandbox:
         self.tunnel_url = self.sandbox.tunnels()[4444].url
 
         # Start lsproxy
-        p = self.sandbox.exec(f"lsproxy")
+        self.sandbox.exec("lsproxy")
     
     def terminate(self):
         self.sandbox.terminate()

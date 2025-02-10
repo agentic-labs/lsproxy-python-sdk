@@ -6,8 +6,8 @@ from typing import List, Optional
 
 from .models import (
     DefinitionResponse,
-    FileRange,
     ReadSourceCodeResponse,
+    ReadSourceCodeRequest,
     ReferencesResponse,
     GetDefinitionRequest,
     GetReferencesRequest,
@@ -111,11 +111,18 @@ class Lsproxy:
         files = response.json()
         return files
 
-    def read_source_code(self, request: FileRange) -> ReadSourceCodeResponse:
-        """Read source code from a specified file range."""
-        if not isinstance(request, FileRange):
+    def read_source_code(self, request: ReadSourceCodeRequest) -> ReadSourceCodeResponse:
+        """Read source code from a specified file range.
+        
+        Args:
+            request: The request containing the file path and an optional range.
+        
+        Returns:
+            ReadSourceCodeResponse containing the source code.
+        """
+        if not isinstance(request, ReadSourceCodeRequest):
             raise TypeError(
-                f"Expected FileRange, got {type(request).__name__}. Please use FileRange model to construct the request."
+                f"Expected ReadSourceCodeRequest, got {type(request).__name__}. Please use ReadSourceCodeRequest to construct the request."
             )
         response = self._request(
             "POST", "/workspace/read-source-code", json=request.model_dump()
@@ -129,7 +136,7 @@ class Lsproxy:
         git_token: Optional[str] = None,
         sha: Optional[str] = None,
         timeout: Optional[int] = None,
-        version: str = "0.3.5",
+        version: str = "0.4.0",
     ) -> "Lsproxy":
         """
         Initialize lsproxy by starting a Modal sandbox with the server and connecting to it.
@@ -140,6 +147,7 @@ class Lsproxy:
             git_token: Optional Git personal access token for private repositories
             sha: Optional commit to checkout in the repo
             timeout: Sandbox timeout in seconds (defaults to Modal's 5-minute timeout if None)
+            version: lsproxy version to use (defaults to "0.4.0")
 
         Returns:
             Configured Lsproxy client instance
