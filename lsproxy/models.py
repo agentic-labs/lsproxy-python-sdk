@@ -292,6 +292,11 @@ class ReferencedSymbolsResponse(BaseModel):
 
 class GetReferencedSymbolsRequest(BaseModel):
     """Request to get symbols referenced from a specific position."""
+
+    full_scan: Optional[bool] = Field(
+        False,
+        description="Whether to use more permissive rules for scanning for references",
+    )
     
     identifier_position: FilePosition = Field(
         ...,
